@@ -10,38 +10,28 @@
 mod_predictions_table_ui <- function(id){
   ns <- NS(id)
   tagList(
-    shinydashboard::dashboardPage(
-      shinydashboard::dashboardHeader(title = "Patient feedback and its predicted label"),
-      shinydashboard::dashboardSidebar(
-        shinydashboard::sidebarMenu(
-          shinydashboard::menuItem(ns("Dashboard"), tabName = "dashboard", icon = shiny::icon("dashboard")),
-          shinydashboard::menuItem(ns("Widgets"), tabName = "widgets", icon = shiny::icon("th"))
-        )
-      ),
-      shinydashboard::dashboardBody(
-        # Boxes need to be put in a row (or column)
-        shiny::fluidRow(
-          shiny::column(7, 
-                 shinydashboard::box(width = NULL,
-                     shiny::textOutput(ns("modelAccuracyBox")), background = 'red'
-                 )
-          )
-        ),
-        
-        shiny::fluidRow(
-          shiny::column(width = 7,
-                 shinydashboard::box(width = NULL,
-                     shiny::selectInput(ns("pred"), "Choose a label:", 
-                                 choices=sort(unique(test_data$pred))),
-                     reactable::reactableOutput(ns("pedictedLabels")))),
-          
-          shiny::column(width = 5,
-                 shinydashboard::box(shiny::plotOutput(ns("tfidf_bars")), width = NULL),
-                 shinydashboard::box(shiny::htmlOutput(ns("tfidfExplanation")), background = 'red', width = NULL)
-          )
+    # Boxes need to be put in a row (or column)
+    fluidRow(
+      column(7, 
+        box(width = NULL,
+          textOutput(ns("modelAccuracyBox")), background = 'red'
         )
       )
-    )
+    ),
+    
+    fluidRow(
+      column(width = 7,
+        box(width = NULL,
+          selectInput(ns("pred"), "Choose a label:", 
+          choices=sort(unique(test_data$pred))),
+        reactable::reactableOutput(ns("pedictedLabels")))
+      ),
+      
+     column(width = 5,
+       box(shiny::plotOutput(ns("tfidf_bars")), width = NULL),
+       box(shiny::htmlOutput(ns("tfidfExplanation")), background = 'red', width = NULL)
+     )
+   )
   )
 }
     
@@ -73,7 +63,7 @@ mod_predictions_table_server <- function(id){
       )
     })
     
-    output$modelAccuracyBox <- shiny::renderText({
+    output$modelAccuracyBox <-renderText({
       accuracy_score <- accuracy_per_class %>%
         dplyr::filter(class == input$pred) %>%
         dplyr::select(accuracy) %>%
@@ -85,7 +75,7 @@ mod_predictions_table_server <- function(id){
              "  are predicted correctly.")
     })
     
-    output$tfidf_bars <- shiny::renderPlot({
+    output$tfidf_bars <-renderPlot({
       data_for_tfidf %>%
         tidytext::unnest_tokens(word, improve) %>%
         dplyr::count(super, word, sort = TRUE) %>%
@@ -109,8 +99,8 @@ mod_predictions_table_server <- function(id){
         )
     })
     
-    output$tfidfExplanation <- shiny::renderText({
-      shiny::HTML(paste0("*TF-IDF stands for 
+    output$tfidfExplanation <-renderText({
+     HTML(paste0("*TF-IDF stands for 
           <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
           Term Frequency–Inverse Document Frequency</a></u>.
           It is a standard way of calculating the frequency (i.e. importance) 
