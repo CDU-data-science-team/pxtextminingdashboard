@@ -1,0 +1,13 @@
+Package: positiveAboutChangeTextClassificationDashboard
+Title: PKG_TITLE
+Version: 0.0.0.9000
+Authors@R: person('AUTHOR_FIRST', 'AUTHOR_LAST', email = 'AUTHOR@MAIL.COM', role = c('cre', 'aut'))
+Description: PKG_DESC.
+License: MIT + file LICENSE
+Imports: 
+    config (>= 0.3),
+    golem (>= 0.3.0),
+    shiny (>= 1.5.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
