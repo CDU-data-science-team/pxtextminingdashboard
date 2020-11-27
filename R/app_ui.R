@@ -10,7 +10,8 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
-      h1("positiveAboutChangeTextClassificationDashboard")
+      h1("positiveAboutChangeTextClassificationDashboard"),
+      mod_predictions_table_ui("predictions_table_ui_1")
     )
   )
 }
