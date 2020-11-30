@@ -63,12 +63,12 @@ mod_predictions_table_server <- function(id){
       )
     })
 
-    output$modelAccuracyBox <-renderText({
+    output$modelAccuracyBox <- renderText({
       accuracy_score <- accuracy_per_class %>%
         dplyr::filter(class == input$pred) %>%
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
-        dplyr::pull
+        dplyr::pull()
 
       paste0("NOTE: Model accuracy for this label is ", accuracy_score, "%.
            This means that in 100 feedback records, ", accuracy_score,
