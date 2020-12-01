@@ -21,7 +21,6 @@ usethis::use_package( "shiny" )
 usethis::use_package( "shinydashboard" )
 usethis::use_package( "reactable" )
 usethis::use_package( "tidytext" )
-usethis::use_package( "textdata" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
