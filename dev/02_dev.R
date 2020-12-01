@@ -21,10 +21,12 @@ usethis::use_package( "shiny" )
 usethis::use_package( "shinydashboard" )
 usethis::use_package( "reactable" )
 usethis::use_package( "tidytext" )
+usethis::use_package( "textdata" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "predictions_table" ) # Name of the module
+golem::add_module( name = "sentiment_analysis" )
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*
@@ -40,9 +42,6 @@ golem::add_css_file( "custom" )
 ## Add internal datasets ----
 ## If you have data in your package
 usethis::use_data_raw( name = "open_data", open = FALSE )
-#usethis::use_data_raw( name = "data_for_tfidf", open = FALSE )
-#usethis::use_data_raw( name = "test_data", open = FALSE )
-#usethis::use_data_raw( name = "accuracy_per_class", open = FALSE )
 
 ## Tests ----
 ## Add one line by test you want to create
