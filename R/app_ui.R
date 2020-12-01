@@ -14,15 +14,22 @@ app_ui <- function(request) {
       dashboardHeader(title = "Patient feedback and its predicted label"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard"))
-          # menuItem("Widgets", tabName = "widgets", icon = icon("th"))
+          menuItem("Predictions", tabName = "tab_predictions", 
+                   icon = icon("dashboard")),
+          menuItem("Sentiment", tabName = "tab_sentiment", 
+                   icon = icon("dashboard"))
+          #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
       ),
       dashboardBody(
         tabItems(
           
-          tabItem(tabName = 'dashboard',
+          tabItem(tabName = 'tab_predictions',
                   mod_predictions_table_ui("predictions_table_ui_1")
+          ),
+          
+          tabItem(tabName = 'tab_sentiment',
+                  mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
           )
         )
       )

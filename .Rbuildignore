@@ -13,3 +13,6 @@ $run_dev.*
 ^Makefile$
 ^Jenkinsfile$
 ^\.gitlab-ci\.yml$
+^app\.R$
+^rsconnect$
+^Dockerfile$
