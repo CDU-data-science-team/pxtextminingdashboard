@@ -89,11 +89,10 @@ mod_predictions_table_server <- function(id){
     output$tfidf_bars <- renderPlot({
       data_for_tfidf %>%
         tidytext::unnest_tokens(word, improve) %>%
+        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
         dplyr::count(super, word, sort = TRUE) %>%
         tidytext::bind_tf_idf(word, super, n) %>%
-        dplyr::arrange(dplyr::desc(tf_idf)) %>%
-        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
-        #as_tibble %>%
+        #dplyr::arrange(dplyr::desc(tf_idf)) %>%
         dplyr::group_by(super) %>%
         dplyr::slice_max(tf_idf, n = 15) %>%
         dplyr::ungroup() %>%
