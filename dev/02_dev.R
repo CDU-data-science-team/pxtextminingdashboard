@@ -26,6 +26,7 @@ usethis::use_package( "tidytext" )
 ## Create a module infrastructure in R/
 golem::add_module( name = "predictions_table" ) # Name of the module
 golem::add_module( name = "sentiment_analysis" )
+golem::add_module( name = "pred_sent_viz" )
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*
