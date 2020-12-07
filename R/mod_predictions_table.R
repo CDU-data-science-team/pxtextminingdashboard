@@ -126,7 +126,7 @@ mod_predictions_table_server <- function(id){
         tidytext::unnest_tokens(word, improve) %>%
         #dplyr::distinct() %>%
         dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>%
-        dplyr::inner_join(tidytext::get_sentiments("afinn")) %>% 
+        dplyr::inner_join(tidytext::get_sentiments("afinn"), by = "word") %>% 
         dplyr::group_by(super) %>% 
         dplyr::mutate(value = sum(value) / length(unique(word))) %>%
         dplyr::ungroup() %>% 

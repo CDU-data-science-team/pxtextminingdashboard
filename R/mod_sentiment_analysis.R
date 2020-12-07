@@ -46,7 +46,7 @@ mod_sentiment_analysis_server <- function(id){
     
     # Find net sentiment in each tag
     net_sentiment_afinn <- tidy_feedback %>%
-      dplyr::inner_join(tidytext::get_sentiments("afinn")) %>% 
+      dplyr::inner_join(tidytext::get_sentiments("afinn"), by = "word") %>% 
       dplyr::group_by(super) %>%
       dplyr::summarise(sentiment = sum(value)) %>% 
       dplyr::mutate(method = "AFINN")
@@ -54,12 +54,12 @@ mod_sentiment_analysis_server <- function(id){
     net_sentiment_bing_and_nrc <- 
       dplyr::bind_rows(
         tidy_feedback %>%
-          dplyr::inner_join(tidytext::get_sentiments("bing")) %>% 
+          dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>% 
           dplyr::filter(sentiment %in% c("positive", "negative")) %>%
           dplyr::mutate(method = "Bing et al."),
         
         tidy_feedback %>%
-          dplyr::inner_join(tidytext::get_sentiments("nrc")) %>% 
+          dplyr::inner_join(tidytext::get_sentiments("nrc"), by = "word") %>% 
           dplyr::filter(sentiment %in% c("positive", "negative")) %>%
           dplyr::mutate(method = "NRC")
       ) %>%
@@ -89,7 +89,7 @@ mod_sentiment_analysis_server <- function(id){
       # Most common positive and negative words
       bing_word_counts <- tidy_feedback %>%
         dplyr::filter(super == input$pred) %>%
-        dplyr::inner_join(tidytext::get_sentiments("bing")) %>%
+        dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>%
         dplyr::count(word, sentiment, sort = TRUE)
       
       bing_word_counts %>%
