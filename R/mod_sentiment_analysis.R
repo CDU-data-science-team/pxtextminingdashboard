@@ -15,14 +15,14 @@ mod_sentiment_analysis_ui <- function(id){
       column(width = 6,
              box(width = NULL,
                  selectInput(ns("pred"), "Choose a label:",
-                             choices=sort(unique(test_data$pred))),
+                             choices = sort(unique(test_data$pred))),
                  plotOutput(ns("mostCommonWords")))
       ),
       
       column(width = 6,
              box(
                width = NULL,
-               shiny::plotOutput(ns("netSentiment"))
+               plotOutput(ns("netSentiment"), height = "600px")
              )
       )
     )
@@ -105,9 +105,3 @@ mod_sentiment_analysis_server <- function(id){
     
   })
 }
-    
-## To be copied in the UI
-# mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
-    
-## To be copied in the server
-# mod_sentiment_analysis_server("sentiment_analysis_ui_1")

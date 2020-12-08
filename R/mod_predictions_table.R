@@ -118,7 +118,7 @@ mod_predictions_table_server <- function(id){
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
                   "\"", "the", "\"", " are very frequent but uniformative of
-          the cotext of the text."))
+          the cotent of the text."))
     })
     
     output$sentimentAnalysis <- renderPlot({
@@ -161,9 +161,3 @@ mod_predictions_table_server <- function(id){
     })
   })
 }
-    
-## To be copied in the UI
-# mod_predictions_table_ui("predictions_table_ui_1")
-    
-## To be copied in the server
-# mod_predictions_table_server("predictions_table_ui_1")
