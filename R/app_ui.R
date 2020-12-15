@@ -3,14 +3,42 @@
 #' @param request Internal parameter for `{shiny}`. 
 #'     DO NOT REMOVE.
 #' @import shiny
+#' @import shinydashboard
 #' @noRd
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic 
-    fluidPage(
-      h1("positiveAboutChangeTextClassificationDashboard")
+    dashboardPage(
+      dashboardHeader(title = "Patient feedback and its predicted label"),
+      dashboardSidebar(
+        sidebarMenu(
+          menuItem("Predictions", tabName = "tab_predictions", 
+                   icon = icon("dashboard")),
+          menuItem("Sentiment", tabName = "tab_sentiment", 
+                   icon = icon("dashboard")),
+          menuItem("Visualisations", tabName = "tab_pred_sent_viz", 
+                   icon = icon("dashboard"))
+          #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
+        )
+      ),
+      dashboardBody(
+        tabItems(
+          
+          tabItem(tabName = 'tab_predictions',
+                  mod_predictions_table_ui("predictions_table_ui_1")
+          ),
+          
+          tabItem(tabName = 'tab_sentiment',
+                  mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+          ),
+          
+          tabItem(tabName = 'tab_pred_sent_viz',
+                  mod_pred_sent_viz_ui("pred_sent_viz_ui_1")
+          )
+        )
+      )
     )
   )
 }

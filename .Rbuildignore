@@ -7,3 +7,12 @@ $run_dev.*
 ^LICENSE\.md$
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
+^doc$
+^Meta$
+^codecov\.yml$
+^Makefile$
+^Jenkinsfile$
+^\.gitlab-ci\.yml$
+^app\.R$
+^rsconnect$
+^Dockerfile$
