@@ -38,8 +38,8 @@ app_ui <- function(request) {
                       'a', 
                       mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
                     tabPanel(
-                      'b', 
-                      mod_sentiment_analysis_ui("sentiment_analysis_ui_1"))
+                      'b',
+                      mod_sentiment_analysis_ui("sentiment_analysis_ui_2"))
                   )
           ),
           

@@ -116,12 +116,12 @@ mod_sentiment_analysis_server <- function(id){
       dplyr::group_by(linenumber) %>%
       dplyr::mutate(proportion_of_sentiment = round(n / sum(n) * 100)) %>%
       dplyr::ungroup() %>%
-      select(linenumber, sentiment, proportion_of_sentiment) %>%
+      dplyr::select(linenumber, sentiment, proportion_of_sentiment) %>%
       tidyr::spread(sentiment, proportion_of_sentiment, fill = 0)
     
-    output$nigel_and_jonathan <- renderReactable({
+    output$nigel_and_jonathan <- reactable::renderReactable({
       
-      reactable(net_sentiment_nrc)
+      reactable::reactable(net_sentiment_nrc)
     })
   })
 }

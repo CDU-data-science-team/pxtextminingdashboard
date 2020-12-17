@@ -8,5 +8,6 @@ app_server <- function( input, output, session ) {
   # Your application server logic 
   mod_predictions_table_server("predictions_table_ui_1")
   mod_sentiment_analysis_server("sentiment_analysis_ui_1")
+  mod_sentiment_analysis_server("sentiment_analysis_ui_2")
   mod_pred_sent_viz_server("pred_sent_viz_ui_1")
 }
