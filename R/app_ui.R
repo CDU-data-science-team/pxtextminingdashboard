@@ -31,8 +31,21 @@ app_ui <- function(request) {
           ),
           
           tabItem(tabName = 'tab_sentiment',
-                  mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+                  tabBox(
+                    width = 12,
+                    title = "tabs",
+                    tabPanel(
+                      'a', 
+                      mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
+                    tabPanel(
+                      'b', 
+                      mod_sentiment_analysis_ui("sentiment_analysis_ui_1"))
+                  )
           ),
+          
+          #tabItem(tabName = 'tab_sentiment',
+          #        mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+          #),
           
           tabItem(tabName = 'tab_pred_sent_viz',
                   mod_pred_sent_viz_ui("pred_sent_viz_ui_1")
