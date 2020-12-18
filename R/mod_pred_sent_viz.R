@@ -89,14 +89,14 @@ mod_pred_sent_viz_server <- function(id){
           dplyr::select(-super, -linenumber) %>%
           dplyr::slice(1:10),
         columns = list(
-          improve = colDef(
+          improve = reactable::colDef(
             name = "Feedback",
             style = sticky_style,
             headerStyle = sticky_style,
             minWidth = 300
           ),
           
-          anger = colDef(
+          anger = reactable::colDef(
             name = "Anger",
             align = "left",
             class = "border-left cell number",
@@ -110,7 +110,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          anticipation = colDef(
+          anticipation = reactable::colDef(
             name = "Anticipation",
             align = "left",
             class = "border-left cell number",
@@ -124,7 +124,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          disgust = colDef(
+          disgust = reactable::colDef(
             name = "Disgust",
             align = "left",
             class = "border-left cell number",
@@ -138,7 +138,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          fear = colDef(
+          fear = reactable::colDef(
             name = "Fear",
             align = "left",
             class = "border-left cell number",
@@ -152,7 +152,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          joy = colDef(
+          joy = reactable::colDef(
             name = "Joy",
             align = "left",
             class = "border-left cell number",
@@ -166,7 +166,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          negative = colDef(
+          negative = reactable::colDef(
             name = "Negative",
             align = "left",
             class = "border-left cell number",
@@ -180,7 +180,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          positive = colDef(
+          positive = reactable::colDef(
             name = "Positive",
             align = "left",
             class = "border-left cell number",
@@ -194,7 +194,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          sadness = colDef(
+          sadness = reactable::colDef(
             name = "Sadness",
             align = "left",
             class = "border-left cell number",
@@ -208,7 +208,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          surprise = colDef(
+          surprise = reactable::colDef(
             name = "Surprise",
             align = "left",
             class = "border-left cell number",
@@ -222,7 +222,7 @@ mod_pred_sent_viz_server <- function(id){
             }
           ),
           
-          trust = colDef(
+          trust = reactable::colDef(
             name = "Trust",
             align = "left",
             class = "border-left cell number",
