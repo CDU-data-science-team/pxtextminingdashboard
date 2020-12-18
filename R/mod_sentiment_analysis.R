@@ -12,24 +12,19 @@ mod_sentiment_analysis_ui <- function(id){
   tagList(
     # Boxes need to be put in a row (or column)
     fluidRow(
-      column(width = 12,
+      column(width = 6,
              box(width = NULL,
                  selectInput(ns("pred"), "Choose a label:",
                              choices = sort(unique(test_data$pred))),
                  plotOutput(ns("mostCommonWords")))
       ),
       
-      column(width = 12,   
-        box(width = NULL,
-            reactable::reactableOutput(ns("nigel_and_jonathan")))
+      column(width = 6,
+             box(
+               width = NULL,
+               plotOutput(ns("netSentiment"), height = "600px")
+             )
       )
-      
-      #column(width = 6,
-      #       box(
-      #         width = NULL,
-      #         plotOutput(ns("netSentiment"), height = "600px")
-      #       )
-      #)
     )
   )
 }
@@ -106,22 +101,6 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::facet_wrap(~sentiment, scales = "free_y") +
         ggplot2::labs(x = "Contribution to sentiment",
                       y = NULL)
-    })
-    
-    # Nigel and Jonathan
-    net_sentiment_nrc <- 
-      tidy_feedback %>%
-      dplyr::inner_join(tidytext::get_sentiments("nrc"), by = "word") %>% 
-      dplyr::count(linenumber, sentiment) %>%
-      dplyr::group_by(linenumber) %>%
-      dplyr::mutate(proportion_of_sentiment = round(n / sum(n) * 100)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(linenumber, sentiment, proportion_of_sentiment) %>%
-      tidyr::spread(sentiment, proportion_of_sentiment, fill = 0)
-    
-    output$nigel_and_jonathan <- reactable::renderReactable({
-      
-      reactable::reactable(net_sentiment_nrc)
     })
   })
 }

@@ -17,8 +17,6 @@ app_ui <- function(request) {
           menuItem("Predictions", tabName = "tab_predictions", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
-                   icon = icon("dashboard")),
-          menuItem("Visualisations", tabName = "tab_pred_sent_viz", 
                    icon = icon("dashboard"))
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
@@ -33,23 +31,19 @@ app_ui <- function(request) {
           tabItem(tabName = 'tab_sentiment',
                   tabBox(
                     width = 12,
-                    title = "tabs",
+                    #title = "tabs",
                     tabPanel(
-                      'a', 
+                      "My stuff", 
                       mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
                     tabPanel(
-                      'b',
-                      mod_sentiment_analysis_ui("sentiment_analysis_ui_2"))
+                      "N&J",
+                      mod_pred_sent_viz_ui("pred_sent_viz_ui_1"))
                   )
-          ),
+          )#,
           
           #tabItem(tabName = 'tab_sentiment',
           #        mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
-          #),
-          
-          tabItem(tabName = 'tab_pred_sent_viz',
-                  mod_pred_sent_viz_ui("pred_sent_viz_ui_1")
-          )
+          #)
         )
       )
     )
