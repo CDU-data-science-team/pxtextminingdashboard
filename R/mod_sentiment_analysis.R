@@ -102,6 +102,5 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::labs(x = "Contribution to sentiment",
                       y = NULL)
     })
-    
   })
 }
