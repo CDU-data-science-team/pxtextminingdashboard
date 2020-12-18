@@ -14,7 +14,10 @@ app_ui <- function(request) {
       dashboardHeader(title = "Patient feedback and its predicted label"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Predictions", tabName = "tab_predictions", 
+          menuItem("Predictions - tag", tabName = "tab_predictions", 
+                   icon = icon("dashboard")),
+          menuItem("Predictions - criticality", 
+                   tabName = "tab_predictions_criticality", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
                    icon = icon("dashboard")),
@@ -28,6 +31,10 @@ app_ui <- function(request) {
           
           tabItem(tabName = 'tab_predictions',
                   mod_predictions_table_ui("predictions_table_ui_1")
+          ),
+          
+          tabItem(tabName = 'tab_predictions_criticality',
+                  mod_predictions_table_criticality_ui("predictions_table_criticality_ui_1")
           ),
           
           tabItem(tabName = 'tab_sentiment',
