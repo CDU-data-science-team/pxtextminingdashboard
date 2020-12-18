@@ -74,7 +74,7 @@ mod_pred_sent_viz_server <- function(id){
           dplyr::mutate(linenumber = dplyr::row_number()),
         by = "linenumber"
       ) %>%
-      select(improve, everything(), -`<NA>`)
+      dplyr::select(improve, everything(), -`<NA>`)
     
     sticky_style <- list(position = "sticky", left = 0, 
                          background = "#fff", zIndex = 1,
@@ -86,8 +86,8 @@ mod_pred_sent_viz_server <- function(id){
       
       reactable::reactable(
         net_sentiment_nrc %>%
-          select(-super, -linenumber) %>%
-          slice(1:10),
+          dplyr::select(-super, -linenumber) %>%
+          dplyr::slice(1:10),
         columns = list(
           improve = colDef(
             name = "Feedback",
