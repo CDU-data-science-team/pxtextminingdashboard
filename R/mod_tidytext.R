@@ -80,13 +80,22 @@ mod_tidytext_server <- function(id){
     #output$facetPlot <- renderPlot({
     output$facetPlot <- plotly::renderPlotly({
       
+      tooltip_text <- function(name, value, feedback_text) {
+        paste0(
+          "Sentiment: ", name, "\n",
+          "Count: ",  value, "\n",
+          "Feedback: ", feedback_text
+        )
+      }
+      
       p <- net_sentiment_nrc %>%
         dplyr::filter(super != "Couldn't be improved") %>%
         #dplyr::select(-super, -linenumber) %>%
         dplyr::slice(1:60) %>%
         tidyr::pivot_longer(cols = all_of(nrc_sentiments)) %>%
         dplyr::filter(value != 0) %>%
-        ggplot2::ggplot(ggplot2::aes(value, name)) +
+        ggplot2::ggplot(ggplot2::aes(value, name, 
+          text = tooltip_text(name, value, feedback_text = improve))) +
         ggplot2::geom_col() + 
         ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
         ggplot2::theme_bw() +
@@ -100,7 +109,7 @@ mod_tidytext_server <- function(id){
         ylab('')
       
       #p
-      plotly::ggplotly(p, height = 2000)
+      plotly::ggplotly(p, height = 2000, tooltip = "text")
     })
   })
 }
