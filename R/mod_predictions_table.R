@@ -13,8 +13,8 @@ mod_predictions_table_ui <- function(id){
    # Boxes need to be put in a row (or column)
     fluidRow(
       column(7,
-        box(width = NULL,
-          textOutput(ns("modelAccuracyBox")), background = 'red'
+        box(width = NULL, background = "red",
+          textOutput(ns("modelAccuracyBox"))
         )
       )
     ),

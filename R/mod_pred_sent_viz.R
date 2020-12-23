@@ -52,7 +52,13 @@ mod_pred_sent_viz_server <- function(id){
         
         div(style = list(display = "flex", alignItems = "center"), 
             label, chart)
-      }
+    }
+    
+    nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
+      dplyr::select(sentiment) %>%
+      dplyr::distinct() %>%
+      dplyr::pull() %>%
+      sort()
     
     net_sentiment_nrc <- data_for_tfidf %>%
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
@@ -68,13 +74,22 @@ mod_pred_sent_viz_server <- function(id){
                       round(n / sum(n, na.rm = TRUE) * 100)) %>%
       dplyr::ungroup() %>%
       dplyr::select(linenumber, sentiment, proportion_of_sentiment) %>%
-      tidyr::spread(sentiment, proportion_of_sentiment, fill = 0) %>%
+      tidyr::pivot_wider(names_from = sentiment, 
+                         values_from = proportion_of_sentiment, 
+                         values_fill = 0
+      ) %>%
       dplyr::left_join(
         data_for_tfidf %>%
           dplyr::mutate(linenumber = dplyr::row_number()),
         by = "linenumber"
       ) %>%
-      dplyr::select(improve, everything(), -`<NA>`)
+      dplyr::select(improve, everything(), -`NA`) %>%
+      dplyr::mutate(altogether =  
+                        dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
+                        split(seq(nrow(.))) %>%
+                        lapply(unlist, use.names = FALSE)
+      ) %>%
+      dplyr::select(improve, altogether, everything())
     
     sticky_style <- list(position = "sticky", left = 0, 
                          background = "#fff", zIndex = 1,
@@ -82,13 +97,21 @@ mod_pred_sent_viz_server <- function(id){
     
     output$nigel_and_jonathan <- reactable::renderReactable({
       
-      #reactable::reactable(net_sentiment_nrc)
-      
       reactable::reactable(
         net_sentiment_nrc %>%
+          dplyr::filter(super != "Couldn't be improved") %>%
           dplyr::select(-super, -linenumber) %>%
           dplyr::slice(1:10),
         columns = list(
+          altogether = reactable::colDef(
+            cell = 
+              function(values) {
+                sparkline::sparkline(values, type = "bar", 
+                  chartRangeMin = 0, chartRangeMax = 50, 
+                  #tooltipFormat =  '{{x}}: ${{y}}', # https://stackoverflow.com/questions/40859098/customise-sparkline-tooltip-in-shiny
+                  colorMap = ggthemes::colorblind_pal()(8))
+          }),
+          
           improve = reactable::colDef(
             name = "Feedback",
             style = sticky_style,
