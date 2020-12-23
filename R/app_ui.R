@@ -40,11 +40,14 @@ app_ui <- function(request) {
                     width = 12,
                     #title = "tabs",
                     tabPanel(
-                      "My stuff", 
+                      "Sentiment - label", 
                       mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
                     tabPanel(
-                      "N&J",
-                      mod_pred_sent_viz_ui("pred_sent_viz_ui_1"))
+                      "Sentiment - text",
+                      mod_pred_sent_viz_ui("pred_sent_viz_ui_1")),
+                    tabPanel(
+                      "Polarity - text",
+                      mod_text_blob_ui("text_blob_ui_1"))
                   )
           )#,
           
