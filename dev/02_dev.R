@@ -28,7 +28,7 @@ usethis::use_package( "ggthemes" )
 ## Create a module infrastructure in R/
 golem::add_module( name = "predictions_table" ) # Name of the module
 golem::add_module( name = "sentiment_analysis" )
-golem::add_module( name = "pred_sent_viz" )
+golem::add_module( name = "tidytext" )
 golem::add_module( name = "predictions_table_criticality" )
 golem::add_module( name = "text_blob" )
 

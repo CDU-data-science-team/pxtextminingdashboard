@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_pred_sent_viz_ui <- function(id){
+mod_tidytext_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
@@ -24,7 +24,7 @@ mod_pred_sent_viz_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_pred_sent_viz_server <- function(id){
+mod_tidytext_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     

@@ -44,7 +44,7 @@ app_ui <- function(request) {
                       mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
                     tabPanel(
                       "Sentiment - text",
-                      mod_pred_sent_viz_ui("pred_sent_viz_ui_1")),
+                      mod_tidytext_ui("tidytext_ui_1")),
                     tabPanel(
                       "Polarity - text",
                       mod_text_blob_ui("text_blob_ui_1"))
