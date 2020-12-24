@@ -12,10 +12,110 @@ mod_tidytext_ui <- function(id){
   tagList(
     # Boxes need to be put in a row (or column)
     fluidRow(
+      column(width = 12,
+             HTML("<b>Select the minimum count of each sentiment 
+                  in the text:</b>")
+      )
+    ),
+    
+    fluidRow(
+      
+      column(width = 2,   
+                 numericInput(
+                   ns("anger"), 
+                   "Anger", 
+                   0, min = 1, max = 20
+                 )
+      ),
+      
+      
+      column(width = 2,   
+                 numericInput(
+                   ns("anticipation"), 
+                   "Anticipation", 
+                   0, min = 1, max = 20
+                 )
+      ),
+      
+      
+      column(width = 2,
+                 numericInput(
+                   ns("disgust"), 
+                   "Disgust", 
+                   0, min = 1, max = 20
+                 )
+      ),
+      
+      
+      column(width = 2,
+                 numericInput(
+                   ns("fear"), 
+                   "Fear", 
+                   0, min = 1, max = 20
+                 )
+      ),
+      
+      
+      column(width = 2,
+                 numericInput(
+                   ns("joy"), 
+                   "Joy", 
+                   0, min = 1, max = 20
+                 )
+      ),
+      
+      column(width = 2,   
+             numericInput(
+               ns("negative"), 
+               "Negative", 
+               0, min = 1, max = 20
+             )
+      ),
+      
+      
+      column(width = 2,   
+             numericInput(
+               ns("positive"), 
+               "Positive", 
+               0, min = 1, max = 20
+             )
+      ),
+      
+      
+      column(width = 2,
+             numericInput(
+               ns("sadness"), 
+               "Sadness", 
+               0, min = 1, max = 20
+             )
+      ),
+      
+      
+      column(width = 2,
+             numericInput(
+               ns("surprise"), 
+               "Surprise", 
+               0, min = 1, max = 20
+             )
+      ),
+      
+      
+      column(width = 2,
+             numericInput(
+               ns("trust"), 
+               "Trust", 
+               0, min = 1, max = 20
+             )
+      )
+    ),
+    
+    fluidRow(
 
       column(width = 12,   
-             box(width = NULL,
-                 uiOutput(ns("dynamicPlot")))
+             #box(
+             #  width = NULL,
+                 uiOutput(ns("dynamicPlot"))
+             #)
       )
     )
   )
@@ -65,6 +165,22 @@ mod_tidytext_server <- function(id){
       ) %>%
       dplyr::select(improve, all_sentiments, everything())
     
+    filtered_data <- reactive({
+      net_sentiment_nrc %>%
+        dplyr::filter(
+          anger >= input$anger,
+          anticipation >= input$anticipation,
+          disgust >= input$disgust,
+          fear >= input$fear,
+          joy >= input$joy,
+          negative >= input$negative,
+          positive >= input$positive,
+          sadness >= input$sadness,
+          surprise >= input$surprise,
+          trust >= input$trust
+      )
+    })
+    
     output$dynamicPlot <- renderUI({
       
       # calculate height of plot
@@ -76,6 +192,7 @@ mod_tidytext_server <- function(id){
       #plotOutput(session$ns("facetPlot"), height = 12 * 300)
       plotly::plotlyOutput(session$ns("facetPlot"), height = 12 * 300)
     })
+    
     
     #output$facetPlot <- renderPlot({
     output$facetPlot <- plotly::renderPlotly({
@@ -111,15 +228,15 @@ mod_tidytext_server <- function(id){
         )
       }
       
-      p <- net_sentiment_nrc %>%
+      p <- filtered_data() %>%
         dplyr::filter(super != "Couldn't be improved") %>%
-        #dplyr::select(-super, -linenumber) %>%
+        ##dplyr::select(-super, -linenumber) %>%
         dplyr::slice(1:60) %>%
         tidyr::pivot_longer(cols = all_of(nrc_sentiments)) %>%
         dplyr::filter(value != 0) %>%
         ggplot2::ggplot(ggplot2::aes(value, name, 
           text = tooltip_text(name, value, feedback_text = improve))) +
-        ggplot2::geom_col(fill = 'blue', alpha = 0.6) + 
+        ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
         ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
         ggplot2::theme_bw() +
         ggplot2::theme(
