@@ -13,18 +13,23 @@ mod_predictions_table_criticality_ui <- function(id){
     # Boxes need to be put in a row (or column)
     fluidRow(
       column(12,
-             box(width = NULL,
-                 textOutput(ns("modelAccuracyBox")), background = 'red'
+             box(
+               width = NULL, background = "red",
+               textOutput(ns("modelAccuracyBox"))
              )
       )
     ),
     
     fluidRow(
       column(width = 12,
-             box(width = NULL,
-                 selectInput(ns("pred"), "Choose a label:",
-                             choices=sort(unique(test_data_criticality$pred))),
-                 reactable::reactableOutput(ns("pedictedLabels")))
+             box(
+               width = NULL,
+               selectInput(
+                 ns("pred"), 
+                 "Choose a label:",
+                 choices = sort(unique(test_data_criticality$pred))),
+               reactable::reactableOutput(ns("pedictedLabels"))
+             )
       )
     )
   )

@@ -13,7 +13,8 @@ mod_predictions_table_ui <- function(id){
    # Boxes need to be put in a row (or column)
     fluidRow(
       column(7,
-        box(width = NULL, background = "red",
+        box(
+          width = NULL, background = "red",
           textOutput(ns("modelAccuracyBox"))
         )
       )
@@ -21,25 +22,31 @@ mod_predictions_table_ui <- function(id){
 
     fluidRow(
       column(width = 7,
-        box(width = NULL,
+        box(
+          width = NULL,
           selectInput(ns("pred"), "Choose a label:",
-          choices=sort(unique(test_data$pred))),
-        reactable::reactableOutput(ns("pedictedLabels")))
+          choices = sort(unique(test_data$pred))),
+          reactable::reactableOutput(ns("pedictedLabels"))
+        )
       ),
 
      column(width = 5,
        box(
          width = NULL,
-         shiny::plotOutput(ns("tfidf_bars")),
-         box(shiny::htmlOutput(ns("tfidfExplanation")), background = 'red', 
-             width = NULL)
+         plotOutput(ns("tfidf_bars")),
+         box(
+           width = NULL, background = "red", 
+           htmlOutput(ns("tfidfExplanation"))
+         )
        ),
        
        box(
          width = NULL,
-         shiny::plotOutput(ns("sentimentAnalysis")), 
-         box(shiny::htmlOutput(ns("sentimentAnalysisExplanation")), 
-             background = 'red', width = NULL)
+         plotOutput(ns("sentimentAnalysis")), 
+         box(
+           width = NULL, background = "red",
+           htmlOutput(ns("sentimentAnalysisExplanation"))
+         )
        )
      )
    )
