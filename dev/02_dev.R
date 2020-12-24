@@ -24,6 +24,7 @@ usethis::use_package( "reactable" )
 usethis::use_package( "tidytext" )
 #usethis::use_package( "sparkline" )
 usethis::use_package( "ggthemes" )
+usethis::use_package( "quanteda" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/

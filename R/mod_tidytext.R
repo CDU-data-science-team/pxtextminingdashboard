@@ -43,9 +43,9 @@ mod_tidytext_server <- function(id){
         is.na(sentiment) ~ NA_integer_,
         TRUE ~ sentiment_count
       )) %>%
-      dplyr::group_by(linenumber) %>%
+      #dplyr::group_by(linenumber) %>%
       #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
-      dplyr::ungroup() %>%
+      #dplyr::ungroup() %>%
       dplyr::select(linenumber, sentiment, sentiment_count) %>%
       tidyr::pivot_wider(names_from = sentiment, 
                          values_from = sentiment_count, 
@@ -80,11 +80,34 @@ mod_tidytext_server <- function(id){
     #output$facetPlot <- renderPlot({
     output$facetPlot <- plotly::renderPlotly({
       
-      tooltip_text <- function(name, value, feedback_text) {
+      break_text_into_several_lines <- function(x) {
+        
+        x %>%
+          quanteda::tokens() %>%
+          quanteda::tokens_chunk(size = 6) %>%
+          lapply(
+            function(x) {
+              paste0(paste(x, collapse = " "), "<br>")
+            }
+          ) %>%
+          unlist() %>%
+          paste(collapse = " ")
+      }
+      
+      tooltip_text <- function(name, value, feedback_text,
+                               line_breaking_function = 
+                                 break_text_into_several_lines) {
+        
+        if (is.null(line_breaking_function)) {
+          fdbck_text <- feedback_text
+        } else {
+          fdbck_text <- line_breaking_function(feedback_text)
+        }
+        
         paste0(
-          "Sentiment: ", name, "\n",
-          "Count: ",  value, "\n",
-          "Feedback: ", feedback_text
+          "<b>Sentiment:</b> ", name, "<br>",
+          "<b>Count</b>: ",  value, "<br>",
+          "<b>Feedback</b>: ", fdbck_text
         )
       }
       
@@ -96,20 +119,26 @@ mod_tidytext_server <- function(id){
         dplyr::filter(value != 0) %>%
         ggplot2::ggplot(ggplot2::aes(value, name, 
           text = tooltip_text(name, value, feedback_text = improve))) +
-        ggplot2::geom_col() + 
+        ggplot2::geom_col(fill = 'blue', alpha = 0.6) + 
         ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
         ggplot2::theme_bw() +
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
-          axis.title.x = element_blank(),
-          axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()
+          axis.title.x = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_blank(),
+          axis.ticks.x = ggplot2::element_blank()
         ) + 
-        ylab('')
+        ggplot2::ylab('')
       
       #p
-      plotly::ggplotly(p, height = 2000, tooltip = "text")
+      plotly::ggplotly(p, height = 2000, tooltip = "text") %>%
+        plotly::layout(
+          hoverlabel = list(
+            align = "left",
+            namelength = -1
+          )
+        )
     })
   })
 }
