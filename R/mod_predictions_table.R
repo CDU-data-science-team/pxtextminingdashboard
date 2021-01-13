@@ -125,7 +125,7 @@ mod_predictions_table_server <- function(id){
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
                   "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text."))
+          the context of the text."))
     })
     
     output$sentimentAnalysis <- renderPlot({

@@ -11,100 +11,24 @@ mod_tidytext_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
+    
     fluidRow(
-      column(width = 12,
-             HTML("<b>Select the minimum count of each sentiment 
-                  in the text:</b>")
+      column(12,
+             box(width = NULL, background = "red",
+                 htmlOutput(ns("netSentimentBox"))
+             )
       )
     ),
     
     fluidRow(
       
-      column(width = 2,   
-                 numericInput(
-                   ns("anger"), 
-                   "Anger", 
-                   0, min = 1, max = 20
-                 )
-      ),
-      
-      
-      column(width = 2,   
-                 numericInput(
-                   ns("anticipation"), 
-                   "Anticipation", 
-                   0, min = 1, max = 20
-                 )
-      ),
-      
-      
-      column(width = 2,
-                 numericInput(
-                   ns("disgust"), 
-                   "Disgust", 
-                   0, min = 1, max = 20
-                 )
-      ),
-      
-      
-      column(width = 2,
-                 numericInput(
-                   ns("fear"), 
-                   "Fear", 
-                   0, min = 1, max = 20
-                 )
-      ),
-      
-      
-      column(width = 2,
-                 numericInput(
-                   ns("joy"), 
-                   "Joy", 
-                   0, min = 1, max = 20
-                 )
-      ),
-      
-      column(width = 2,   
-             numericInput(
-               ns("negative"), 
-               "Negative", 
-               0, min = 1, max = 20
-             )
-      ),
-      
-      
-      column(width = 2,   
-             numericInput(
-               ns("positive"), 
-               "Positive", 
-               0, min = 1, max = 20
-             )
-      ),
-      
-      
-      column(width = 2,
-             numericInput(
-               ns("sadness"), 
-               "Sadness", 
-               0, min = 1, max = 20
-             )
-      ),
-      
-      
-      column(width = 2,
-             numericInput(
-               ns("surprise"), 
-               "Surprise", 
-               0, min = 1, max = 20
-             )
-      ),
-      
-      
-      column(width = 2,
-             numericInput(
-               ns("trust"), 
-               "Trust", 
-               0, min = 1, max = 20
+      column(width = 12,
+             varSelectInput(
+               ns("variables"), 
+               HTML("<b>Sort feedback comments in descending order by:</b>"), 
+               net_sentiment_nrc[nrc_sentiments], 
+               multiple = TRUE,
+               selected = nrc_sentiments[1]
              )
       )
     ),
@@ -165,20 +89,28 @@ mod_tidytext_server <- function(id){
       ) %>%
       dplyr::select(improve, all_sentiments, everything())
     
-    filtered_data <- reactive({
+    sorted_data <- reactive({
+      
+      vec <- sapply(input$variables, as.character)
+      
       net_sentiment_nrc %>%
-        dplyr::filter(
-          anger >= input$anger,
-          anticipation >= input$anticipation,
-          disgust >= input$disgust,
-          fear >= input$fear,
-          joy >= input$joy,
-          negative >= input$negative,
-          positive >= input$positive,
-          sadness >= input$sadness,
-          surprise >= input$surprise,
-          trust >= input$trust
-      )
+        dplyr::arrange(
+          dplyr::across(vec, dplyr::desc)
+        )
+    })
+    
+    output$netSentimentBox <- renderText({
+      HTML(paste0("This tab uses <u><a href='https://en.wikipedia.org/wiki/Sentiment_analysis'>Sentiment Analysis</a></u> 
+          to see which sentiments are expressed the most in a given patient 
+          feedback comment. We use a pre-defined <i>sentiment lexicon</i> 
+          known as <u><a href='https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>, 
+          that empirically assigns one or more sentiments to a word. For example, 
+          according to NRC, the word ", "\"", "happy", "\"", " expresses four 
+          sentiments, namely anticipation, joy, positive & trust. 
+          (The NRC lexicon has 10 sentiments, namely anger, anticipation, disgust, fear, joy, negative, positive, 
+          sadness, surprise & trust.)
+          The bar plots show, for each feedback text, the number of times a 
+          certain sentiment is expressed in the text."))
     })
     
     output$dynamicPlot <- renderUI({
@@ -228,12 +160,16 @@ mod_tidytext_server <- function(id){
         )
       }
       
-      p <- filtered_data() %>%
+      p <- sorted_data() %>%
         dplyr::filter(super != "Couldn't be improved") %>%
         ##dplyr::select(-super, -linenumber) %>%
         dplyr::slice(1:60) %>%
-        tidyr::pivot_longer(cols = all_of(nrc_sentiments)) %>%
+        tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
         dplyr::filter(value != 0) %>%
+        dplyr::mutate(
+          name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
+          linenumber = factor(linenumber, levels = unique(.$linenumber))
+        ) %>%
         ggplot2::ggplot(ggplot2::aes(value, name, 
           text = tooltip_text(name, value, feedback_text = improve))) +
         ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
