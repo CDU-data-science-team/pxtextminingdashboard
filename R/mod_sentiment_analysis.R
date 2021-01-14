@@ -11,20 +11,39 @@ mod_sentiment_analysis_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
-    fluidRow(
-      column(width = 6,
-             box(width = NULL,
-                 selectInput(ns("pred"), "Choose a label:",
-                             choices = sort(unique(test_data$pred))),
-                 plotOutput(ns("mostCommonWords")))
-      ),
-      
-      column(width = 6,
-             box(
-               width = NULL,
-               plotOutput(ns("netSentiment"), height = "600px")
-             )
+    fluidRow(width = 12,
+             
+      box(
+        width = 12,
+        
+        box(
+          htmlOutput(ns("sentimentAnalysisExplanation")), 
+          background = 'red', width = NULL
+        ),
+        
+        column(
+          width = 5,
+          selectInput(ns("pred"), "Choose a label:",
+                      choices = sort(unique(test_data$pred))),
+          plotOutput(ns("mostCommonWords"), height = "400px")
+        ),
+        
+        column(
+          width = 7,
+          plotOutput(ns("netSentiment"), height = "700px")
+        )
       )
+    ),
+    
+    fluidRow(width = 12,
+             column(width = 12,
+                    box(
+                      width = NULL,
+                      plotOutput(ns("tfidf_bars")),
+                      box(htmlOutput(ns("tfidfExplanation")), background = 'red', 
+                          width = NULL)
+                    )
+             )
     )
   )
 }
@@ -80,7 +99,9 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::theme_bw() +
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank()
+          panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = element_text(angle = 90),
+          axis.text.y = element_text(size = 12)
         )
     })
     
@@ -100,7 +121,89 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::geom_col(show.legend = FALSE) +
         ggplot2::facet_wrap(~sentiment, scales = "free_y") +
         ggplot2::labs(x = "Contribution to sentiment",
-                      y = NULL)
+                      y = NULL) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank(),
+          axis.title.x = ggplot2::element_blank(),
+          axis.text.x = element_text(angle = 90),
+          axis.text.y = element_text(size = 12)
+        )
+    })
+    
+    output$sentimentAnalysis <- renderPlot({
+      data_for_tfidf %>%
+        tidytext::unnest_tokens(word, improve) %>%
+        #dplyr::distinct() %>%
+        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>%
+        dplyr::inner_join(tidytext::get_sentiments("afinn"), by = "word") %>% 
+        dplyr::group_by(super) %>% 
+        dplyr::mutate(value = sum(value) / length(unique(word))) %>%
+        dplyr::ungroup() %>% 
+        dplyr::select(-word) %>%
+        dplyr::distinct() %>%
+        ggplot2::ggplot(ggplot2::aes(value, reorder(super, value))) +
+        ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
+        ggplot2::labs(x = "Sentiment score", y = NULL,
+                      title = "Sentiment per tag") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank()
+        )
+    })
+    
+    output$sentimentAnalysisExplanation <- renderText({
+      HTML(paste0("<u><a href='https://en.wikipedia.org/wiki/Sentiment_analysis'>
+          Sentiment Analysis</a></u> is a method for extracting the sentiment
+          in a text. It uses pre-defined <i>sentiment lexicons</i> (e.g. <u><a href=
+          'http://www2.imm.dtu.dk/pubdb/pubs/6010-full.html'>AFINN</a></u>, 
+          <u><a href=
+          'https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html'>Bing</a></u> 
+          or <u><a href=
+          'https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>), 
+          that empirically score the positivity or negativity of a word (e.g. 
+          AFINN scores ", "\"", "happy", "\"", " as 3 and ", "\"", "sad", "\"", 
+                  " as -2). Here, we use AFINN to calculate the total sentiment score 
+          of the feedback text in each tab. We then divide the score by the 
+          total number of words used in each tag to produce the normalized 
+          score in the plot."))
+    })
+    
+    output$tfidf_bars <- renderPlot({
+      data_for_tfidf %>%
+        tidytext::unnest_tokens(word, improve) %>%
+        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
+        dplyr::count(super, word, sort = TRUE) %>%
+        tidytext::bind_tf_idf(word, super, n) %>%
+        #dplyr::arrange(dplyr::desc(tf_idf)) %>%
+        dplyr::group_by(super) %>%
+        dplyr::slice_max(tf_idf, n = 15) %>%
+        dplyr::ungroup() %>%
+        dplyr::filter(super == input$pred) %>%
+        ggplot2::ggplot(ggplot2::aes(tf_idf, reorder(word, tf_idf))) +
+        ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
+        ggplot2::labs(x = "TF-IDF*", y = NULL,
+                      title = paste0("Most frequent words in feedback text that is about\n",
+                                     "\"", input$pred, "\"")) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank()
+        )
+    })
+    
+    output$tfidfExplanation <- renderText({
+      HTML(paste0("*TF-IDF stands for
+          <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
+          Term Frequency–Inverse Document Frequency</a></u>.
+          It is a standard way of calculating the frequency (i.e. importance)
+          of a word in the given text. It is a little more sophisticated than
+          standard frequency as it adjusts for words that appear too frequently
+          in the text. For example, stop words like ", "\"", "a", "\"", " and ",
+                  "\"", "the", "\"", " are very frequent but uniformative of
+          the cotent of the text."))
     })
   })
 }
