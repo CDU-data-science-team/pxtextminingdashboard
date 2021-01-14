@@ -11,11 +11,36 @@ mod_tidytext_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
+    
+    fluidRow(
+      column(12,
+             box(width = NULL, background = "red",
+                 htmlOutput(ns("netSentimentBox"))
+             )
+      )
+    ),
+    
+    fluidRow(
+      
+      column(width = 12,
+             # varSelectInput(
+             #   ns("variables"),
+             #   HTML("<b>Sort feedback comments in descending order by:</b>"),
+             #   net_sentiment_nrc[nrc_sentiments],
+             #   multiple = TRUE,
+             #   selected = nrc_sentiments[1]
+             # )
+             uiOutput("sentimentControl")
+      )
+    ),
+    
     fluidRow(
 
       column(width = 12,   
-             box(width = NULL,
-                 reactable::reactableOutput(ns("nigel_and_jonathan")))
+             #box(
+             #  width = NULL,
+                 uiOutput(ns("dynamicPlot"))
+             #)
       )
     )
   )
@@ -28,32 +53,6 @@ mod_tidytext_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    # https://kcuilla.netlify.app/post/2019-nfl-team-ratings/
-    bar_chart <- function(label,
-               width = "100%",
-               height = "13px",
-               fill = "#00bfc4",
-               background = NULL) {
-        bar <-
-          div(style = list(
-            background = fill,
-            width = width,
-            height = height
-          ))
-        
-        chart <-
-          div(style = list(
-            flexGrow = 1,
-            marginLeft = "8px",
-            #background = background
-            background = "#dcdcdc"
-          ),
-          bar)
-        
-        div(style = list(display = "flex", alignItems = "center"), 
-            label, chart)
-    }
-    
     nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
       dplyr::select(sentiment) %>%
       dplyr::distinct() %>%
@@ -64,19 +63,19 @@ mod_tidytext_server <- function(id){
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
       tidytext::unnest_tokens(word, improve) %>%
       dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
-      dplyr::count(linenumber, sentiment) %>%
-      dplyr::mutate(n = dplyr::case_when(
+      dplyr::count(linenumber, sentiment, name = 'sentiment_count') %>%
+      dplyr::mutate(sentiment_count = dplyr::case_when(
         is.na(sentiment) ~ NA_integer_,
-        TRUE ~ n
+        TRUE ~ sentiment_count
       )) %>%
-      dplyr::group_by(linenumber) %>%
-      dplyr::mutate(proportion_of_sentiment = 
-                      round(n / sum(n, na.rm = TRUE) * 100)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(linenumber, sentiment, proportion_of_sentiment) %>%
+      #dplyr::group_by(linenumber) %>%
+      #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
+      #dplyr::ungroup() %>%
+      dplyr::select(linenumber, sentiment, sentiment_count) %>%
       tidyr::pivot_wider(names_from = sentiment, 
-                         values_from = proportion_of_sentiment, 
-                         values_fill = 0
+                         values_from = sentiment_count, 
+                         values_fill = 0,
+                         names_sort = TRUE
       ) %>%
       dplyr::left_join(
         data_for_tfidf %>%
@@ -84,189 +83,126 @@ mod_tidytext_server <- function(id){
         by = "linenumber"
       ) %>%
       dplyr::select(improve, everything(), -`NA`) %>%
-      dplyr::mutate(altogether =  
+      dplyr::mutate(all_sentiments =  
                         dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
                         split(seq(nrow(.))) %>%
-                        lapply(unlist, use.names = FALSE)
+                        lapply(function(x) unlist(names(x)[x != 0]))
       ) %>%
-      dplyr::select(improve, altogether, everything())
+      dplyr::select(improve, all_sentiments, everything())
     
-    sticky_style <- list(position = "sticky", left = 0, 
-                         background = "#fff", zIndex = 1,
-                         borderRight = "1px solid #eee")
-    
-    output$nigel_and_jonathan <- reactable::renderReactable({
+    sorted_data <- reactive({
       
-      reactable::reactable(
-        net_sentiment_nrc %>%
-          dplyr::filter(super != "Couldn't be improved") %>%
-          dplyr::select(-super, -linenumber) %>%
-          dplyr::slice(1:10),
-        columns = list(
-          altogether = reactable::colDef(
-            cell = 
-              function(values) {
-                sparkline::sparkline(values, type = "bar", 
-                  chartRangeMin = 0, chartRangeMax = 50, 
-                  #tooltipFormat =  '{{x}}: ${{y}}', # https://stackoverflow.com/questions/40859098/customise-sparkline-tooltip-in-shiny
-                  colorMap = ggthemes::colorblind_pal()(8))
-          }),
-          
-          improve = reactable::colDef(
-            name = "Feedback",
-            style = sticky_style,
-            headerStyle = sticky_style,
-            minWidth = 300
-          ),
-          
-          anger = reactable::colDef(
-            name = "Anger",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          anticipation = reactable::colDef(
-            name = "Anticipation",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          disgust = reactable::colDef(
-            name = "Disgust",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          fear = reactable::colDef(
-            name = "Fear",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          joy = reactable::colDef(
-            name = "Joy",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          negative = reactable::colDef(
-            name = "Negative",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          positive = reactable::colDef(
-            name = "Positive",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          sadness = reactable::colDef(
-            name = "Sadness",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          surprise = reactable::colDef(
-            name = "Surprise",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          ),
-          
-          trust = reactable::colDef(
-            name = "Trust",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500"),
-            cell = function(value) {
-              width <- paste0(value, "%")
-              bar_chart(value,
-                        width = width,
-                        fill = "#66bbff",
-                        background = "#dcdcdc")
-            }
-          )
-        ),
-        
-        #wrap = FALSE,
-        #filterable = TRUE,
-        searchable = TRUE,
-        sortable = TRUE,
-        defaultPageSize = 100,
-        pageSizeOptions = 100
+      vec <- sapply(input$variables, as.character)
+      
+      net_sentiment_nrc %>%
+        dplyr::arrange(
+          dplyr::across(vec, dplyr::desc)
+        )
+    })
+    
+    output$sentimentControl <- renderUI({
+      varSelectInput(
+          session$ns("variables"),
+          HTML("<b>Sort feedback comments in descending order by:</b>"),
+          sorted_data()[nrc_sentiments],
+          multiple = TRUE,
+          selected = nrc_sentiments[1]
       )
+    })
+    
+    output$netSentimentBox <- renderText({
+      HTML(paste0("This tab uses <u><a href='https://en.wikipedia.org/wiki/Sentiment_analysis'>Sentiment Analysis</a></u> 
+          to see which sentiments are expressed the most in a given patient 
+          feedback comment. We use a pre-defined <i>sentiment lexicon</i> 
+          known as <u><a href='https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>, 
+          that empirically assigns one or more sentiments to a word. For example, 
+          according to NRC, the word ", "\"", "happy", "\"", " expresses four 
+          sentiments, namely anticipation, joy, positive & trust. 
+          (The NRC lexicon has 10 sentiments, namely anger, anticipation, disgust, fear, joy, negative, positive, 
+          sadness, surprise & trust.)
+          The bar plots show, for each feedback text, the number of times a 
+          certain sentiment is expressed in the text."))
+    })
+    
+    output$dynamicPlot <- renderUI({
+      
+      # calculate height of plot
+      
+      #number_of_plots <- length(unique(plotFacets()))
+      
+      #plot_height <- ceiling(number_of_plots / 5) * 300
+      
+      #plotOutput(session$ns("facetPlot"), height = 12 * 300)
+      plotly::plotlyOutput(session$ns("facetPlot"), height = 12 * 300)
+    })
+    
+    
+    #output$facetPlot <- renderPlot({
+    output$facetPlot <- plotly::renderPlotly({
+      
+      break_text_into_several_lines <- function(x) {
+        
+        x %>%
+          quanteda::tokens() %>%
+          quanteda::tokens_chunk(size = 6) %>%
+          lapply(
+            function(x) {
+              paste0(paste(x, collapse = " "), "<br>")
+            }
+          ) %>%
+          unlist() %>%
+          paste(collapse = " ")
+      }
+      
+      tooltip_text <- function(name, value, feedback_text,
+                               line_breaking_function = 
+                                 break_text_into_several_lines) {
+        
+        if (is.null(line_breaking_function)) {
+          fdbck_text <- feedback_text
+        } else {
+          fdbck_text <- line_breaking_function(feedback_text)
+        }
+        
+        paste0(
+          "<b>Sentiment:</b> ", name, "<br>",
+          "<b>Count</b>: ",  value, "<br>",
+          "<b>Feedback</b>: ", fdbck_text
+        )
+      }
+      
+      p <- sorted_data() %>%
+        dplyr::filter(super != "Couldn't be improved") %>%
+        ##dplyr::select(-super, -linenumber) %>%
+        dplyr::slice(1:60) %>%
+        tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
+        dplyr::filter(value != 0) %>%
+        dplyr::mutate(
+          name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
+          linenumber = factor(linenumber, levels = unique(.$linenumber))
+        ) %>%
+        ggplot2::ggplot(ggplot2::aes(value, name, 
+          text = tooltip_text(name, value, feedback_text = improve))) +
+        ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
+        ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank(),
+          axis.title.x = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_blank(),
+          axis.ticks.x = ggplot2::element_blank()
+        ) + 
+        ggplot2::ylab('')
+      
+      #p
+      plotly::ggplotly(p, height = 2000, tooltip = "text") %>%
+        plotly::layout(
+          hoverlabel = list(
+            align = "left",
+            namelength = -1
+          )
+        )
     })
   })
 }
