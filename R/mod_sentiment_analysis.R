@@ -41,17 +41,6 @@ mod_sentiment_analysis_ui <- function(id){
           )
         )
       )
-    ),
-    
-    fluidRow(width = 12,
-             column(width = 12,
-                    box(
-                      width = NULL,
-                      plotOutput(ns("tfidf_bars")),
-                      box(htmlOutput(ns("tfidfExplanation")), background = 'red', 
-                          width = NULL)
-                    )
-             )
     )
   )
 }
@@ -129,6 +118,7 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::geom_col(show.legend = FALSE) +
         ggplot2::facet_wrap(~sentiment, scales = "free_y") +
         #ggplot2::labs(x = "Contribution to sentiment") +
+        ggplot2::ylab("") + 
         ggplot2::theme_bw() +
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
@@ -192,41 +182,6 @@ mod_sentiment_analysis_server <- function(id){
       HTML(paste0("The bar plots show the most common words with a positive or
                   negative sentiment (Bing dictionary) that appear in the 
                   feedback text."))
-    })
-    
-    output$tfidf_bars <- renderPlot({
-      data_for_tfidf %>%
-        tidytext::unnest_tokens(word, improve) %>%
-        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
-        dplyr::count(super, word, sort = TRUE) %>%
-        tidytext::bind_tf_idf(word, super, n) %>%
-        #dplyr::arrange(dplyr::desc(tf_idf)) %>%
-        dplyr::group_by(super) %>%
-        dplyr::slice_max(tf_idf, n = 15) %>%
-        dplyr::ungroup() %>%
-        dplyr::filter(super == input$pred) %>%
-        ggplot2::ggplot(ggplot2::aes(tf_idf, reorder(word, tf_idf))) +
-        ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
-        ggplot2::labs(x = "TF-IDF*", y = NULL,
-                      title = paste0("Most frequent words in feedback text that is about\n",
-                                     "\"", input$pred, "\"")) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(
-          panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank()
-        )
-    })
-    
-    output$tfidfExplanation <- renderText({
-      HTML(paste0("*TF-IDF stands for
-          <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
-          Term Frequency–Inverse Document Frequency</a></u>.
-          It is a standard way of calculating the frequency (i.e. importance)
-          of a word in the given text. It is a little more sophisticated than
-          standard frequency as it adjusts for words that appear too frequently
-          in the text. For example, stop words like ", "\"", "a", "\"", " and ",
-                  "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text."))
     })
   })
 }

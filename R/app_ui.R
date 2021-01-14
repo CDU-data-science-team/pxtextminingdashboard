@@ -20,6 +20,8 @@ app_ui <- function(request) {
                    tabName = "tab_predictions_criticality", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
+                   icon = icon("dashboard")),
+          menuItem("TFIDF", tabName = "tab_tfidf", 
                    icon = icon("dashboard"))
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
@@ -49,11 +51,10 @@ app_ui <- function(request) {
                       "Polarity - text",
                       mod_text_blob_ui("text_blob_ui_1"))
                   )
-          )#,
+          ),
           
-          #tabItem(tabName = 'tab_sentiment',
-          #        mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
-          #)
+          tabItem(tabName = "tab_tfidf",
+                  mod_tfidf_and_word_processing_ui("tfidf_and_word_processing_ui_1"))
         )
       )
     )

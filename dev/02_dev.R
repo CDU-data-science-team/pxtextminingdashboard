@@ -31,6 +31,7 @@ golem::add_module( name = "sentiment_analysis" )
 golem::add_module( name = "tidytext" )
 golem::add_module( name = "predictions_table_criticality" )
 golem::add_module( name = "text_blob" )
+golem::add_module( name = "tfidf_and_word_processing" )
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*
