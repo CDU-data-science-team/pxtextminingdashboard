@@ -14,11 +14,12 @@ app_ui <- function(request) {
       dashboardHeader(title = "Patient feedback and its predicted label"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Predictions", tabName = "tab_predictions", 
+          menuItem("Predictions - tag", tabName = "tab_predictions", 
+                   icon = icon("dashboard")),
+          menuItem("Predictions - criticality", 
+                   tabName = "tab_predictions_criticality", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
-                   icon = icon("dashboard")),
-          menuItem("Visualisations", tabName = "tab_pred_sent_viz", 
                    icon = icon("dashboard"))
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
@@ -30,13 +31,29 @@ app_ui <- function(request) {
                   mod_predictions_table_ui("predictions_table_ui_1")
           ),
           
-          tabItem(tabName = 'tab_sentiment',
-                  mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+          tabItem(tabName = 'tab_predictions_criticality',
+                  mod_predictions_table_criticality_ui("predictions_table_criticality_ui_1")
           ),
           
-          tabItem(tabName = 'tab_pred_sent_viz',
-                  mod_pred_sent_viz_ui("pred_sent_viz_ui_1")
-          )
+          tabItem(tabName = 'tab_sentiment',
+                  tabBox(
+                    width = 12,
+                    #title = "tabs",
+                    tabPanel(
+                      "Sentiment - label", 
+                      mod_sentiment_analysis_ui("sentiment_analysis_ui_1")),
+                    tabPanel(
+                      "Sentiment - text",
+                      mod_tidytext_ui("tidytext_ui_1")),
+                    tabPanel(
+                      "Polarity - text",
+                      mod_text_blob_ui("text_blob_ui_1"))
+                  )
+          )#,
+          
+          #tabItem(tabName = 'tab_sentiment',
+          #        mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+          #)
         )
       )
     )

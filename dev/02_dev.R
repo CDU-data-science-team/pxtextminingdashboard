@@ -21,12 +21,16 @@ usethis::use_package( "shiny" )
 usethis::use_package( "shinydashboard" )
 usethis::use_package( "reactable" )
 usethis::use_package( "tidytext" )
+usethis::use_package( "sparkline" )
+usethis::use_package( "ggthemes" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "predictions_table" ) # Name of the module
 golem::add_module( name = "sentiment_analysis" )
-golem::add_module( name = "pred_sent_viz" )
+golem::add_module( name = "tidytext" )
+golem::add_module( name = "predictions_table_criticality" )
+golem::add_module( name = "text_blob" )
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*

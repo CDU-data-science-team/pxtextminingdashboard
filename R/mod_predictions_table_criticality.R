@@ -1,4 +1,4 @@
-#' predictions_table UI Function
+#' predictions_table_criticality UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,44 +7,45 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_predictions_table_ui <- function(id){
+mod_predictions_table_criticality_ui <- function(id){
   ns <- NS(id)
   tagList(
-   # Boxes need to be put in a row (or column)
+    # Boxes need to be put in a row (or column)
     fluidRow(
       column(12,
-        box(width = NULL, background = "red",
-          textOutput(ns("modelAccuracyBox"))
-        )
+             box(width = NULL,
+                 textOutput(ns("modelAccuracyBox")), background = 'red'
+             )
       )
     ),
-
+    
     fluidRow(
       column(width = 12,
-        box(width = NULL,
-          selectInput(ns("pred"), "Choose a label:",
-          choices=sort(unique(test_data$pred))),
-        reactable::reactableOutput(ns("pedictedLabels")))
+             box(width = NULL,
+                 selectInput(ns("pred"), "Choose a label:",
+                             choices=sort(unique(test_data_criticality$pred))),
+                 reactable::reactableOutput(ns("pedictedLabels")))
       )
-   )
+    )
   )
 }
-    
+
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id){
+mod_predictions_table_criticality_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$pedictedLabels <- reactable::renderReactable({
-
+      
       feedback_col_new_name <- paste0(
-        "Feedback that model predicted as ", "\"", input$pred, "\""
+        "Feedback that model predicted as having a criticality score of ", 
+        "\"", input$pred, "\""
       )
-
+      
       reactable::reactable(
-        test_data %>%
+        test_data_criticality %>%
           dplyr::filter(pred == input$pred) %>%
           dplyr::select(improve),
         columns = list(improve = reactable::colDef(name = feedback_col_new_name)),
@@ -57,14 +58,14 @@ mod_predictions_table_server <- function(id){
           searchPlaceholder = "Search for a word..."),
       )
     })
-
+    
     output$modelAccuracyBox <- renderText({
-      accuracy_score <- accuracy_per_class %>%
+      accuracy_score <- accuracy_per_class_criticality %>%
         dplyr::filter(class == input$pred) %>%
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
         dplyr::pull()
-
+      
       paste0("NOTE: Model accuracy for this label is ", accuracy_score, "%.
            This means that in 100 feedback records, ", accuracy_score,
              "  are predicted correctly.")
