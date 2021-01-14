@@ -23,13 +23,14 @@ mod_tidytext_ui <- function(id){
     fluidRow(
       
       column(width = 12,
-             varSelectInput(
-               ns("variables"), 
-               HTML("<b>Sort feedback comments in descending order by:</b>"), 
-               net_sentiment_nrc[nrc_sentiments], 
-               multiple = TRUE,
-               selected = nrc_sentiments[1]
-             )
+             # varSelectInput(
+             #   ns("variables"),
+             #   HTML("<b>Sort feedback comments in descending order by:</b>"),
+             #   net_sentiment_nrc[nrc_sentiments],
+             #   multiple = TRUE,
+             #   selected = nrc_sentiments[1]
+             # )
+             uiOutput("sentimentControl")
       )
     ),
     
@@ -97,6 +98,16 @@ mod_tidytext_server <- function(id){
         dplyr::arrange(
           dplyr::across(vec, dplyr::desc)
         )
+    })
+    
+    output$sentimentControl <- renderUI({
+      varSelectInput(
+          session$ns("variables"),
+          HTML("<b>Sort feedback comments in descending order by:</b>"),
+          sorted_data()[nrc_sentiments],
+          multiple = TRUE,
+          selected = nrc_sentiments[1]
+      )
     })
     
     output$netSentimentBox <- renderText({
