@@ -23,14 +23,7 @@ mod_tidytext_ui <- function(id){
     fluidRow(
       
       column(width = 12,
-             # varSelectInput(
-             #   ns("variables"),
-             #   HTML("<b>Sort feedback comments in descending order by:</b>"),
-             #   net_sentiment_nrc[nrc_sentiments],
-             #   multiple = TRUE,
-             #   selected = nrc_sentiments[1]
-             # )
-             uiOutput("sentimentControl")
+             uiOutput(ns("sentimentControl"))
       )
     ),
     
@@ -59,52 +52,52 @@ mod_tidytext_server <- function(id){
       dplyr::pull() %>%
       sort()
     
-    net_sentiment_nrc <- data_for_tfidf %>%
-      dplyr::mutate(linenumber = dplyr::row_number()) %>%
-      tidytext::unnest_tokens(word, improve) %>%
-      dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
-      dplyr::count(linenumber, sentiment, name = 'sentiment_count') %>%
-      dplyr::mutate(sentiment_count = dplyr::case_when(
-        is.na(sentiment) ~ NA_integer_,
-        TRUE ~ sentiment_count
-      )) %>%
-      #dplyr::group_by(linenumber) %>%
-      #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
-      #dplyr::ungroup() %>%
-      dplyr::select(linenumber, sentiment, sentiment_count) %>%
-      tidyr::pivot_wider(names_from = sentiment, 
-                         values_from = sentiment_count, 
-                         values_fill = 0,
-                         names_sort = TRUE
-      ) %>%
-      dplyr::left_join(
-        data_for_tfidf %>%
-          dplyr::mutate(linenumber = dplyr::row_number()),
-        by = "linenumber"
-      ) %>%
-      dplyr::select(improve, everything(), -`NA`) %>%
-      dplyr::mutate(all_sentiments =  
+    sorted_data <- reactive({
+      
+      data_for_tfidf %>%
+        dplyr::mutate(linenumber = dplyr::row_number()) %>%
+        tidytext::unnest_tokens(word, improve) %>%
+        dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
+        dplyr::count(linenumber, sentiment, name = 'sentiment_count') %>%
+        dplyr::mutate(sentiment_count = dplyr::case_when(
+          is.na(sentiment) ~ NA_integer_,
+          TRUE ~ sentiment_count
+        )) %>%
+        #dplyr::group_by(linenumber) %>%
+        #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
+        #dplyr::ungroup() %>%
+        dplyr::select(linenumber, sentiment, sentiment_count) %>%
+        tidyr::pivot_wider(names_from = sentiment, 
+                           values_from = sentiment_count, 
+                           values_fill = 0,
+                           names_sort = TRUE
+        ) %>%
+        dplyr::left_join(
+          data_for_tfidf %>%
+            dplyr::mutate(linenumber = dplyr::row_number()),
+          by = "linenumber"
+        ) %>%
+        dplyr::select(improve, everything(), -`NA`) %>%
+        dplyr::mutate(all_sentiments =  
                         dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
                         split(seq(nrow(.))) %>%
                         lapply(function(x) unlist(names(x)[x != 0]))
-      ) %>%
-      dplyr::select(improve, all_sentiments, everything())
-    
-    sorted_data <- reactive({
-      
-      vec <- sapply(input$variables, as.character)
-      
-      net_sentiment_nrc %>%
-        dplyr::arrange(
-          dplyr::across(vec, dplyr::desc)
-        )
-    })
+        ) %>%
+        dplyr::select(improve, all_sentiments, everything())
+      })
     
     output$sentimentControl <- renderUI({
-      varSelectInput(
+
+      nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
+        dplyr::select(sentiment) %>%
+        dplyr::distinct() %>%
+        dplyr::pull() %>%
+        sort()
+
+      selectInput(
           session$ns("variables"),
           HTML("<b>Sort feedback comments in descending order by:</b>"),
-          sorted_data()[nrc_sentiments],
+          choices = nrc_sentiments,
           multiple = TRUE,
           selected = nrc_sentiments[1]
       )
