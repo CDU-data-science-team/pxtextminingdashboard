@@ -23,14 +23,22 @@ mod_sentiment_analysis_ui <- function(id){
         
         column(
           width = 5,
-          selectInput(ns("pred"), "Choose a label:",
+          selectInput(ns("pred"), "Choose a tag:",
                       choices = sort(unique(test_data$pred))),
-          plotOutput(ns("mostCommonWords"), height = "400px")
+          plotOutput(ns("mostCommonWords"), height = "400px"),
+          box(
+            htmlOutput(ns("mostCommonWordsText")),
+            background = 'red', width = NULL
+          )
         ),
         
         column(
           width = 7,
-          plotOutput(ns("netSentiment"), height = "700px")
+          plotOutput(ns("netSentiment"), height = "800px"),
+          box(
+            htmlOutput(ns("sentimentPerTagAndDictionaryText")),
+            background = 'red', width = NULL
+          )
         )
       )
     ),
@@ -94,8 +102,8 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::ggplot(ggplot2::aes(sentiment, reorder(super, sentiment))) +
         ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
         ggplot2::facet_wrap(~method, ncol = 1, scales = "free") +
-        ggplot2::labs(x = "Sentiment", y = NULL,
-                      title = "Sentiment per tag and dictionary") +
+        ggplot2::labs(x = "Net sentiment", y = NULL,
+                      title = "Net sentiment per tag") +
         ggplot2::theme_bw() +
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
@@ -120,8 +128,7 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::ggplot(ggplot2::aes(n, reorder(word, n), fill = sentiment)) +
         ggplot2::geom_col(show.legend = FALSE) +
         ggplot2::facet_wrap(~sentiment, scales = "free_y") +
-        ggplot2::labs(x = "Contribution to sentiment",
-                      y = NULL) +
+        #ggplot2::labs(x = "Contribution to sentiment") +
         ggplot2::theme_bw() +
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
@@ -162,13 +169,29 @@ mod_sentiment_analysis_server <- function(id){
           <u><a href=
           'https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html'>Bing</a></u> 
           or <u><a href=
-          'https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>), 
-          that empirically score the positivity or negativity of a word (e.g. 
+          'https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>).
+          These lexicons either empirically score the positivity or negativity of a word (e.g. 
           AFINN scores ", "\"", "happy", "\"", " as 3 and ", "\"", "sad", "\"", 
-                  " as -2). Here, we use AFINN to calculate the total sentiment score 
-          of the feedback text in each tab. We then divide the score by the 
-          total number of words used in each tag to produce the normalized 
-          score in the plot."))
+                  " as -2 on a scale of -5 to +5) or empirically associate a word
+          with a certain sentiment (e.g. Bing associates ",
+          "\"", "happy", "\"", " with a positive sentiment, while NRC associates it
+          with sentiments anticipation, joy, positive & trust)."))
+    })
+    
+    output$sentimentPerTagAndDictionaryText <- renderText({
+      HTML(paste0("The bar plots show the ", "\"", "net sentiment", "\"", 
+                  " for each feedback text tag as calculated by each of the 
+                  three sentiment dictionaries. For AFINN, net sentiment is
+                  the sum of sentiment values of the words in the feedback text.
+                  For Bing and NRC, the net sentiment is the number of words with
+                  positive sentiment minus the number of words with negative sentiment
+                  in the feedback text."))
+    })
+    
+    output$mostCommonWordsText <- renderText({
+      HTML(paste0("The bar plots show the most common words with a positive or
+                  negative sentiment (Bing dictionary) that appear in the 
+                  feedback text."))
     })
     
     output$tfidf_bars <- renderPlot({
