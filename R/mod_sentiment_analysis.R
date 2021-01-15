@@ -57,7 +57,7 @@ mod_sentiment_analysis_server <- function(id){
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
       tidytext::unnest_tokens(word, improve) %>%
       dplyr::group_by(super) %>%
-      dplyr::arrange(super, linenumber) %>%
+      # dplyr::arrange(super, linenumber) %>%
       dplyr::ungroup()
     
     # Find net sentiment in each tag
