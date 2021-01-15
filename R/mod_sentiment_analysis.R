@@ -97,8 +97,8 @@ mod_sentiment_analysis_server <- function(id){
         ggplot2::theme(
           panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
-          axis.text.x = element_text(angle = 90),
-          axis.text.y = element_text(size = 12)
+          axis.text.x = ggplot2::element_text(angle = 90),
+          axis.text.y = ggplot2::element_text(size = 12)
         )
     })
     
@@ -124,8 +124,8 @@ mod_sentiment_analysis_server <- function(id){
           panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
           axis.title.x = ggplot2::element_blank(),
-          axis.text.x = element_text(angle = 90),
-          axis.text.y = element_text(size = 12)
+          axis.text.x = ggplot2::element_text(angle = 90),
+          axis.text.y = ggplot2::element_text(size = 12)
         )
     })
     

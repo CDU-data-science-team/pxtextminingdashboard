@@ -23,17 +23,14 @@ mod_tidytext_ui <- function(id){
     fluidRow(
       
       column(width = 12,
-             uiOutput(ns("sentimentControl"))
+             uiOutput(ns("nrcSentimentControl"))
       )
     ),
     
     fluidRow(
       
       column(width = 12,   
-             #box(
-             #  width = NULL,
              uiOutput(ns("dynamicPlot"))
-             #)
       )
     )
   )
@@ -52,7 +49,7 @@ mod_tidytext_server <- function(id){
       dplyr::pull() %>%
       sort()
     
-    tf_idf_data <- data_for_tfidf %>%
+    net_sentiment_nrc <- data_for_tfidf %>%
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
       tidytext::unnest_tokens(word, improve) %>%
       dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
@@ -85,13 +82,13 @@ mod_tidytext_server <- function(id){
 
     sorted_data <- reactive({ 
       
-    tf_idf_data %>% 
+    net_sentiment_nrc %>% 
       dplyr::arrange(
         dplyr::across(input$variables, dplyr::desc)	
       )
   })
   
-  output$sentimentControl <- renderUI({
+  output$nrcSentimentControl <- renderUI({
     
     nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
       dplyr::select(sentiment) %>%
