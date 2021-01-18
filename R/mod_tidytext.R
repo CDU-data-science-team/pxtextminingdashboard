@@ -78,16 +78,12 @@ mod_tidytext_server <- function(id){
       ) %>%
       dplyr::select(improve, all_sentiments, everything()) %>%
       dplyr::slice(1:60)
-
-    sorted_data <- reactive({ 
+    
+    sorted_data <- reactive({
       net_sentiment_nrc %>% 
         dplyr::arrange(
           dplyr::across(input$nrcSentiments, dplyr::desc)	
-        )
-    })
-    
-    plot_data <- reactive({
-      sorted_data() %>%
+        ) %>%
       tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
       dplyr::filter(value != 0) %>%
       dplyr::mutate(
@@ -138,7 +134,7 @@ mod_tidytext_server <- function(id){
   
   output$facetPlot <- renderPlot({
     
-    plot_data() %>%
+    sorted_data() %>%
       ggplot2::ggplot(ggplot2::aes(value, name)) +
       ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
       ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
@@ -158,13 +154,16 @@ mod_tidytext_server <- function(id){
     showModal(
       modalDialog(
         htmlOutput(ns("tooltipWindow")),
-        size = "l")
+        size = "l",
+        easyClose = TRUE,
+        footer = NULL
+      )
     )
   })
   
   output$tooltipWindow <- renderText({
     
-    tooltip_info <- plot_data() %>%
+    tooltip_info <- sorted_data() %>%
       tidyr::pivot_wider(
         names_from = name, 
         values_from = value, 
@@ -194,5 +193,5 @@ mod_tidytext_server <- function(id){
     )
   })
   
-})
+ })
 }
