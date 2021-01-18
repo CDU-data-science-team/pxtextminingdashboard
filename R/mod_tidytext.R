@@ -10,8 +10,7 @@
 mod_tidytext_ui <- function(id){
   ns <- NS(id)
   tagList(
-    # Boxes need to be put in a row (or column)
-    
+
     fluidRow(
       column(12,
              box(width = NULL, background = "red",
@@ -20,15 +19,15 @@ mod_tidytext_ui <- function(id){
       )
     ),
     
+    h4("Click a plot to see further information"),
+    
     fluidRow(
-      
       column(width = 12,
              uiOutput(ns("nrcSentimentControl"))
       )
     ),
     
     fluidRow(
-      
       column(width = 12,   
              uiOutput(ns("dynamicPlot"))
       )
@@ -50,6 +49,7 @@ mod_tidytext_server <- function(id){
       sort()
     
     net_sentiment_nrc <- data_for_tfidf %>%
+      dplyr::filter(super != "Couldn't be improved") %>%
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
       tidytext::unnest_tokens(word, improve) %>%
       dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
@@ -58,9 +58,6 @@ mod_tidytext_server <- function(id){
         is.na(sentiment) ~ NA_integer_,
         TRUE ~ sentiment_count
       )) %>%
-      #dplyr::group_by(linenumber) %>%
-      #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
-      #dplyr::ungroup() %>%
       dplyr::select(linenumber, sentiment, sentiment_count) %>%
       tidyr::pivot_wider(names_from = sentiment, 
                          values_from = sentiment_count, 
@@ -69,6 +66,7 @@ mod_tidytext_server <- function(id){
       ) %>%
       dplyr::left_join(
         data_for_tfidf %>%
+          dplyr::filter(super != "Couldn't be improved") %>%
           dplyr::mutate(linenumber = dplyr::row_number()),
         by = "linenumber"
       ) %>%
@@ -78,26 +76,26 @@ mod_tidytext_server <- function(id){
                       split(seq(nrow(.))) %>%
                       lapply(function(x) unlist(names(x)[x != 0]))
       ) %>%
-      dplyr::select(improve, all_sentiments, everything())
-
-    sorted_data <- reactive({ 
-      
-    net_sentiment_nrc %>% 
-      dplyr::arrange(
-        dplyr::across(input$variables, dplyr::desc)	
+      dplyr::select(improve, all_sentiments, everything()) %>%
+      dplyr::slice(1:60)
+    
+    sorted_data <- reactive({
+      net_sentiment_nrc %>% 
+        dplyr::arrange(
+          dplyr::across(input$nrcSentiments, dplyr::desc)	
+        ) %>%
+      tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
+      dplyr::filter(value != 0) %>%
+      dplyr::mutate(
+        name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
+        linenumber = factor(linenumber, levels = unique(.$linenumber))
       )
-  })
+    })
   
   output$nrcSentimentControl <- renderUI({
     
-    nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
-      dplyr::select(sentiment) %>%
-      dplyr::distinct() %>%
-      dplyr::pull() %>%
-      sort()
-    
     selectInput(
-      session$ns("variables"),
+      session$ns("nrcSentiments"),
       HTML("<b>Sort feedback comments in descending order by:</b>"),
       nrc_sentiments,
       multiple = TRUE,
@@ -127,57 +125,17 @@ mod_tidytext_server <- function(id){
     
     #plot_height <- ceiling(number_of_plots / 5) * 300
     
-    #plotOutput(session$ns("facetPlot"), height = 12 * 300)
-    plotly::plotlyOutput(session$ns("facetPlot"), height = 12 * 300)
+    plotOutput(
+      session$ns("facetPlot"), 
+      height = 12 * 300,
+      click = ns("plot_click")
+    )
   })
   
-  
-  #output$facetPlot <- renderPlot({
-  output$facetPlot <- plotly::renderPlotly({
+  output$facetPlot <- renderPlot({
     
-    break_text_into_several_lines <- function(x) {
-      
-      x %>%
-        quanteda::tokens() %>%
-        quanteda::tokens_chunk(size = 6) %>%
-        lapply(
-          function(x) {
-            paste0(paste(x, collapse = " "), "<br>")
-          }
-        ) %>%
-        unlist() %>%
-        paste(collapse = " ")
-    }
-    
-    tooltip_text <- function(name, value, feedback_text,
-                             line_breaking_function = 
-                               break_text_into_several_lines) {
-      
-      if (is.null(line_breaking_function)) {
-        fdbck_text <- feedback_text
-      } else {
-        fdbck_text <- line_breaking_function(feedback_text)
-      }
-      
-      paste0(
-        "<b>Sentiment:</b> ", name, "<br>",
-        "<b>Count</b>: ",  value, "<br>",
-        "<b>Feedback</b>: ", fdbck_text
-      )
-    }
-    
-    p <- sorted_data() %>%
-      dplyr::filter(super != "Couldn't be improved") %>%
-      ##dplyr::select(-super, -linenumber) %>%
-      dplyr::slice(1:60) %>%
-      tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
-      dplyr::filter(value != 0) %>%
-      dplyr::mutate(
-        name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
-        linenumber = factor(linenumber, levels = unique(.$linenumber))
-      ) %>%
-      ggplot2::ggplot(ggplot2::aes(value, name, 
-                                   text = tooltip_text(name, value, feedback_text = improve))) +
+    sorted_data() %>%
+      ggplot2::ggplot(ggplot2::aes(value, name)) +
       ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
       ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
       ggplot2::theme_bw() +
@@ -189,15 +147,51 @@ mod_tidytext_server <- function(id){
         axis.ticks.x = ggplot2::element_blank()
       ) + 
       ggplot2::ylab('')
-    
-    #p
-    plotly::ggplotly(p, height = 2000, tooltip = "text") %>%
-      plotly::layout(
-        hoverlabel = list(
-          align = "left",
-          namelength = -1
-        )
-      )
   })
-})
+  
+  observeEvent(input$plot_click, {
+    
+    showModal(
+      modalDialog(
+        htmlOutput(ns("tooltipWindow")),
+        size = "l",
+        easyClose = TRUE,
+        footer = NULL
+      )
+    )
+  })
+  
+  output$tooltipWindow <- renderText({
+    
+    tooltip_info <- sorted_data() %>%
+      tidyr::pivot_wider(
+        names_from = name, 
+        values_from = value, 
+        values_fill = 0
+      ) %>%
+      dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
+      dplyr::select(linenumber, super, improve, all_of(nrc_sentiments)) %>%
+      dplyr::slice(1) %>%
+      dplyr::rename(
+        "Comment number" = linenumber,
+        "Feedback text tag" = super,
+        "Feedback text" = improve
+      )
+    
+    cat(str(tooltip_info))
+    
+    HTML(
+      tooltip_info %>%
+        mapply(
+          FUN = function(x, y) {
+            paste0("<b>", y, ": </b>", x, "<br>")
+          }, 
+          y = names(tooltip_info), 
+          USE.NAMES = FALSE
+        ) %>%
+        paste(collapse = "")
+    )
+  })
+  
+ })
 }
