@@ -178,8 +178,6 @@ mod_tidytext_server <- function(id){
         "Feedback text" = improve
       )
     
-    cat(str(tooltip_info))
-    
     HTML(
       tooltip_info %>%
         mapply(
