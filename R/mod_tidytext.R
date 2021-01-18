@@ -10,8 +10,7 @@
 mod_tidytext_ui <- function(id){
   ns <- NS(id)
   tagList(
-    # Boxes need to be put in a row (or column)
-    
+
     fluidRow(
       column(12,
              box(width = NULL, background = "red",
@@ -19,6 +18,8 @@ mod_tidytext_ui <- function(id){
              )
       )
     ),
+    
+    h4("Click a plot to see further information"),
     
     fluidRow(
       column(width = 12,
@@ -28,7 +29,6 @@ mod_tidytext_ui <- function(id){
     
     fluidRow(
       column(width = 12,   
-             #uiOutput(ns("hover_info")),
              uiOutput(ns("dynamicPlot"))
       )
     )
@@ -49,6 +49,7 @@ mod_tidytext_server <- function(id){
       sort()
     
     net_sentiment_nrc <- data_for_tfidf %>%
+      dplyr::filter(super != "Couldn't be improved") %>%
       dplyr::mutate(linenumber = dplyr::row_number()) %>%
       tidytext::unnest_tokens(word, improve) %>%
       dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
@@ -57,9 +58,6 @@ mod_tidytext_server <- function(id){
         is.na(sentiment) ~ NA_integer_,
         TRUE ~ sentiment_count
       )) %>%
-      #dplyr::group_by(linenumber) %>%
-      #dplyr::mutate(sentiment = factor(sentiment, levels = nrc_sentiments)) %>%
-      #dplyr::ungroup() %>%
       dplyr::select(linenumber, sentiment, sentiment_count) %>%
       tidyr::pivot_wider(names_from = sentiment, 
                          values_from = sentiment_count, 
@@ -68,6 +66,7 @@ mod_tidytext_server <- function(id){
       ) %>%
       dplyr::left_join(
         data_for_tfidf %>%
+          dplyr::filter(super != "Couldn't be improved") %>%
           dplyr::mutate(linenumber = dplyr::row_number()),
         by = "linenumber"
       ) %>%
@@ -77,7 +76,8 @@ mod_tidytext_server <- function(id){
                       split(seq(nrow(.))) %>%
                       lapply(function(x) unlist(names(x)[x != 0]))
       ) %>%
-      dplyr::select(improve, all_sentiments, everything())
+      dplyr::select(improve, all_sentiments, everything()) %>%
+      dplyr::slice(1:60)
 
     sorted_data <- reactive({ 
       net_sentiment_nrc %>% 
@@ -88,9 +88,6 @@ mod_tidytext_server <- function(id){
     
     plot_data <- reactive({
       sorted_data() %>%
-      dplyr::filter(super != "Couldn't be improved") %>%
-      ##dplyr::select(-super, -linenumber) %>%
-      dplyr::slice(1:60) %>%
       tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
       dplyr::filter(value != 0) %>%
       dplyr::mutate(
@@ -132,40 +129,10 @@ mod_tidytext_server <- function(id){
     
     #plot_height <- ceiling(number_of_plots / 5) * 300
     
-    div(
-      width = 7,
-      style = "position:relative",
-      plotOutput(
-        session$ns("facetPlot"), 
-        height = 12 * 300,
-        hover = 
-          hoverOpts(
-            session$ns("plot_hover"), 
-            delay = 100, 
-            delayType = "debounce"
-          )
-      ),
-      uiOutput(session$ns("hover_info"))
-    )
-  })
-  
-  output$hover_info <- renderUI({
-    hover <- input$plot_hover
-    point <- nearPoints(plot_data(), hover, threshold = 250000000, maxpoints = 10, addDist = TRUE)
-    if (nrow(point) == 0) return(NULL)
-    
-    # create style property fot tooltip
-    # background color is set so tooltip is a bit transparent
-    # z-index is set so we are sure are tooltip will be on top
-    style <- paste0("position:absolute; z-index:100; ",
-                    "left:", 0, "px; top:", 0, "px;")
-
-    # actual tooltip created as wellPanel
-    wellPanel(
-      style = style,
-      p(HTML(paste0("<b> Tag: </b>", point$super[1], "<br/>",
-                    "<b>", point$name, ": </b>", point$value, "<br/>",
-                    "<b> Feedback text: </b>", point$improve[1], "<br/>")))
+    plotOutput(
+      session$ns("facetPlot"), 
+      height = 12 * 300,
+      click = ns("plot_click")
     )
   })
   
@@ -185,5 +152,47 @@ mod_tidytext_server <- function(id){
       ) + 
       ggplot2::ylab('')
   })
+  
+  observeEvent(input$plot_click, {
+    
+    showModal(
+      modalDialog(
+        htmlOutput(ns("tooltipWindow")),
+        size = "l")
+    )
+  })
+  
+  output$tooltipWindow <- renderText({
+    
+    tooltip_info <- plot_data() %>%
+      tidyr::pivot_wider(
+        names_from = name, 
+        values_from = value, 
+        values_fill = 0
+      ) %>%
+      dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
+      dplyr::select(linenumber, super, improve, all_of(nrc_sentiments)) %>%
+      dplyr::slice(1) %>%
+      dplyr::rename(
+        "Comment number" = linenumber,
+        "Feedback text tag" = super,
+        "Feedback text" = improve
+      )
+    
+    cat(str(tooltip_info))
+    
+    HTML(
+      tooltip_info %>%
+        mapply(
+          FUN = function(x, y) {
+            paste0("<b>", y, ": </b>", x, "<br>")
+          }, 
+          y = names(tooltip_info), 
+          USE.NAMES = FALSE
+        ) %>%
+        paste(collapse = "")
+    )
+  })
+  
 })
 }
