@@ -52,8 +52,7 @@ mod_text_blob_server <- function(id){
         text_blob_scores %>%
           dplyr::filter(super != "Couldn't be improved") %>%
           dplyr::select(improve, polarity) %>%
-          dplyr::mutate_at('polarity',  ~ round(., 2)) %>%
-          dplyr::slice(1:100),
+          dplyr::mutate_at('polarity',  ~ round(., 2)),
         columns = list(
           improve = reactable::colDef(
             name = "Feedback",
