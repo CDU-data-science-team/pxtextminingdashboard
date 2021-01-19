@@ -19,17 +19,17 @@ mod_tidytext_ui <- function(id){
       )
     ),
     
-    h4("Click a plot to see further information"),
-    
     fluidRow(
-      column(width = 12,
+      column(width = 6,
              uiOutput(ns("nrcSentimentControl"))
       ),
       
-      column(width = 12,
+      column(width = 6,
              uiOutput(ns("numberOfFacetsControl"))
       )
     ),
+    
+    h4("Click a plot to see further information"),
     
     fluidRow(
       column(width = 12,   
