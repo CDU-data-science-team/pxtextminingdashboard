@@ -1,7 +1,7 @@
 Package: positiveAboutChangeTextClassificationDashboard
 Title: PKG_TITLE
 Version: 0.1.0
-Authors@R: person('Andreas', 'Soteriades', email = 'andreas.soteriades@nottshc.nhs.uk', role = c('cre', 'aut'))
+Authors@R: person('Andreas', 'Soteriades', email = 'andreas.soteriades[at]nottshc.nhs.uk', role = c('cre', 'aut'))
 Description: PKG_DESC.
 License: MIT + file LICENSE
 Imports: 
