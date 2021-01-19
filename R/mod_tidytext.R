@@ -24,6 +24,10 @@ mod_tidytext_ui <- function(id){
     fluidRow(
       column(width = 12,
              uiOutput(ns("nrcSentimentControl"))
+      ),
+      
+      column(width = 12,
+             uiOutput(ns("numberOfFacetsControl"))
       )
     ),
     
@@ -76,30 +80,44 @@ mod_tidytext_server <- function(id){
                       split(seq(nrow(.))) %>%
                       lapply(function(x) unlist(names(x)[x != 0]))
       ) %>%
-      dplyr::select(improve, all_sentiments, everything()) %>%
-      dplyr::slice(1:60)
+      dplyr::select(improve, all_sentiments, everything())
     
-    sorted_data <- reactive({
+    plot_data <- reactive({
+      
       net_sentiment_nrc %>% 
         dplyr::arrange(
           dplyr::across(input$nrcSentiments, dplyr::desc)	
         ) %>%
-      tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
-      dplyr::filter(value != 0) %>%
-      dplyr::mutate(
-        name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
-        linenumber = factor(linenumber, levels = unique(.$linenumber))
-      )
+        tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
+        dplyr::filter(value != 0) %>%
+        dplyr::filter(linenumber %in% 
+                        unique(.$linenumber)[1:input$numberOfFacets]) %>%
+        dplyr::mutate(
+          name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
+          linenumber = factor(linenumber, levels = unique(.$linenumber))
+        )
     })
   
   output$nrcSentimentControl <- renderUI({
     
     selectInput(
       session$ns("nrcSentiments"),
-      HTML("<b>Sort feedback comments in descending order by:</b>"),
+      HTML("<b>Sort feedback comments in descending order by one or
+           more sentiments</b>"),
       nrc_sentiments,
       multiple = TRUE,
       selected = nrc_sentiments[1]
+    )
+  })
+  
+  output$numberOfFacetsControl <- renderUI({
+    
+    sliderInput(
+      session$ns("numberOfFacets"),
+      label = HTML("<b>Select number of plots to display:</b>"),
+      value = 60,
+      min = 60,
+      max = 300
     )
   })
   
@@ -119,22 +137,19 @@ mod_tidytext_server <- function(id){
   
   output$dynamicPlot <- renderUI({
     
-    # calculate height of plot
-    
-    #number_of_plots <- length(unique(plotFacets()))
-    
-    #plot_height <- ceiling(number_of_plots / 5) * 300
+    number_of_plots <- length(unique(plot_data()$linenumber))
+    plot_height <- ceiling(number_of_plots / 5) * 300
     
     plotOutput(
       session$ns("facetPlot"), 
-      height = 12 * 300,
+      height = plot_height,
       click = ns("plot_click")
     )
   })
   
   output$facetPlot <- renderPlot({
     
-    sorted_data() %>%
+    plot_data() %>%
       ggplot2::ggplot(ggplot2::aes(value, name)) +
       ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
       ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
@@ -163,7 +178,7 @@ mod_tidytext_server <- function(id){
   
   output$tooltipWindow <- renderText({
     
-    tooltip_info <- sorted_data() %>%
+    tooltip_info <- plot_data() %>%
       tidyr::pivot_wider(
         names_from = name, 
         values_from = value, 
