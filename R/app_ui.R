@@ -14,7 +14,7 @@ app_ui <- function(request) {
       dashboardHeader(title = "Patient feedback and its predicted label"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Predictions", tabName = "tab_predictions", 
+          menuItem("Text Classification", tabName = "tab_text_classification", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
                    icon = icon("dashboard")),
@@ -28,7 +28,7 @@ app_ui <- function(request) {
           
           tabItem(
             
-            tabName = "tab_predictions",
+            tabName = "tab_text_classification",
             
             tabsetPanel(
               
