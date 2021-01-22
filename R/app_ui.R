@@ -14,10 +14,7 @@ app_ui <- function(request) {
       dashboardHeader(title = "Patient feedback and its predicted label"),
       dashboardSidebar(
         sidebarMenu(
-          menuItem("Predictions - tag", tabName = "tab_predictions", 
-                   icon = icon("dashboard")),
-          menuItem("Predictions - criticality", 
-                   tabName = "tab_predictions_criticality", 
+          menuItem("Predictions", tabName = "tab_predictions", 
                    icon = icon("dashboard")),
           menuItem("Sentiment", tabName = "tab_sentiment", 
                    icon = icon("dashboard")),
@@ -29,15 +26,49 @@ app_ui <- function(request) {
       dashboardBody(
         tabItems(
           
-          tabItem(tabName = 'tab_predictions',
-                  mod_predictions_table_ui("predictions_table_ui_1")
+          tabItem(
+            
+            tabName = "tab_predictions",
+            
+            tabsetPanel(
+              
+              tabPanel(
+                "Super",
+                
+                tabsetPanel(
+                  
+                  tabPanel(
+                    "Predicted text",
+                    mod_predictions_table_ui("predictions_table_ui_1")
+                  ),
+                  
+                  tabPanel(
+                    "Model performance",
+                    mod_performance_metrics_ui("performance_metrics_ui_1")
+                  )
+                )
+              ),
+              
+              tabPanel(
+                "Criticality",
+                
+                tabsetPanel(
+                  
+                  tabPanel(
+                    "Predicted text",
+                    mod_predictions_table_ui("predictions_table_ui_2")
+                  ),
+                  
+                  tabPanel(
+                    "Model performance",
+                    mod_performance_metrics_ui("performance_metrics_ui_2")
+                  )
+                )
+              )
+            )
           ),
           
-          tabItem(tabName = 'tab_predictions_criticality',
-                  mod_predictions_table_criticality_ui("predictions_table_criticality_ui_1")
-          ),
-          
-          tabItem(tabName = 'tab_sentiment',
+          tabItem(tabName = "tab_sentiment",
                   tabBox(
                     width = 12,
                     #title = "tabs",
