@@ -16,9 +16,9 @@ app_ui <- function(request) {
         sidebarMenu(
           menuItem("Text Classification", tabName = "tab_text_classification", 
                    icon = icon("dashboard")),
-          menuItem("Sentiment", tabName = "tab_sentiment", 
+          menuItem("Sentiment Analysis", tabName = "tab_sentiment", 
                    icon = icon("dashboard")),
-          menuItem("TFIDF", tabName = "tab_tfidf", 
+          menuItem("TF-IDF", tabName = "tab_tfidf", 
                    icon = icon("dashboard"))
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
