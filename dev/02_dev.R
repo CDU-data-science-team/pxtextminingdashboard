@@ -32,6 +32,7 @@ golem::add_module( name = "sentiment_analysis" )
 golem::add_module( name = "tidytext" )
 golem::add_module( name = "text_blob" )
 golem::add_module( name = "tfidf_and_word_processing" )
+golem::add_utils("ngrams_and_tfidf", module = "tfidf_and_word_processing")
 golem::add_module( name = "performance_metrics" )
 golem::add_utils("plot_learner_metrics", module = "performance_metrics")
 

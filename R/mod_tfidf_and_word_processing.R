@@ -10,17 +10,21 @@
 mod_tfidf_and_word_processing_ui <- function(id){
   ns <- NS(id)
   tagList(
-    fluidRow(width = 12,
-             column(width = 12,
-                    selectInput(ns("pred"), "Choose a label:",
-                                choices=sort(unique(test_data$pred))),
-                    box(
-                      width = NULL,
-                      plotOutput(ns("tfidf_bars")),
-                      box(htmlOutput(ns("tfidfExplanation")), background = 'red', 
-                          width = NULL)
-                    )
-             )
+    fluidRow(
+      width = 12,
+      column(
+        width = 12,
+        uiOutput(ns("classControl")),
+        box(
+          width = NULL,
+          plotOutput(ns("tfidf_bars")),
+          box(
+            htmlOutput(ns("tfidfExplanation")), 
+            background = 'red', 
+            width = NULL
+          )
+        )
+      )
     )
   )
 }
@@ -28,32 +32,13 @@ mod_tfidf_and_word_processing_ui <- function(id){
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_and_word_processing_server <- function(id){
+mod_tfidf_and_word_processing_server <- function(id, x, label){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$tfidf_bars <- renderPlot({
-      data_for_tfidf %>%
-        tidytext::unnest_tokens(word, improve) %>%
-        dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
-        dplyr::count(super, word, sort = TRUE) %>%
-        tidytext::bind_tf_idf(word, super, n) %>%
-        #dplyr::arrange(dplyr::desc(tf_idf)) %>%
-        dplyr::group_by(super) %>%
-        dplyr::slice_max(tf_idf, n = 15) %>%
-        dplyr::ungroup() %>%
-        dplyr::filter(super == input$pred) %>%
-        ggplot2::ggplot(ggplot2::aes(tf_idf, reorder(word, tf_idf))) +
-        ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
-        ggplot2::labs(x = "TF-IDF*", y = NULL,
-                      title = paste0("Most frequent words in feedback text that is about\n",
-                                     "\"", input$pred, "\"")) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(
-          panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank(),
-          axis.text.y = ggplot2::element_text(size = 12)
-        )
+      
+      tfidf_unigrams(x, label = input$pred)
     })
     
     output$tfidfExplanation <- renderText({
@@ -66,6 +51,16 @@ mod_tfidf_and_word_processing_server <- function(id){
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
                   "\"", "the", "\"", " are very frequent but uniformative of
           the cotent of the text."))
+    })
+    
+    output$classControl <- renderUI({
+      
+      selectInput(
+        session$ns("pred"), 
+        "Choose a label:",
+        choices = sort(unique(x$super)),
+        selected = sort(unique(x$super))[1]
+      )
     })
   })
 }
