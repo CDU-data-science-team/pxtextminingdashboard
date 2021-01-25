@@ -22,7 +22,8 @@ mod_tfidf_and_word_processing_ui <- function(id){
             htmlOutput(ns("tfidfExplanation")), 
             background = 'red', 
             width = NULL
-          )
+          ),
+          plotOutput(ns("bigrams_network"))
         )
       )
     )
@@ -39,6 +40,11 @@ mod_tfidf_and_word_processing_server <- function(id, x, label){
     output$tfidf_bars <- renderPlot({
       
       tfidf_unigrams(x, label = input$pred)
+    })
+    
+    output$bigrams_network <- renderPlot({
+
+      bigrams_network_plot(x, label = input$pred)
     })
     
     output$tfidfExplanation <- renderText({
