@@ -10,20 +10,24 @@
 mod_tfidf_and_word_processing_ui <- function(id){
   ns <- NS(id)
   tagList(
+    
     fluidRow(
       width = 12,
+      
       column(
         width = 12,
         uiOutput(ns("classControl")),
+        
         box(
           width = NULL,
+          
           plotOutput(ns("tfidf_bars")),
+          
           box(
             htmlOutput(ns("tfidfExplanation")), 
-            background = 'red', 
+            background = "red", 
             width = NULL
-          ),
-          plotOutput(ns("bigrams_network"))
+          )
         )
       )
     )
@@ -33,21 +37,17 @@ mod_tfidf_and_word_processing_ui <- function(id){
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_and_word_processing_server <- function(id, x, label){
-  moduleServer( id, function(input, output, session){
+mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
     output$tfidf_bars <- renderPlot({
       
-      tfidf_unigrams(x, label = input$pred)
-    })
-    
-    output$bigrams_network <- renderPlot({
-
-      bigrams_network_plot(x, label = input$pred)
+      tfidf_unigrams(x, label = input$label, y = predictor)
     })
     
     output$tfidfExplanation <- renderText({
+      
       HTML(paste0("*TF-IDF stands for
           <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
           Term Frequency–Inverse Document Frequency</a></u>.
@@ -62,10 +62,10 @@ mod_tfidf_and_word_processing_server <- function(id, x, label){
     output$classControl <- renderUI({
       
       selectInput(
-        session$ns("pred"), 
+        session$ns("label"), 
         "Choose a label:",
-        choices = sort(unique(x$super)),
-        selected = sort(unique(x$super))[1]
+        choices = sort(unique(unlist(x[, predictor]))),
+        selected = sort(unique(unlist(x[, predictor])))[1]
       )
     })
   })

@@ -29,13 +29,15 @@ usethis::use_package( "tidytext" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
-golem::add_module( name = "predictions_table" ) # Name of the module
-golem::add_module( name = "sentiment_analysis" )
-golem::add_module( name = "tidytext" )
-golem::add_module( name = "text_blob" )
-golem::add_module( name = "tfidf_and_word_processing" )
+golem::add_module(name = "predictions_table") # Name of the module
+golem::add_module(name = "sentiment_analysis")
+golem::add_module(name = "tidytext")
+golem::add_module(name = "text_blob")
+golem::add_module(name = "tfidf_and_word_processing")
 golem::add_utils("ngrams_and_tfidf", module = "tfidf_and_word_processing")
-golem::add_module( name = "performance_metrics" )
+golem::add_module(name = "bigrams_network" )
+golem::add_utils("bigrams", module = "bigrams_network")
+golem::add_module(name = "performance_metrics" )
 golem::add_utils("plot_learner_metrics", module = "performance_metrics")
 
 ## Add helper functions ----
