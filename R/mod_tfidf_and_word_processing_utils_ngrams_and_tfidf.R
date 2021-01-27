@@ -3,9 +3,9 @@ tfidf_unigrams <- function(x, label, y) {
   x %>%
     tidytext::unnest_tokens(word, improve) %>%
     dplyr::anti_join(tidytext::stop_words, by = c("word" = "word")) %>% # Do this because some stop words make it through the TF-IDF filtering that happens below.
-    dplyr::count(dplyr::across(dplyr::all_of(y)), word, sort = TRUE) %>%
-    tidytext::bind_tf_idf(word, {{y}}, n) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(y))) %>%
+    dplyr::count(.data[[y]], word, sort = TRUE) %>%
+    tidytext::bind_tf_idf(word, .data[[y]], n) %>%
+    dplyr::group_by(.data[[y]]) %>%
     dplyr::slice_max(tf_idf, n = 15) %>%
     dplyr::ungroup() %>%
     dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% label)) %>%
