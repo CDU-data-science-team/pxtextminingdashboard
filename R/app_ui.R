@@ -18,7 +18,7 @@ app_ui <- function(request) {
                    icon = icon("dashboard")),
           menuItem("Sentiment Analysis", tabName = "tab_sentiment", 
                    icon = icon("dashboard")),
-          menuItem("TF-IDF", tabName = "tab_tfidf", 
+          menuItem("TF-IDF & Bigrams", tabName = "tab_tfidf", 
                    icon = icon("dashboard"))
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
@@ -110,7 +110,7 @@ app_ui <- function(request) {
                   ),
                   
                   tabPanel(
-                    "Bigrams",
+                    "Network of bigrams",
                     mod_bigrams_network_ui("bigrams_network_ui_1")
                   )
                 )
@@ -127,7 +127,7 @@ app_ui <- function(request) {
                   ),
                   
                   tabPanel(
-                    "Bigrams",
+                    "Network of bigrams",
                     mod_bigrams_network_ui("bigrams_network_ui_2")
                   )
                 )

@@ -12,11 +12,20 @@ mod_tfidf_and_word_processing_ui <- function(id){
   tagList(
     
     fluidRow(
+      column(width = 6,
+             uiOutput(ns("classControl"))
+      ),
+      
+      column(width = 6,
+             uiOutput(ns("ngramsNumControl"))
+      )
+    ),
+    
+    fluidRow(
       width = 12,
       
       column(
         width = 12,
-        uiOutput(ns("classControl")),
         
         box(
           width = NULL,
@@ -43,7 +52,8 @@ mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
     
     output$tfidf_bars <- renderPlot({
       
-      tfidf_unigrams(x, label = input$label, y = predictor)
+      tfidf_ngrams(x, label = input$label, y = predictor, 
+                   ngrams_type = input$ngramsType)
     })
     
     output$tfidfExplanation <- renderText({
@@ -52,7 +62,9 @@ mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
           <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
           Term Frequency–Inverse Document Frequency</a></u>.
           It is a standard way of calculating the frequency (i.e. importance)
-          of a word in the given text. It is a little more sophisticated than
+          of a word or series of words 
+          (i.e. <u><a href='https://en.wikipedia.org/wiki/N-gram'>n-grams</a></u>) 
+          in the given text. It is a little more sophisticated than
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
                   "\"", "the", "\"", " are very frequent but uniformative of
@@ -64,8 +76,18 @@ mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
       selectInput(
         session$ns("label"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[, predictor]))),
-        selected = sort(unique(unlist(x[, predictor])))[1]
+        choices = sort(unique(unlist(x[[predictor]]))),
+        selected = sort(unique(unlist(x[[predictor]])))[1]
+      )
+    })
+    
+    output$ngramsNumControl <- renderUI({
+      
+      selectInput(
+        session$ns("ngramsType"),
+        label = HTML("<b>Choose between unigrams or bigrams:</b>"),
+        choices = c("Unigrams", "Bigrams"),
+        selected = "Unigrams"
       )
     })
   })
