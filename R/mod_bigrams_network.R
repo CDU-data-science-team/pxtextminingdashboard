@@ -48,8 +48,8 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$bigramsNetwork <- renderPlot({
       
-      bigrams_network_plot(x, label = input$pred, y = predictor, 
-                           bigrams_prop = input$bigramsProp)
+      bigrams_network_plot(x, label = req(input$pred), y = predictor, 
+                           bigrams_prop = req(input$bigramsProp))
     })
     
     output$bigramsNetworkExplanation <- renderText({
@@ -71,8 +71,8 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       selectInput(
         session$ns("pred"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[,predictor]))),
-        selected = sort(unique(unlist(x[,predictor])))[1]
+        choices = sort(unique(unlist(x[[predictor]]))),
+        selected = sort(unique(unlist(x[[predictor]])))[1]
       )
     })
     
@@ -81,7 +81,7 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       sliderInput(
         session$ns("bigramsProp"),
         label = HTML("<b>Proportion (%) of most frequent bigrams:</b>"),
-        value = NULL,
+        value = 1,
         min = 1,
         max = 50
       )

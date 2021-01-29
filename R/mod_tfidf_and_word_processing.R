@@ -53,7 +53,7 @@ mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
     output$tfidf_bars <- renderPlot({
       
       tfidf_ngrams(x, label = input$label, y = predictor, 
-                   ngrams_type = input$ngramsType)
+                   ngrams_type = req(input$ngramsType))
     })
     
     output$tfidfExplanation <- renderText({
