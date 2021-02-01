@@ -48,8 +48,11 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$bigramsNetwork <- renderPlot({
       
-      bigrams_network_plot(x, label = req(input$pred), y = predictor, 
-                           bigrams_prop = req(input$bigramsProp))
+      req(input$pred)
+      req(input$bigramsProp)
+      
+      bigrams_network_plot(x, label = input$pred, y = predictor, 
+                           bigrams_prop = input$bigramsProp)
     })
     
     output$bigramsNetworkExplanation <- renderText({
