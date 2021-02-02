@@ -168,7 +168,7 @@ mod_tidytext_server <- function(id){
     
     showModal(
       modalDialog(
-        htmlOutput(ns("tooltipWindow")),
+        htmlOutput(session$ns("tooltipWindow")),
         size = "l",
         easyClose = TRUE,
         footer = NULL
