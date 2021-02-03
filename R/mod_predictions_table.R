@@ -10,30 +10,30 @@
 mod_predictions_table_ui <- function(id){
   ns <- NS(id)
   tagList(
-   # Boxes need to be put in a row (or column)
+  
     fluidRow(
-      column(12,
-        box(width = NULL, background = "red",
-          textOutput(ns("modelAccuracyBox"))
+      column(
+        width = 12,
+        box(
+          title = "Predicted text for each label",
+          width = NULL,
+          box(
+            width = NULL, 
+            background = "red",
+            htmlOutput(ns("modelAccuracyBox"))
+          ),
+          uiOutput(ns("classControl")),
+          reactable::reactableOutput(ns("pedictedLabels"))
         )
       )
-    ),
-
-    fluidRow(
-      column(width = 12,
-        box(width = NULL,
-          selectInput(ns("pred"), "Choose a label:",
-          choices=sort(unique(test_data$pred))),
-        reactable::reactableOutput(ns("pedictedLabels")))
-      )
-   )
+    )
   )
 }
     
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id){
+mod_predictions_table_server <- function(id, x, y){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -44,8 +44,8 @@ mod_predictions_table_server <- function(id){
       )
 
       reactable::reactable(
-        test_data %>%
-          dplyr::filter(pred == input$pred) %>%
+        x %>%
+          dplyr::filter(pred %in% input$pred) %>%
           dplyr::select(improve),
         columns = list(improve = reactable::colDef(name = feedback_col_new_name)),
         #rownames = TRUE,
@@ -59,15 +59,26 @@ mod_predictions_table_server <- function(id){
     })
 
     output$modelAccuracyBox <- renderText({
-      accuracy_score <- accuracy_per_class %>%
-        dplyr::filter(class == input$pred) %>%
+      accuracy_score <- y %>%
+        dplyr::filter(class %in% input$pred) %>%
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
         dplyr::pull()
 
-      paste0("NOTE: Model accuracy for this label is ", accuracy_score, "%.
-           This means that in 100 feedback records, ", accuracy_score,
-             "  are predicted correctly.")
+      HTML(paste0(
+             "NOTE: Learner accuracy for this label is ", accuracy_score, "%.
+             This means that in 100 feedback records, ", accuracy_score,
+             "  are predicted correctly."))
+    })
+    
+    output$classControl <- renderUI({
+      
+      selectInput(
+        session$ns("pred"), 
+        "Choose a label:",
+        choices = sort(unique(x$pred)),
+        selected = sort(unique(x$pred))[1]
+      )
     })
   })
 }

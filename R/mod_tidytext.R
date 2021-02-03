@@ -19,17 +19,17 @@ mod_tidytext_ui <- function(id){
       )
     ),
     
-    h4("Click a plot to see further information"),
-    
     fluidRow(
-      column(width = 12,
+      column(width = 6,
              uiOutput(ns("nrcSentimentControl"))
       ),
       
-      column(width = 12,
+      column(width = 6,
              uiOutput(ns("numberOfFacetsControl"))
       )
     ),
+    
+    h4("Click a plot to see further information"),
     
     fluidRow(
       column(width = 12,   
@@ -88,7 +88,7 @@ mod_tidytext_server <- function(id){
         dplyr::arrange(
           dplyr::across(input$nrcSentiments, dplyr::desc)	
         ) %>%
-        tidyr::pivot_longer(cols = tidyselect::all_of(nrc_sentiments)) %>%
+        tidyr::pivot_longer(cols = dplyr::all_of(nrc_sentiments)) %>%
         dplyr::filter(value != 0) %>%
         dplyr::filter(linenumber %in% 
                         unique(.$linenumber)[1:input$numberOfFacets]) %>%
@@ -168,7 +168,7 @@ mod_tidytext_server <- function(id){
     
     showModal(
       modalDialog(
-        htmlOutput(ns("tooltipWindow")),
+        htmlOutput(session$ns("tooltipWindow")),
         size = "l",
         easyClose = TRUE,
         footer = NULL
@@ -185,7 +185,8 @@ mod_tidytext_server <- function(id){
         values_fill = 0
       ) %>%
       dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
-      dplyr::select(linenumber, super, improve, all_of(nrc_sentiments)) %>%
+      dplyr::select(linenumber, super, improve, 
+                    dplyr::all_of(nrc_sentiments)) %>%
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,

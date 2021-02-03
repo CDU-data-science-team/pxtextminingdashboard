@@ -16,24 +16,29 @@
 ## Dependencies ----
 ## Add one line by package you want to add as dependency
 usethis::use_package( "dplyr" )
+usethis::use_package( "igraph" )
 usethis::use_package( "ggplot2" )
-#usethis::use_package( "plotly" )
+usethis::use_package( "ggthemes" )
+usethis::use_package( "plotly" )
+usethis::use_package( "quanteda" )
+usethis::use_package( "reactable" )
 usethis::use_package( "shiny" )
 usethis::use_package( "shinydashboard" )
-usethis::use_package( "reactable" )
+usethis::use_package( "tidyr" )
 usethis::use_package( "tidytext" )
-#usethis::use_package( "sparkline" )
-usethis::use_package( "ggthemes" )
-usethis::use_package( "quanteda" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
-golem::add_module( name = "predictions_table" ) # Name of the module
-golem::add_module( name = "sentiment_analysis" )
-golem::add_module( name = "tidytext" )
-golem::add_module( name = "predictions_table_criticality" )
-golem::add_module( name = "text_blob" )
-golem::add_module( name = "tfidf_and_word_processing" )
+golem::add_module(name = "predictions_table") # Name of the module
+golem::add_module(name = "sentiment_analysis")
+golem::add_module(name = "tidytext")
+golem::add_module(name = "text_blob")
+golem::add_module(name = "tfidf_and_word_processing")
+golem::add_utils("ngrams_and_tfidf", module = "tfidf_and_word_processing")
+golem::add_module(name = "bigrams_network" )
+golem::add_utils("bigrams", module = "bigrams_network")
+golem::add_module(name = "performance_metrics" )
+golem::add_utils("plot_learner_metrics", module = "performance_metrics")
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*

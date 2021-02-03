@@ -14,7 +14,7 @@ mod_text_blob_ui <- function(id){
     fluidRow(
       column(12,
              box(width = NULL, background = "red",
-                 textOutput(ns("textBlobBox"))
+                 htmlOutput(ns("textBlobBox"))
              )
       )
     ),
@@ -37,9 +37,10 @@ mod_text_blob_server <- function(id){
     ns <- session$ns
     
     output$textBlobBox <- renderText({
-      "Polarity is a way to calculate how positive or negative a 
+      HTML("<u><a href='https://textblob.readthedocs.io/en/dev/index.html'>
+          Polarity</a></u> is a way to calculate how positive or negative a 
        comment is. It ranges between -1 (very negative) to 
-       1 (very positive)."
+       1 (very positive).")
     })
     
     sticky_style <- list(position = "sticky", left = 0, 
@@ -52,8 +53,7 @@ mod_text_blob_server <- function(id){
         text_blob_scores %>%
           dplyr::filter(super != "Couldn't be improved") %>%
           dplyr::select(improve, polarity) %>%
-          dplyr::mutate_at('polarity',  ~ round(., 2)) %>%
-          dplyr::slice(1:100),
+          dplyr::mutate_at('polarity',  ~ round(., 2)),
         columns = list(
           improve = reactable::colDef(
             name = "Feedback",
