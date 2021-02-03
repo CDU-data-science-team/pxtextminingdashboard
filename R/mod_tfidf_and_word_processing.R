@@ -67,8 +67,8 @@ mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
           in the given text. It is a little more sophisticated than
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
-                  "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text."))
+                  "\"", "the", "\"", " are very frequent but uninformative of
+          the content of the text."))
     })
     
     output$classControl <- renderUI({
