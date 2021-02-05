@@ -78,17 +78,17 @@ app_ui <- function(request) {
               
               tabPanel(
                 "Sentiment - label", 
-                mod_sentiment_analysis_ui("sentiment_analysis_ui_1")
+                mod_sentiment_analysis_tag_level_ui("sentiment_analysis_tag_level_ui_1")
               ),
               
               tabPanel(
                 "Sentiment - text",
-                mod_tidytext_ui("tidytext_ui_1")
+                mod_sentiment_analysis_nrc_sentiment_breakdown_ui("sentiment_analysis_nrc_sentiment_breakdown_ui_1")
               ),
               
               tabPanel(
                 "Polarity - text",
-                mod_text_blob_ui("text_blob_ui_1")
+                mod_sentiment_analysis_textblob_polarity_ui("sentiment_analysis_textblob_polarity_ui_1")
               )
             )
           ),
@@ -106,7 +106,7 @@ app_ui <- function(request) {
                   
                   tabPanel(
                     "TF-IDF",
-                    mod_tfidf_and_word_processing_ui("tfidf_and_word_processing_ui_1")
+                    mod_tfidf_ui("tfidf_ui_1")
                   ),
                   
                   tabPanel(
@@ -123,7 +123,7 @@ app_ui <- function(request) {
                   
                   tabPanel(
                     "TF-IDF",
-                    mod_tfidf_and_word_processing_ui("tfidf_and_word_processing_ui_2")
+                    mod_tfidf_ui("tfidf_ui_2")
                   ),
                   
                   tabPanel(

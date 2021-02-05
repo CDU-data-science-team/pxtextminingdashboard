@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_tfidf_and_word_processing_ui <- function(id){
+mod_tfidf_ui <- function(id){
   ns <- NS(id)
   tagList(
     
@@ -49,7 +49,7 @@ mod_tfidf_and_word_processing_ui <- function(id){
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_and_word_processing_server <- function(id, x, predictor) {
+mod_tfidf_server <- function(id, x, predictor) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     

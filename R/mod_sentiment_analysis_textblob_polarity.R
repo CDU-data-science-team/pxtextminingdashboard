@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_text_blob_ui <- function(id){
+mod_sentiment_analysis_textblob_polarity_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
@@ -32,7 +32,7 @@ mod_text_blob_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_text_blob_server <- function(id){
+mod_sentiment_analysis_textblob_polarity_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -82,7 +82,7 @@ mod_text_blob_server <- function(id){
 }
     
 ## To be copied in the UI
-# mod_text_blob_ui("text_blob_ui_1")
+# mod_sentiment_analysis_textblob_polarity_ui("sentiment_analysis_textblob_polarity_ui_1")
     
 ## To be copied in the server
-# mod_text_blob_server("text_blob_ui_1")
+# mod_sentiment_analysis_textblob_polarity_server("sentiment_analysis_textblob_polarity_ui_1")

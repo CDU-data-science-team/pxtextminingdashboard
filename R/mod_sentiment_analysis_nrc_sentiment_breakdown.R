@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_tidytext_ui <- function(id){
+mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
   ns <- NS(id)
   tagList(
 
@@ -42,7 +42,7 @@ mod_tidytext_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_tidytext_server <- function(id){
+mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     

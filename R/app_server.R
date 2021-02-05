@@ -21,20 +21,20 @@ app_server <- function( input, output, session ) {
   )
   
   #############################################################################
-  mod_sentiment_analysis_server("sentiment_analysis_ui_1")
+  mod_sentiment_analysis_tag_level_server("sentiment_analysis_tag_level_ui_1")
   
-  mod_tidytext_server("tidytext_ui_1")
+  mod_sentiment_analysis_nrc_sentiment_breakdown_server("sentiment_analysis_nrc_sentiment_breakdown_ui_1")
   
-  mod_text_blob_server("text_blob_ui_1")
+  mod_sentiment_analysis_textblob_polarity_server("sentiment_analysis_textblob_polarity_ui_1")
   
   #############################################################################
-  mod_tfidf_and_word_processing_server(
-    "tfidf_and_word_processing_ui_1",
+  mod_tfidf_server(
+    "tfidf_ui_1",
     x = text_data,
     predictor = "super"
   )
-  mod_tfidf_and_word_processing_server(
-    "tfidf_and_word_processing_ui_2",
+  mod_tfidf_server(
+    "tfidf_ui_2",
     x = text_data,
     predictor = "imp_crit"
   )
