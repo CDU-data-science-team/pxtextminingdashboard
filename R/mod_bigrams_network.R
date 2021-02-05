@@ -27,7 +27,8 @@ mod_bigrams_network_ui <- function(id){
         width = 12,
         box(
           width = NULL,
-          plotOutput(ns("bigramsNetwork")),
+          plotOutput(ns("bigramsNetwork")) %>%
+            shinycssloaders::withSpinner(),
           box(
             htmlOutput(ns("bigramsNetworkExplanation")), 
             background = 'red', 

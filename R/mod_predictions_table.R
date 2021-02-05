@@ -23,7 +23,8 @@ mod_predictions_table_ui <- function(id){
             htmlOutput(ns("modelAccuracyBox"))
           ),
           uiOutput(ns("classControl")),
-          reactable::reactableOutput(ns("pedictedLabels"))
+          reactable::reactableOutput(ns("pedictedLabels")) %>%
+            shinycssloaders::withSpinner()
         )
       )
     )

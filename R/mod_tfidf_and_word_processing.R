@@ -12,12 +12,14 @@ mod_tfidf_and_word_processing_ui <- function(id){
   tagList(
     
     fluidRow(
-      column(width = 6,
-             uiOutput(ns("classControl"))
+      column(
+        width = 6,
+        uiOutput(ns("classControl"))
       ),
       
-      column(width = 6,
-             uiOutput(ns("ngramsNumControl"))
+      column(
+        width = 6,
+        uiOutput(ns("ngramsNumControl"))
       )
     ),
     
@@ -30,7 +32,8 @@ mod_tfidf_and_word_processing_ui <- function(id){
         box(
           width = NULL,
           
-          plotOutput(ns("tfidf_bars")),
+          plotOutput(ns("tfidf_bars")) %>%
+            shinycssloaders::withSpinner(),
           
           box(
             htmlOutput(ns("tfidfExplanation")), 

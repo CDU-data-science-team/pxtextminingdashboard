@@ -144,7 +144,8 @@ mod_tidytext_server <- function(id){
       session$ns("facetPlot"), 
       height = plot_height,
       click = ns("plot_click")
-    )
+    ) %>%
+      shinycssloaders::withSpinner()
   })
   
   output$facetPlot <- renderPlot({
