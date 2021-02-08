@@ -24,7 +24,7 @@ mod_predictions_table_ui <- function(id){
           ),
           uiOutput(ns("classControl")),
           reactable::reactableOutput(ns("pedictedLabels")) %>%
-            shinycssloaders::withSpinner()
+            shinycssloaders::withSpinner(hide.ui = FALSE)
         )
       )
     )

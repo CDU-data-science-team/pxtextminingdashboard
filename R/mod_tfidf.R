@@ -33,7 +33,7 @@ mod_tfidf_ui <- function(id){
           width = NULL,
           
           plotOutput(ns("tfidf_bars")) %>%
-            shinycssloaders::withSpinner(),
+            shinycssloaders::withSpinner(hide.ui = FALSE),
           
           box(
             htmlOutput(ns("tfidfExplanation")), 
