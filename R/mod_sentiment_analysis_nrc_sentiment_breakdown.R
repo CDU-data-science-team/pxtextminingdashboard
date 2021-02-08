@@ -84,6 +84,9 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     
     plot_data <- reactive({
       
+      req(input$nrcSentiments)
+      req(input$numberOfFacets)
+      
       net_sentiment_nrc %>% 
         dplyr::arrange(
           dplyr::across(input$nrcSentiments, dplyr::desc)	
@@ -96,7 +99,8 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
           name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
           linenumber = factor(linenumber, levels = unique(.$linenumber))
         )
-    })
+    }) %>% 
+      debounce(2000)
   
   output$nrcSentimentControl <- renderUI({
     
@@ -117,7 +121,9 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
       label = HTML("<b>Select number of plots to display:</b>"),
       value = 60,
       min = 60,
-      max = 300
+      max = 300,
+      step = 20, 
+      ticks = FALSE
     )
   })
   
@@ -145,15 +151,37 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
       height = plot_height,
       click = ns("plot_click")
     ) %>%
-      shinycssloaders::withSpinner()
+      shinycssloaders::withSpinner(hide.ui = FALSE)
   })
   
+  # plot_function <- reactive({
+  #   
+  #   plot_data() %>%
+  #     ggplot2::ggplot(ggplot2::aes(value, name)) +
+  #     ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
+  #     ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
+  #     ggplot2::theme_bw() +
+  #     ggplot2::theme(
+  #       panel.grid.major = ggplot2::element_blank(),
+  #       panel.grid.minor = ggplot2::element_blank(),
+  #       axis.title.x = ggplot2::element_blank(),
+  #       axis.text.x = ggplot2::element_blank(),
+  #       axis.ticks.x = ggplot2::element_blank()
+  #     ) + 
+  #     ggplot2::ylab('')
+  # }) %>% 
+  #   debounce(2000)
+  # 
+  # output$facetPlot <- renderPlot({
+  #   plot_function()
+  # })
+  
   output$facetPlot <- renderPlot({
-    
+
     plot_data() %>%
       ggplot2::ggplot(ggplot2::aes(value, name)) +
-      ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
-      ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
+      ggplot2::geom_col(fill = "blue", alpha = 0.6) +
+      ggplot2::facet_wrap(~ linenumber, ncol = 5) +
       ggplot2::theme_bw() +
       ggplot2::theme(
         panel.grid.major = ggplot2::element_blank(),
@@ -161,7 +189,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         axis.title.x = ggplot2::element_blank(),
         axis.text.x = ggplot2::element_blank(),
         axis.ticks.x = ggplot2::element_blank()
-      ) + 
+      ) +
       ggplot2::ylab('')
   })
   

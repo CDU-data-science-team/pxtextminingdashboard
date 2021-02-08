@@ -53,10 +53,16 @@ mod_tfidf_server <- function(id, x, predictor) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    output$tfidf_bars <- renderPlot({
+    plot_function <- reactive({
+      req(input$ngramsType)
       
-      tfidf_ngrams(x, label = input$label, y = predictor, 
-                   ngrams_type = req(input$ngramsType))
+      tfidf_ngrams(x, label = input$label, y = predictor,
+                   ngrams_type = input$ngramsType)
+    }) %>% 
+      debounce(2000)
+    
+    output$tfidf_bars <- renderPlot({
+      plot_function()
     })
     
     output$tfidfExplanation <- renderText({
