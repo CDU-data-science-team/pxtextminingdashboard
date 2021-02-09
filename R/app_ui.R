@@ -11,15 +11,33 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     dashboardPage(
-      dashboardHeader(title = "Patient feedback and its predicted label"),
+      
+      dashboardHeader(
+        title = "Text Mining of Patient Feedback"
+      ),
+      
       dashboardSidebar(
+        
         sidebarMenu(
-          menuItem("Text Classification", tabName = "tab_text_classification", 
-                   icon = icon("dashboard")),
-          menuItem("Sentiment Analysis", tabName = "tab_sentiment", 
-                   icon = icon("dashboard")),
-          menuItem("TF-IDF & Bigrams", tabName = "tab_tfidf", 
-                   icon = icon("dashboard"))
+          
+          menuItem(
+            "Text Classification", 
+            tabName = "tab_text_classification", 
+            icon = icon("dashboard")
+          ),
+          
+          menuItem(
+            "Sentiment Analysis", 
+            tabName = "tab_sentiment", 
+            icon = icon("dashboard")
+          ),
+          
+          menuItem(
+            "TF-IDF & Bigrams", 
+            tabName = "tab_tfidf", 
+            icon = icon("dashboard")
+          )
+          
           #menuItem("Widgets", tabName = "widgets", icon = icon("th"))
         )
       ),
