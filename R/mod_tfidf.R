@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_tfidf_ui <- function(id){
+mod_tfidf_ui <- function(id) {
   ns <- NS(id)
   tagList(
     
@@ -33,7 +33,7 @@ mod_tfidf_ui <- function(id){
           width = NULL,
           
           plotOutput(ns("tfidf_bars")) %>%
-            shinycssloaders::withSpinner(hide.ui = FALSE),
+            shinycssloaders::withSpinner(hide.ui = TRUE),
           
           box(
             htmlOutput(ns("tfidfExplanation")), 
@@ -54,16 +54,42 @@ mod_tfidf_server <- function(id, x, predictor) {
     ns <- session$ns
     
     plot_function <- reactive({
+      req(input$label)
       req(input$ngramsType)
       
       tfidf_ngrams(x, label = input$label, y = predictor,
                    ngrams_type = input$ngramsType)
     }) %>% 
-      debounce(2000)
+      debounce(1000)
     
-    output$tfidf_bars <- renderPlot({
+    output$tfidf_bars <- renderCachedPlot({
+      
+      withProgress(
+        message = "Calculation in progress",
+        detail = "Please wait a few seconds...", 
+        value = 0, 
+        {
+          for (i in 1:15) {
+            incProgress(1 / 15)
+            Sys.sleep(0.25)
+          }
+        }
+      )
+      
       plot_function()
-    })
+    },
+    sizeGrowthRatio(width = 1024, height = 768, growthRate = 1.2),
+    res = 108,
+    pointsize = 2,
+    cacheKeyExpr = 
+      {
+        list(
+          input$label, 
+          input$ngramsType
+        ) 
+      }
+    
+    )
     
     output$tfidfExplanation <- renderText({
       

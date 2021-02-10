@@ -154,30 +154,20 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
       shinycssloaders::withSpinner(hide.ui = FALSE)
   })
   
-  # plot_function <- reactive({
-  #   
-  #   plot_data() %>%
-  #     ggplot2::ggplot(ggplot2::aes(value, name)) +
-  #     ggplot2::geom_col(fill = "blue", alpha = 0.6) + 
-  #     ggplot2::facet_wrap(~ linenumber, ncol = 5) + 
-  #     ggplot2::theme_bw() +
-  #     ggplot2::theme(
-  #       panel.grid.major = ggplot2::element_blank(),
-  #       panel.grid.minor = ggplot2::element_blank(),
-  #       axis.title.x = ggplot2::element_blank(),
-  #       axis.text.x = ggplot2::element_blank(),
-  #       axis.ticks.x = ggplot2::element_blank()
-  #     ) + 
-  #     ggplot2::ylab('')
-  # }) %>% 
-  #   debounce(2000)
-  # 
-  # output$facetPlot <- renderPlot({
-  #   plot_function()
-  # })
-  
-  output$facetPlot <- renderPlot({
-
+  output$facetPlot <- renderCachedPlot({
+    
+    withProgress(
+      message = "Calculation in progress",
+      detail = "Please wait a few seconds...", 
+      value = 0, 
+      {
+        for (i in 1:15) {
+          incProgress(1 / 15)
+          Sys.sleep(0.25)
+        }
+      }
+    )
+    
     plot_data() %>%
       ggplot2::ggplot(ggplot2::aes(value, name)) +
       ggplot2::geom_col(fill = "blue", alpha = 0.6) +
@@ -191,7 +181,19 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         axis.ticks.x = ggplot2::element_blank()
       ) +
       ggplot2::ylab('')
-  })
+  },
+  sizeGrowthRatio(width = 1024, height = 768, growthRate = 1.2),
+  res = 108,
+  pointsize = 2,
+  cacheKeyExpr = 
+    {
+      list(
+        input$label, 
+        input$ngramsType
+      ) 
+    }
+  
+  )
   
   observeEvent(input$plot_click, {
     
