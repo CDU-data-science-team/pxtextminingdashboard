@@ -58,14 +58,17 @@ mod_tfidf_server <- function(id, x, predictor) {
       req(input$label)
       req(input$ngramsType)
       
-      withProgress(message = 'Calculation in progress',
-                   detail = 'This may take a while...', value = 0, {
+      withProgress(
+        message = 'Calculation in progress',
+        detail = 'This may take a few seconds...', 
+        value = 0, 
+        {
+          p <- tfidf_ngrams(x, label = input$label, y = predictor,
+                            ngrams_type = input$ngramsType)
                      
-                     p <- tfidf_ngrams(x, label = input$label, y = predictor,
-                                       ngrams_type = input$ngramsType)
-                     
-                     incProgress(1)
-                   })
+          incProgress(1)
+        }
+      )
       
       return(p)
     }) %>% 
@@ -74,19 +77,7 @@ mod_tfidf_server <- function(id, x, predictor) {
     output$tfidf_bars <- renderPlot({
       
       plot_function()
-    }# ,
-    # sizeGrowthRatio(width = 1024, height = 768, growthRate = 1.2),
-    # res = 108,
-    # pointsize = 2,
-    # cacheKeyExpr =
-    #   {
-    #     list(
-    #       input$label,
-    #       input$ngramsType
-    #     )
-    #   }
-    # 
-    )
+    })
     
     output$tfidfExplanation <- renderText({
       
