@@ -45,7 +45,7 @@ mod_tfidf_ui <- function(id) {
     )
   )
 }
-    
+
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
@@ -54,42 +54,30 @@ mod_tfidf_server <- function(id, x, predictor) {
     ns <- session$ns
     
     plot_function <- reactive({
+      
       req(input$label)
       req(input$ngramsType)
       
-      tfidf_ngrams(x, label = input$label, y = predictor,
-                   ngrams_type = input$ngramsType)
-    }) %>% 
-      debounce(1000)
-    
-    output$tfidf_bars <- renderCachedPlot({
-      
       withProgress(
-        message = "Calculation in progress",
-        detail = "Please wait a few seconds...", 
+        message = 'Calculation in progress',
+        detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          for (i in 1:15) {
-            incProgress(1 / 15)
-            Sys.sleep(0.25)
-          }
+          p <- tfidf_ngrams(x, label = input$label, y = predictor,
+                            ngrams_type = input$ngramsType)
+                     
+          incProgress(1)
         }
       )
       
-      plot_function()
-    },
-    sizeGrowthRatio(width = 1024, height = 768, growthRate = 1.2),
-    res = 108,
-    pointsize = 2,
-    cacheKeyExpr = 
-      {
-        list(
-          input$label, 
-          input$ngramsType
-        ) 
-      }
+      return(p)
+    }) %>% 
+      debounce(1000)
     
-    )
+    output$tfidf_bars <- renderPlot({
+      
+      plot_function()
+    })
     
     output$tfidfExplanation <- renderText({
       
@@ -102,7 +90,7 @@ mod_tfidf_server <- function(id, x, predictor) {
           in the given text. It is a little more sophisticated than
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
-                  "\"", "the", "\"", " are very frequent but uniformative of
+          "\"", "the", "\"", " are very frequent but uniformative of
           the cotent of the text."))
     })
     
