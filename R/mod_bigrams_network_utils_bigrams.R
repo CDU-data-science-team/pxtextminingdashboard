@@ -1,4 +1,4 @@
-bigrams_network_plot <- function(x, y, label, organization, bigrams_prop) {
+bigrams_network_plot <- function(x, y, class, organization, bigrams_prop) {
   
   a <- grid::arrow(
     type = "closed", 
@@ -7,7 +7,7 @@ bigrams_network_plot <- function(x, y, label, organization, bigrams_prop) {
   
   x <- x %>%
     dplyr::filter(organization %in% {{organization}}) %>%
-    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{label}})) %>%
+    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{class}})) %>%
     tidytext::unnest_tokens(bigram, feedback, token = "ngrams", n = 2) %>%
     tidyr::separate(bigram, c("word1", "word2"), sep = " ") %>%
     dplyr::filter(

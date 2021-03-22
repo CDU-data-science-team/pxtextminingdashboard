@@ -56,10 +56,10 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$bigramsNetwork <- renderPlot({
       
-      req(input$label)
+      req(input$class)
       req(input$bigramsProp)
       
-      bigrams_network_plot(x, y = predictor, label = input$label, 
+      bigrams_network_plot(x, y = predictor, class = input$class, 
                            organization = input$organization,
                            bigrams_prop = input$bigramsProp)
     })
@@ -91,7 +91,7 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       }
       
       selectInput(
-        session$ns("label"), 
+        session$ns("class"), 
         "Choose a label:",
         choices = sort(unique(unlist(aux[[predictor]]))),
         selected = sort(unique(unlist(aux[[predictor]])))[1]

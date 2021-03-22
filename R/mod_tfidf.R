@@ -60,7 +60,7 @@ mod_tfidf_server <- function(id, x, predictor) {
     
     plot_function <- reactive({
       
-      req(input$label)
+      req(input$class)
       req(input$ngramsType)
       
       withProgress(
@@ -68,7 +68,7 @@ mod_tfidf_server <- function(id, x, predictor) {
         detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          p <- tfidf_ngrams(x, y = predictor, label = input$label, 
+          p <- tfidf_ngrams(x, y = predictor, class = input$class, 
                             organization = input$organization,
                             ngrams_type = input$ngramsType)
                      
@@ -103,7 +103,7 @@ mod_tfidf_server <- function(id, x, predictor) {
     output$classControl <- renderUI({
       
       selectInput(
-        session$ns("label"), 
+        session$ns("class"), 
         "Choose a label:",
         choices = sort(unique(unlist(x[[predictor]]))),
         selected = sort(unique(unlist(x[[predictor]])))[1]

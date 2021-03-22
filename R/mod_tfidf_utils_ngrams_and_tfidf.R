@@ -1,4 +1,4 @@
-tfidf_ngrams <- function(x, y, label, organization, ngrams_type) {
+tfidf_ngrams <- function(x, y, class, organization, ngrams_type) {
   
   ngrams_n <- ifelse(ngrams_type == "Unigrams", 1, 2)
   
@@ -16,7 +16,7 @@ tfidf_ngrams <- function(x, y, label, organization, ngrams_type) {
     dplyr::group_by(.data[[y]]) %>%
     dplyr::slice_max(tf_idf, n = 15) %>%
     dplyr::ungroup() %>%
-    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{label}})) %>%
+    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{class}})) %>%
     ggplot2::ggplot(ggplot2::aes(tf_idf, reorder(ngram, tf_idf))) +
     ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
     ggplot2::labs(x = "TF-IDF*", y = NULL,

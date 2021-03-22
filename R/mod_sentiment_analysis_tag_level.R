@@ -128,7 +128,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       bing_word_counts <- reactive({
         tidy_feedback() %>%
           dplyr::filter(
-            label %in% input$label,
+            label %in% input$class,
             organization %in% input$organization
           ) %>%
           dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>%
@@ -194,7 +194,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
     output$classControl <- renderUI({
       
       selectInput(
-        session$ns("label"), 
+        session$ns("class"), 
         "Choose a label:",
         choices = sort(unique(text_data$label)),
         selected = sort(unique(text_data$label))[1]

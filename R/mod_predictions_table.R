@@ -57,26 +57,26 @@ mod_predictions_table_server <- function(id, x, y, predictor){
       if (predictor == "label") {
         
         feedback_col_new_name <- paste0(
-          "Feedback that model predicted as ", "\"", input$label, "\""
+          "Feedback that model predicted as ", "\"", input$class, "\""
         )
         
         aux <- x %>%
           dplyr::right_join(row_index_label, by = 'row_index') %>% 
           dplyr::filter(
-            label %in% input$label,
+            label %in% input$class,
             organization %in% input$organization
           ) %>%
           dplyr::select(feedback, organization)
       } else {
         
         feedback_col_new_name <- paste0(
-          "Feedback that model predicted as ", "\"", input$label, "\""
+          "Feedback that model predicted as ", "\"", input$class, "\""
         )
         
         aux <- x %>%
           dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
           dplyr::filter(
-            criticality %in% input$label,
+            criticality %in% input$class,
             organization %in% input$organization
           ) %>%
           dplyr::select(feedback, organization)
@@ -104,7 +104,7 @@ mod_predictions_table_server <- function(id, x, y, predictor){
       
       accuracy_score <- y %>%
         dplyr::filter(
-          class %in% input$label,
+          class %in% input$class,
           organization %in% input$organization
         ) %>%
         dplyr::select(accuracy) %>%
@@ -130,7 +130,7 @@ mod_predictions_table_server <- function(id, x, y, predictor){
       }
       
       selectInput(
-        session$ns("label"), 
+        session$ns("class"), 
         "Choose a label:",
         choices = sort(unique(unlist(aux[[predictor]]))),
         selected = sort(unique(unlist(aux[[predictor]])))[1]

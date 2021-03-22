@@ -60,7 +60,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         #dplyr::filter(super != "Couldn't be improved") %>%
         dplyr::mutate(linenumber = dplyr::row_number()) %>% 
         dplyr::filter(
-          label %in% input$label,
+          label %in% input$class,
           organization %in% input$organization
         )
     })
@@ -206,7 +206,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     {
       list(
         plot_data(),
-        input$label, 
+        input$class, 
         input$ngramsType
       ) 
     }
@@ -260,7 +260,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   output$classControl <- renderUI({
     
     selectInput(
-      session$ns("label"), 
+      session$ns("class"), 
       "Choose a label:",
       choices = sort(unique(text_data$label)),
       selected = sort(unique(text_data$label))[1]
