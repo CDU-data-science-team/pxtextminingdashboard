@@ -159,13 +159,13 @@ mod_sentiment_analysis_tag_level_server <- function(id){
     })
     
     output$sentimentAnalysisExplanation <- renderText({
-      HTML(paste0("<u><a href='https://en.wikipedia.org/wiki/Sentiment_analysis'>
+      HTML(paste0("<u><a target='_blank' rel='noopener noreferrer' href='https://en.wikipedia.org/wiki/Sentiment_analysis'>
           Sentiment Analysis</a></u> is a method for extracting the sentiment
-          in a text. It uses pre-defined <i>sentiment lexicons</i> (e.g. <u><a href=
+          in a text. It uses pre-defined <i>sentiment lexicons</i> (e.g. <u><a target='_blank' rel='noopener noreferrer' href=
           'http://www2.imm.dtu.dk/pubdb/pubs/6010-full.html'>AFINN</a></u>, 
-          <u><a href=
+          <u><a target='_blank' rel='noopener noreferrer' href=
           'https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html'>Bing</a></u> 
-          or <u><a href=
+          or <u><a target='_blank' rel='noopener noreferrer' href=
           'https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>).
           These lexicons either empirically score the positivity or negativity of a word (e.g. 
           AFINN scores ", "\"", "happy", "\"", " as 3 and ", "\"", "sad", "\"", 

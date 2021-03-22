@@ -37,7 +37,7 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
     ns <- session$ns
     
     output$textBlobBox <- renderText({
-      HTML("<u><a href='https://textblob.readthedocs.io/en/dev/index.html'>
+      HTML("<u><a target='_blank' rel='noopener noreferrer' href='https://textblob.readthedocs.io/en/dev/index.html'>
           Polarity</a></u> is a way to calculate how positive or negative a 
        comment is. It ranges between -1 (very negative) to 
        1 (very positive).")

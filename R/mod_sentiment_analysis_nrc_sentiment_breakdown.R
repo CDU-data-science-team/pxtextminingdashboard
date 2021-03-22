@@ -144,10 +144,10 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   })
   
   output$netSentimentBox <- renderText({
-    HTML(paste0("This tab uses <u><a href='https://en.wikipedia.org/wiki/Sentiment_analysis'>Sentiment Analysis</a></u> 
+    HTML(paste0("This tab uses <u><a target='_blank' rel='noopener noreferrer' href='https://en.wikipedia.org/wiki/Sentiment_analysis'>Sentiment Analysis</a></u> 
           to see which sentiments are expressed the most in a given patient 
           feedback comment. We use a pre-defined <i>sentiment lexicon</i> 
-          known as <u><a href='https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>, 
+          known as <u><a target='_blank' rel='noopener noreferrer' href='https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm'>NRC</a></u>, 
           that empirically assigns one or more sentiments to a word. For example, 
           according to NRC, the word ", "\"", "happy", "\"", " expresses four 
           sentiments, namely anticipation, joy, positive & trust. 

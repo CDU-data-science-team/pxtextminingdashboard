@@ -88,11 +88,11 @@ mod_tfidf_server <- function(id, x, predictor) {
     output$tfidfExplanation <- renderText({
       
       HTML(paste0("*TF-IDF stands for
-          <u><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
+          <u><a target='_blank' rel='noopener noreferrer' href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'>
           Term Frequency–Inverse Document Frequency</a></u>.
           It is a standard way of calculating the frequency (i.e. importance)
           of a word or series of words 
-          (i.e. <u><a href='https://en.wikipedia.org/wiki/N-gram'>n-grams</a></u>) 
+          (i.e. <u><a target='_blank' rel='noopener noreferrer' href='https://en.wikipedia.org/wiki/N-gram'>n-grams</a></u>) 
           in the given text. It is a little more sophisticated than
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
