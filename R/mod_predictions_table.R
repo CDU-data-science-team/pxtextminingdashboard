@@ -54,19 +54,19 @@ mod_predictions_table_server <- function(id, x, y, predictor){
     
     output$pedictedLabels <- reactable::renderReactable({
       
-      if (predictor == "super") {
+      if (predictor == "label") {
         
         feedback_col_new_name <- paste0(
           "Feedback that model predicted as ", "\"", input$label, "\""
         )
         
         aux <- x %>%
-          dplyr::right_join(row_index_super, by = 'row_index') %>% 
+          dplyr::right_join(row_index_label, by = 'row_index') %>% 
           dplyr::filter(
-            super %in% input$label,
+            label %in% input$label,
             organization %in% input$organization
           ) %>%
-          dplyr::select(improve, organization)
+          dplyr::select(feedback, organization)
       } else {
         
         feedback_col_new_name <- paste0(
@@ -76,17 +76,17 @@ mod_predictions_table_server <- function(id, x, y, predictor){
         aux <- x %>%
           dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
           dplyr::filter(
-            imp_crit %in% input$label,
+            criticality %in% input$label,
             organization %in% input$organization
           ) %>%
-          dplyr::select(improve, organization)
+          dplyr::select(feedback, organization)
       }
         
       reactable::reactable(
         aux,
         columns = 
           list(
-            improve = reactable::colDef(name = feedback_col_new_name),
+            feedback = reactable::colDef(name = feedback_col_new_name),
             organization = reactable::colDef(name = "Organization", 
                                              align = "right")
           ),
@@ -119,10 +119,10 @@ mod_predictions_table_server <- function(id, x, y, predictor){
     
     output$classControl <- renderUI({
       
-      if (predictor == "super") {
+      if (predictor == "label") {
         
         aux <- x %>%
-          dplyr::right_join(row_index_super, by = 'row_index')
+          dplyr::right_join(row_index_label, by = 'row_index')
       } else {
         
         aux <- x %>%

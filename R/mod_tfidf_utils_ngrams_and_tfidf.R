@@ -4,7 +4,7 @@ tfidf_ngrams <- function(x, y, label, organization, ngrams_type) {
   
   x %>%
     dplyr::filter(organization %in% {{organization}}) %>%
-    tidytext::unnest_tokens(ngram, improve, token = "ngrams", n = ngrams_n) %>%
+    tidytext::unnest_tokens(ngram, feedback, token = "ngrams", n = ngrams_n) %>%
     tidyr::separate(ngram, paste0("word", 1:ngrams_n), sep = " ") %>%
     dplyr::filter(
       dplyr::across(dplyr::starts_with("word"), 

@@ -80,10 +80,10 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$classControl <- renderUI({
       
-      if (predictor == "super") {
+      if (predictor == "label") {
         
         aux <- x %>%
-          dplyr::right_join(row_index_super, by = 'row_index')
+          dplyr::right_join(row_index_label, by = 'row_index')
       } else {
         
         aux <- x %>%

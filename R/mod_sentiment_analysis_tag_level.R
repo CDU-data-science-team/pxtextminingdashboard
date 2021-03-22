@@ -59,9 +59,9 @@ mod_sentiment_analysis_tag_level_server <- function(id){
     
     tidy_feedback <- reactive({
       text_data %>%
-        dplyr::group_by(super, organization) %>%
+        dplyr::group_by(label, organization) %>%
         dplyr::mutate(linenumber = dplyr::row_number()) %>%
-        tidytext::unnest_tokens(word, improve) %>%
+        tidytext::unnest_tokens(word, feedback) %>%
         dplyr::ungroup()
     })
     
@@ -69,7 +69,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
     net_sentiment_afinn <- reactive({
       tidy_feedback() %>%
         dplyr::inner_join(tidytext::get_sentiments("afinn"), by = "word") %>% 
-        dplyr::group_by(super, organization) %>%
+        dplyr::group_by(label, organization) %>%
         dplyr::summarise(sentiment = sum(value)) %>% 
         dplyr::mutate(method = "AFINN")
     })
@@ -86,7 +86,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
           dplyr::filter(sentiment %in% c("positive", "negative")) %>%
           dplyr::mutate(method = "NRC")
       ) %>%
-        dplyr::count(super, organization, method, sentiment) %>%
+        dplyr::count(label, organization, method, sentiment) %>%
         tidyr::spread(sentiment, n, fill = 0) %>%
         dplyr::mutate(sentiment = positive - negative) %>%
         dplyr::ungroup()
@@ -105,7 +105,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       
       
       netSentiment_all_dicts() %>%
-        ggplot2::ggplot(ggplot2::aes(sentiment, reorder(super, sentiment))) +
+        ggplot2::ggplot(ggplot2::aes(sentiment, reorder(label, sentiment))) +
         ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
         ggplot2::facet_wrap(~ method, ncol = 1, scales = "free") +
         ggplot2::labs(
@@ -128,7 +128,7 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       bing_word_counts <- reactive({
         tidy_feedback() %>%
           dplyr::filter(
-            super %in% input$label,
+            label %in% input$label,
             organization %in% input$organization
           ) %>%
           dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>%
@@ -196,8 +196,8 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       selectInput(
         session$ns("label"), 
         "Choose a label:",
-        choices = sort(unique(text_data$super)),
-        selected = sort(unique(text_data$super))[1]
+        choices = sort(unique(text_data$label)),
+        selected = sort(unique(text_data$label))[1]
       )
     })
     

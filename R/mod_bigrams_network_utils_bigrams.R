@@ -8,7 +8,7 @@ bigrams_network_plot <- function(x, y, label, organization, bigrams_prop) {
   x <- x %>%
     dplyr::filter(organization %in% {{organization}}) %>%
     dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{label}})) %>%
-    tidytext::unnest_tokens(bigram, improve, token = "ngrams", n = 2) %>%
+    tidytext::unnest_tokens(bigram, feedback, token = "ngrams", n = 2) %>%
     tidyr::separate(bigram, c("word1", "word2"), sep = " ") %>%
     dplyr::filter(
       dplyr::across(dplyr::starts_with("word"), 

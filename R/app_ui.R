@@ -51,7 +51,7 @@ app_ui <- function(request) {
             tabsetPanel(
               
               tabPanel(
-                "Super",
+                "Label",
                 
                 tabsetPanel(
                   
@@ -118,7 +118,7 @@ app_ui <- function(request) {
             tabsetPanel(
               
               tabPanel(
-                "Super",
+                "Label",
                 
                 tabsetPanel(
                   

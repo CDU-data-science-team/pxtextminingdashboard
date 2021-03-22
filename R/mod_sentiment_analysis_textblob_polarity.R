@@ -52,10 +52,10 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
       reactable::reactable(
         text_blob_scores %>%
           dplyr::filter(super != "Couldn't be improved") %>%
-          dplyr::select(improve, polarity) %>%
+          dplyr::select(feedback, polarity) %>%
           dplyr::mutate_at('polarity',  ~ round(., 2)),
         columns = list(
-          improve = reactable::colDef(
+          feedback = reactable::colDef(
             name = "Feedback",
             style = sticky_style,
             headerStyle = sticky_style,

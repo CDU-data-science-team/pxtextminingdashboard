@@ -60,14 +60,14 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         #dplyr::filter(super != "Couldn't be improved") %>%
         dplyr::mutate(linenumber = dplyr::row_number()) %>% 
         dplyr::filter(
-          super %in% input$label,
+          label %in% input$label,
           organization %in% input$organization
         )
     })
     
     net_sentiment_nrc <- reactive({
       text_data_filtered() %>%
-        tidytext::unnest_tokens(word, improve) %>%
+        tidytext::unnest_tokens(word, feedback) %>%
         dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
         dplyr::count(linenumber, sentiment, name = "sentiment_count") %>%
         dplyr::mutate(
@@ -84,14 +84,14 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
                            names_sort = TRUE
         ) %>%
         dplyr::left_join(text_data_filtered(), by = "linenumber") %>%
-        dplyr::select(improve, everything(), -`NA`) %>%
+        dplyr::select(feedback, everything(), -`NA`) %>%
         # dplyr::mutate(all_sentiments =
         #                 dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
         #                 split(seq(nrow(.))) %>%
         #                 lapply(function(x) unlist(names(x)[x != 0]))
         # ) %>%
-        #dplyr::select(improve, all_sentiments, everything())
-        dplyr::select(improve, everything())
+        #dplyr::select(feedback, all_sentiments, everything())
+        dplyr::select(feedback, everything())
       })
     
     plot_data <- reactive({
@@ -234,14 +234,14 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         values_fill = 0
       ) %>%
       dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
-      dplyr::select(linenumber, organization, super, improve, 
+      dplyr::select(linenumber, organization, label, feedback, 
                     dplyr::all_of(nrc_sentiments)) %>%
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
         "Organization" = organization,
-        "Feedback text tag" = super,
-        "Feedback text" = improve
+        "Feedback text tag" = label,
+        "Feedback text" = feedback
       )
     
     HTML(
@@ -262,8 +262,8 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     selectInput(
       session$ns("label"), 
       "Choose a label:",
-      choices = sort(unique(text_data$super)),
-      selected = sort(unique(text_data$super))[1]
+      choices = sort(unique(text_data$label)),
+      selected = sort(unique(text_data$label))[1]
     )
   })
   
