@@ -13,12 +13,17 @@ mod_tfidf_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 6,
+        width = 4,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 6,
+        width = 4,
+        uiOutput(ns("organizationControl"))
+      ),
+      
+      column(
+        width = 4,
         uiOutput(ns("ngramsNumControl"))
       )
     ),
@@ -32,7 +37,7 @@ mod_tfidf_ui <- function(id) {
         box(
           width = NULL,
           
-          plotOutput(ns("tfidf_bars")) %>%
+          plotOutput(ns("tfidf_bars"), height = "1000px") %>%
             shinycssloaders::withSpinner(hide.ui = TRUE),
           
           box(
@@ -63,7 +68,8 @@ mod_tfidf_server <- function(id, x, predictor) {
         detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          p <- tfidf_ngrams(x, label = input$label, y = predictor,
+          p <- tfidf_ngrams(x, y = predictor, label = input$label, 
+                            organization = input$organization,
                             ngrams_type = input$ngramsType)
                      
           incProgress(1)
@@ -101,6 +107,16 @@ mod_tfidf_server <- function(id, x, predictor) {
         "Choose a label:",
         choices = sort(unique(unlist(x[[predictor]]))),
         selected = sort(unique(unlist(x[[predictor]])))[1]
+      )
+    })
+    
+    output$organizationControl <- renderUI({
+      
+      selectInput(
+        session$ns("organization"), 
+        "Choose an organization:",
+        choices = sort(unique(x$organization)),
+        selected = sort(unique(x$organization))[1]
       )
     })
     

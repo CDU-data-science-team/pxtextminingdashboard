@@ -20,11 +20,14 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
     ),
     
     fluidRow(
+      
       column(width = 6,
-             uiOutput(ns("nrcSentimentControl"))
+             uiOutput(ns("organizationControl")),
+             uiOutput(ns("classControl"))
       ),
       
       column(width = 6,
+             uiOutput(ns("nrcSentimentControl")),
              uiOutput(ns("numberOfFacetsControl"))
       )
     ),
@@ -52,42 +55,52 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
       dplyr::pull() %>%
       sort()
     
-    net_sentiment_nrc <- data_for_tfidf %>%
-      dplyr::filter(super != "Couldn't be improved") %>%
-      dplyr::mutate(linenumber = dplyr::row_number()) %>%
-      tidytext::unnest_tokens(word, improve) %>%
-      dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
-      dplyr::count(linenumber, sentiment, name = 'sentiment_count') %>%
-      dplyr::mutate(sentiment_count = dplyr::case_when(
-        is.na(sentiment) ~ NA_integer_,
-        TRUE ~ sentiment_count
-      )) %>%
-      dplyr::select(linenumber, sentiment, sentiment_count) %>%
-      tidyr::pivot_wider(names_from = sentiment, 
-                         values_from = sentiment_count, 
-                         values_fill = 0,
-                         names_sort = TRUE
-      ) %>%
-      dplyr::left_join(
-        data_for_tfidf %>%
-          dplyr::filter(super != "Couldn't be improved") %>%
-          dplyr::mutate(linenumber = dplyr::row_number()),
-        by = "linenumber"
-      ) %>%
-      dplyr::select(improve, everything(), -`NA`) %>%
-      dplyr::mutate(all_sentiments =  
-                      dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
-                      split(seq(nrow(.))) %>%
-                      lapply(function(x) unlist(names(x)[x != 0]))
-      ) %>%
-      dplyr::select(improve, all_sentiments, everything())
+    text_data_filtered <- reactive({
+      aux <- text_data %>%
+        #dplyr::filter(super != "Couldn't be improved") %>%
+        dplyr::mutate(linenumber = dplyr::row_number()) %>% 
+        dplyr::filter(
+          super %in% input$label,
+          organization %in% input$organization
+        )
+    })
+    
+    net_sentiment_nrc <- reactive({
+      text_data_filtered() %>%
+        tidytext::unnest_tokens(word, improve) %>%
+        dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
+        dplyr::count(linenumber, sentiment, name = "sentiment_count") %>%
+        dplyr::mutate(
+          sentiment_count =
+            dplyr::case_when(
+              is.na(sentiment) ~ NA_integer_,
+              TRUE ~ sentiment_count
+            )
+        ) %>%
+        dplyr::select(linenumber, sentiment, sentiment_count) %>%
+        tidyr::pivot_wider(names_from = sentiment,
+                           values_from = sentiment_count,
+                           values_fill = 0,
+                           names_sort = TRUE
+        ) %>%
+        dplyr::left_join(text_data_filtered(), by = "linenumber") %>%
+        dplyr::select(improve, everything(), -`NA`) %>%
+        # dplyr::mutate(all_sentiments =
+        #                 dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
+        #                 split(seq(nrow(.))) %>%
+        #                 lapply(function(x) unlist(names(x)[x != 0]))
+        # ) %>%
+        #dplyr::select(improve, all_sentiments, everything())
+        dplyr::select(improve, everything())
+      })
     
     plot_data <- reactive({
       
-      req(input$nrcSentiments)
+      #req(input$nrcSentiments)
       req(input$numberOfFacets)
       
-      net_sentiment_nrc %>% 
+      if (isTruthy(req(input$nrcSentiments))) {
+        net_sentiment_nrc() %>% 
         dplyr::arrange(
           dplyr::across(input$nrcSentiments, dplyr::desc)	
         ) %>%
@@ -99,6 +112,9 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
           name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
           linenumber = factor(linenumber, levels = unique(.$linenumber))
         )
+      } else {
+        req(input$nrcSentiments)
+      }
     }) %>% 
       debounce(2000)
   
@@ -143,15 +159,17 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   
   output$dynamicPlot <- renderUI({
     
-    number_of_plots <- length(unique(plot_data()$linenumber))
-    plot_height <- ceiling(number_of_plots / 5) * 300
-    
-    plotOutput(
-      session$ns("facetPlot"), 
-      height = plot_height,
-      click = ns("plot_click")
-    ) %>%
-      shinycssloaders::withSpinner(hide.ui = FALSE)
+    if (isTruthy(req(input$nrcSentiments))) {
+      number_of_plots <- length(unique(plot_data()$linenumber))
+      plot_height <- ceiling(number_of_plots / 5) * 300
+      
+      plotOutput(
+        session$ns("facetPlot"), 
+        height = plot_height,
+        click = ns("plot_click")
+      ) %>%
+        shinycssloaders::withSpinner(hide.ui = FALSE)
+     }
   })
   
   output$facetPlot <- renderCachedPlot({
@@ -216,11 +234,12 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         values_fill = 0
       ) %>%
       dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
-      dplyr::select(linenumber, super, improve, 
+      dplyr::select(linenumber, organization, super, improve, 
                     dplyr::all_of(nrc_sentiments)) %>%
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
+        "Organization" = organization,
         "Feedback text tag" = super,
         "Feedback text" = improve
       )
@@ -235,6 +254,26 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
           USE.NAMES = FALSE
         ) %>%
         paste(collapse = "")
+    )
+  })
+  
+  output$classControl <- renderUI({
+    
+    selectInput(
+      session$ns("label"), 
+      "Choose a label:",
+      choices = sort(unique(text_data$super)),
+      selected = sort(unique(text_data$super))[1]
+    )
+  })
+  
+  output$organizationControl <- renderUI({
+    
+    selectInput(
+      session$ns("organization"), 
+      "Choose an organization:",
+      choices = sort(unique(text_data$organization)),
+      selected = sort(unique(text_data$organization))[1]
     )
   })
   
