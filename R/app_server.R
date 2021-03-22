@@ -10,14 +10,16 @@ app_server <- function( input, output, session ) {
   #############################################################################
   mod_predictions_table_server(
     "predictions_table_ui_1",
-    x = test_data,
-    y = accuracy_per_class
+    x = text_data,
+    y = accuracy_per_class,
+    predictor = "super"
   )
   
   mod_predictions_table_server(
     "predictions_table_ui_2",
-    x = test_data_criticality,
-    y = accuracy_per_class_criticality
+    x = text_data,
+    y = accuracy_per_class_criticality,
+    predictor = "imp_crit"
   )
   
   #############################################################################
