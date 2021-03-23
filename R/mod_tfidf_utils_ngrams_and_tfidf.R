@@ -22,7 +22,7 @@ tfidf_ngrams <- function(x, y, class, organization, ngrams_type) {
     ggplot2::labs(x = "TF-IDF*", y = NULL,
                   title = paste0("Most frequent ", ngrams_type, 
                                  " in feedback text that is about\n",
-                                 "\"", label, "\"")) +
+                                 "\"", class, "\"")) +
     ggplot2::theme_bw() +
     ggplot2::theme(
       panel.grid.major = ggplot2::element_blank(),
