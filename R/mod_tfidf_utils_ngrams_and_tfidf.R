@@ -3,7 +3,7 @@ tfidf_ngrams <- function(x, y, class, organization, ngrams_type) {
   ngrams_n <- ifelse(ngrams_type == "Unigrams", 1, 2)
   
   x %>%
-    dplyr::filter(organization %in% {{organization}}) %>%
+    #dplyr::filter(organization %in% {{organization}}) %>%
     tidytext::unnest_tokens(ngram, feedback, token = "ngrams", n = ngrams_n) %>%
     tidyr::separate(ngram, paste0("word", 1:ngrams_n), sep = " ") %>%
     dplyr::filter(
