@@ -1,6 +1,6 @@
 ## code to prepare `open_data` dataset goes here
-text_blob_scores <- readr::read_csv('data-raw/text_blob_scores.csv')
 
+## Connect to database ##
 con_text_mining <- DBI::dbConnect(
   odbc::odbc(),
   Driver   = "MySQL ODBC 8.0 Unicode Driver",
@@ -11,6 +11,18 @@ con_text_mining <- DBI::dbConnect(
   database = "TEXT_MINING",
   encoding = "UTF-8")
 
+### TextBlob polarity scores from Python ###
+Sys.setenv(RETICULATE_PYTHON = "C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
+reticulate::use_python("C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
+reticulate::use_condaenv("text_mining_dashboard", required = TRUE)
+reticulate::py_config()
+polarity_textblob <- reticulate::py_run_file("textblob_polarity.py")$
+  text_data %>% 
+  dplyr::select(-feedback)
+
+#odbc::dbWriteTable(con_text_mining, "polarity_textblob", polarity_textblob, 
+#  overwrite = TRUE, row.names = FALSE)
+  
 text_data <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM text_data')
@@ -75,7 +87,7 @@ tuning_results_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM tuning_results_criticality')
 
-usethis::use_data(text_blob_scores, overwrite = TRUE)
+usethis::use_data(polarity_textblob, overwrite = TRUE)
 usethis::use_data(text_data, overwrite = TRUE)
 
 usethis::use_data(row_index_label, overwrite = TRUE)
@@ -85,3 +97,5 @@ usethis::use_data(tuning_results_label, overwrite = TRUE)
 usethis::use_data(row_index_criticality, overwrite = TRUE)
 usethis::use_data(accuracy_per_class_criticality, overwrite = TRUE)
 usethis::use_data(tuning_results_criticality, overwrite = TRUE)
+
+dbDisconnect(con_text_mining)
