@@ -49,11 +49,20 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
     
     output$textBlob <- reactable::renderReactable({
       
+      aux <- polarity_textblob %>%
+        dplyr::left_join(text_data) %>% 
+        #dplyr::filter(super != "Couldn't be improved") %>%
+        dplyr::select(feedback, polarity, organization, label, criticality) %>%
+        dplyr::mutate(
+          polarity = round(polarity, 2),
+          criticality = dplyr::case_when(
+            !criticality %in% -5:5 ~ "Unassigned",
+            TRUE ~ criticality
+          )
+        )
+      
       reactable::reactable(
-        text_blob_scores %>%
-          dplyr::filter(super != "Couldn't be improved") %>%
-          dplyr::select(feedback, polarity) %>%
-          dplyr::mutate_at('polarity',  ~ round(., 2)),
+        aux,
         columns = list(
           feedback = reactable::colDef(
             name = "Feedback",
@@ -61,17 +70,32 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
             headerStyle = sticky_style,
             minWidth = 300
           ),
-          
+
           polarity = reactable::colDef(
             name = "Polarity",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500")
+            align = "right",
+            class = "border-left cell number"
+          ),
+
+          organization = reactable::colDef(
+            name = "Organization",
+            align = "right"
+          ),
+
+          label = reactable::colDef(
+            name = "Label",
+            align = "right",
+            minWidth = 120
+          ),
+
+          criticality = reactable::colDef(
+            name = "Criticality",
+            align = "right"
           )
         ),
-        
+
         #wrap = FALSE,
-        #filterable = TRUE,
+        filterable = TRUE,
         searchable = TRUE,
         sortable = TRUE,
         defaultPageSize = 100,
