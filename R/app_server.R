@@ -11,7 +11,7 @@ app_server <- function( input, output, session ) {
   mod_predictions_table_server(
     "predictions_table_ui_1",
     x = text_data,
-    y = accuracy_per_class,
+    y = accuracy_per_class_label,
     predictor = "label"
   )
   

@@ -15,11 +15,14 @@
 
 ## Dependencies ----
 ## Add one line by package you want to add as dependency
+usethis::use_package( "DBI" )
 usethis::use_package( "dplyr" )
 usethis::use_package( "igraph" )
 usethis::use_package( "ggplot2" )
 usethis::use_package( "ggthemes" )
+usethis::use_package( "odbc" )
 usethis::use_package( "reactable" )
+usethis::use_package( "reticulate" )
 usethis::use_package( "shiny" )
 usethis::use_package( "shinycssloaders" )
 usethis::use_package( "shinydashboard" )
