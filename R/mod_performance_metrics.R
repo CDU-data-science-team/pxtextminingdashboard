@@ -63,7 +63,7 @@ mod_performance_metrics_server <- function(id, x){
     output$modelPerformanceBox <- renderText({
       
       HTML(paste0("Best-performing learners for 
-          <u><a href='https://lib.dr.iastate.edu/etd/13537/'>
+          <u><a target='_blank' rel='noopener noreferrer' href='https://lib.dr.iastate.edu/etd/13537/'>
           Class Balance Accuracy</a></u>, ordered from highest to lowest score.
           Plotted values are the mean scores from a 5-fold CV on the
           training set, for the best hyperparameter values for each learner.

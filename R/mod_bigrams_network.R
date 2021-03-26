@@ -12,12 +12,19 @@ mod_bigrams_network_ui <- function(id){
   tagList(
     
     fluidRow(
-      column(width = 6,
-             uiOutput(ns("classControl"))
+      column(
+        width = 4,
+        uiOutput(ns("classControl"))
       ),
       
-      column(width = 6,
-             uiOutput(ns("bigramsPropControl"))
+      column(
+        width = 4,
+        uiOutput(ns("organizationControl"))
+      ),
+      
+      column(
+        width = 4,
+        uiOutput(ns("bigramsPropControl"))
       )
     ),
     
@@ -27,7 +34,8 @@ mod_bigrams_network_ui <- function(id){
         width = 12,
         box(
           width = NULL,
-          plotOutput(ns("bigramsNetwork")),
+          plotOutput(ns("bigramsNetwork")) %>%
+            shinycssloaders::withSpinner(hide.ui = FALSE),
           box(
             htmlOutput(ns("bigramsNetworkExplanation")), 
             background = 'red', 
@@ -48,10 +56,11 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$bigramsNetwork <- renderPlot({
       
-      req(input$pred)
+      req(input$class)
       req(input$bigramsProp)
       
-      bigrams_network_plot(x, label = input$pred, y = predictor, 
+      bigrams_network_plot(x, y = predictor, class = input$class, 
+                           organization = input$organization,
                            bigrams_prop = input$bigramsProp)
     })
     
@@ -71,11 +80,31 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$classControl <- renderUI({
       
+      if (predictor == "label") {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_label, by = 'row_index')
+      } else {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_criticality, by = 'row_index')
+      }
+      
       selectInput(
-        session$ns("pred"), 
+        session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[[predictor]]))),
-        selected = sort(unique(unlist(x[[predictor]])))[1]
+        choices = sort(unique(unlist(aux[[predictor]]))),
+        selected = sort(unique(unlist(aux[[predictor]])))[1]
+      )
+    })
+    
+    output$organizationControl <- renderUI({
+      
+      selectInput(
+        session$ns("organization"), 
+        "Choose an organization:",
+        choices = sort(unique(x$organization)),
+        selected = sort(unique(x$organization))[1]
       )
     })
     
@@ -84,9 +113,9 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       sliderInput(
         session$ns("bigramsProp"),
         label = HTML("<b>Proportion (%) of most frequent bigrams:</b>"),
-        value = 1,
+        value = 50,
         min = 1,
-        max = 50
+        max = 100
       )
     })
   })

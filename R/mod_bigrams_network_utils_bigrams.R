@@ -1,4 +1,4 @@
-bigrams_network_plot <- function(x, label, y, bigrams_prop) {
+bigrams_network_plot <- function(x, y, class, organization, bigrams_prop) {
   
   a <- grid::arrow(
     type = "closed", 
@@ -6,8 +6,9 @@ bigrams_network_plot <- function(x, label, y, bigrams_prop) {
   )
   
   x <- x %>%
-    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% label)) %>%
-    tidytext::unnest_tokens(bigram, improve, token = "ngrams", n = 2) %>%
+    dplyr::filter(organization %in% {{organization}}) %>%
+    dplyr::filter(dplyr::across(dplyr::all_of(y), ~ . %in% {{class}})) %>%
+    tidytext::unnest_tokens(bigram, feedback, token = "ngrams", n = 2) %>%
     tidyr::separate(bigram, c("word1", "word2"), sep = " ") %>%
     dplyr::filter(
       dplyr::across(dplyr::starts_with("word"), 
@@ -40,6 +41,6 @@ bigrams_network_plot <- function(x, label, y, bigrams_prop) {
   } else {
     
     plot(x = 0, y = 0, xaxt = 'n', yaxt = 'n', ann = FALSE, type = 'n')
-    text(x = 0, y = 0, labels= "Not enough data for the selected label")
+    text(x = 0, y = 0, labels = "Not enough data for the selected label.\n Try to increase the proportion of bigrams.")
   }
 }

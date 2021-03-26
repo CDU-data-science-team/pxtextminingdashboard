@@ -10,20 +10,35 @@
 mod_predictions_table_ui <- function(id){
   ns <- NS(id)
   tagList(
-  
+    
     fluidRow(
       column(
         width = 12,
+        
         box(
           title = "Predicted text for each label",
           width = NULL,
+          
           box(
             width = NULL, 
             background = "red",
             htmlOutput(ns("modelAccuracyBox"))
           ),
-          uiOutput(ns("classControl")),
-          reactable::reactableOutput(ns("pedictedLabels"))
+          
+          fluidRow(
+            column(
+              width = 6,
+              uiOutput(ns("classControl"))
+            ),
+            
+            column(
+              width = 6,
+              uiOutput(ns("organizationControl"))
+            )
+          ),
+          
+          reactable::reactableOutput(ns("pedictedLabels")) %>%
+            shinycssloaders::withSpinner(hide.ui = FALSE)
         )
       )
     )
@@ -33,21 +48,48 @@ mod_predictions_table_ui <- function(id){
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id, x, y){
+mod_predictions_table_server <- function(id, x, y, predictor){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$pedictedLabels <- reactable::renderReactable({
-
-      feedback_col_new_name <- paste0(
-        "Feedback that model predicted as ", "\"", input$pred, "\""
-      )
-
+      
+      if (predictor == "label") {
+        
+        feedback_col_new_name <- paste0(
+          "Feedback that model predicted as ", "\"", input$class, "\""
+        )
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_label, by = 'row_index') %>% 
+          dplyr::filter(
+            label %in% input$class,
+            organization %in% input$organization
+          ) %>%
+          dplyr::select(feedback, organization)
+      } else {
+        
+        feedback_col_new_name <- paste0(
+          "Feedback that model predicted as ", "\"", input$class, "\""
+        )
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
+          dplyr::filter(
+            criticality %in% input$class,
+            organization %in% input$organization
+          ) %>%
+          dplyr::select(feedback, organization)
+      }
+        
       reactable::reactable(
-        x %>%
-          dplyr::filter(pred %in% input$pred) %>%
-          dplyr::select(improve),
-        columns = list(improve = reactable::colDef(name = feedback_col_new_name)),
+        aux,
+        columns = 
+          list(
+            feedback = reactable::colDef(name = feedback_col_new_name),
+            organization = reactable::colDef(name = "Organization", 
+                                             align = "right")
+          ),
         #rownames = TRUE,
         searchable = TRUE,
         sortable = FALSE,
@@ -59,8 +101,12 @@ mod_predictions_table_server <- function(id, x, y){
     })
 
     output$modelAccuracyBox <- renderText({
+      
       accuracy_score <- y %>%
-        dplyr::filter(class %in% input$pred) %>%
+        dplyr::filter(
+          class %in% input$class,
+          organization %in% input$organization
+        ) %>%
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
         dplyr::pull()
@@ -73,11 +119,31 @@ mod_predictions_table_server <- function(id, x, y){
     
     output$classControl <- renderUI({
       
+      if (predictor == "label") {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_label, by = 'row_index')
+      } else {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_criticality, by = 'row_index')
+      }
+      
       selectInput(
-        session$ns("pred"), 
+        session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(x$pred)),
-        selected = sort(unique(x$pred))[1]
+        choices = sort(unique(unlist(aux[[predictor]]))),
+        selected = sort(unique(unlist(aux[[predictor]])))[1]
+      )
+    })
+    
+    output$organizationControl <- renderUI({
+      
+      selectInput(
+        session$ns("organization"), 
+        "Choose an organization:",
+        choices = sort(unique(x$organization)),
+        selected = sort(unique(x$organization))[1]
       )
     })
   })

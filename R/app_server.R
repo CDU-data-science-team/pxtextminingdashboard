@@ -10,39 +10,41 @@ app_server <- function( input, output, session ) {
   #############################################################################
   mod_predictions_table_server(
     "predictions_table_ui_1",
-    x = test_data,
-    y = accuracy_per_class
+    x = text_data,
+    y = accuracy_per_class_label,
+    predictor = "label"
   )
   
   mod_predictions_table_server(
     "predictions_table_ui_2",
-    x = test_data_criticality,
-    y = accuracy_per_class_criticality
+    x = text_data,
+    y = accuracy_per_class_criticality,
+    predictor = "criticality"
   )
   
   #############################################################################
-  mod_sentiment_analysis_server("sentiment_analysis_ui_1")
+  mod_sentiment_analysis_tag_level_server("sentiment_analysis_tag_level_ui_1")
   
-  mod_tidytext_server("tidytext_ui_1")
+  mod_sentiment_analysis_nrc_sentiment_breakdown_server("sentiment_analysis_nrc_sentiment_breakdown_ui_1")
   
-  mod_text_blob_server("text_blob_ui_1")
+  mod_sentiment_analysis_textblob_polarity_server("sentiment_analysis_textblob_polarity_ui_1")
   
   #############################################################################
-  mod_tfidf_and_word_processing_server(
-    "tfidf_and_word_processing_ui_1",
+  mod_tfidf_server(
+    "tfidf_ui_1",
     x = text_data,
-    predictor = "super"
+    predictor = "label"
   )
-  mod_tfidf_and_word_processing_server(
-    "tfidf_and_word_processing_ui_2",
+  mod_tfidf_server(
+    "tfidf_ui_2",
     x = text_data,
-    predictor = "imp_crit"
+    predictor = "criticality"
   )
   
   #############################################################################
   mod_performance_metrics_server(
     "performance_metrics_ui_1",
-    x = tuning_results_super
+    x = tuning_results_label
   )
   mod_performance_metrics_server(
     "performance_metrics_ui_2",
@@ -53,11 +55,11 @@ app_server <- function( input, output, session ) {
   mod_bigrams_network_server(
     "bigrams_network_ui_1",
     x = text_data,
-    predictor = "super"
+    predictor = "label"
   )
   mod_bigrams_network_server(
     "bigrams_network_ui_2",
     x = text_data,
-    predictor = "imp_crit"
+    predictor = "criticality"
   )
 }

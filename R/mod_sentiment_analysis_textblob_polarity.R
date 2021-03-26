@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_text_blob_ui <- function(id){
+mod_sentiment_analysis_textblob_polarity_ui <- function(id){
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
@@ -32,12 +32,12 @@ mod_text_blob_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_text_blob_server <- function(id){
+mod_sentiment_analysis_textblob_polarity_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$textBlobBox <- renderText({
-      HTML("<u><a href='https://textblob.readthedocs.io/en/dev/index.html'>
+      HTML("<u><a target='_blank' rel='noopener noreferrer' href='https://textblob.readthedocs.io/en/dev/index.html'>
           Polarity</a></u> is a way to calculate how positive or negative a 
        comment is. It ranges between -1 (very negative) to 
        1 (very positive).")
@@ -49,29 +49,53 @@ mod_text_blob_server <- function(id){
     
     output$textBlob <- reactable::renderReactable({
       
+      aux <- polarity_textblob %>%
+        dplyr::left_join(text_data) %>% 
+        #dplyr::filter(super != "Couldn't be improved") %>%
+        dplyr::select(feedback, polarity, organization, label, criticality) %>%
+        dplyr::mutate(
+          polarity = round(polarity, 2),
+          criticality = dplyr::case_when(
+            !criticality %in% -5:5 ~ "Unassigned",
+            TRUE ~ criticality
+          )
+        )
+      
       reactable::reactable(
-        text_blob_scores %>%
-          dplyr::filter(super != "Couldn't be improved") %>%
-          dplyr::select(improve, polarity) %>%
-          dplyr::mutate_at('polarity',  ~ round(., 2)),
+        aux,
         columns = list(
-          improve = reactable::colDef(
+          feedback = reactable::colDef(
             name = "Feedback",
             style = sticky_style,
             headerStyle = sticky_style,
             minWidth = 300
           ),
-          
+
           polarity = reactable::colDef(
             name = "Polarity",
-            align = "left",
-            class = "border-left cell number",
-            headerStyle = list(fontWeight = "500")
+            align = "right",
+            class = "border-left cell number"
+          ),
+
+          organization = reactable::colDef(
+            name = "Organization",
+            align = "right"
+          ),
+
+          label = reactable::colDef(
+            name = "Label",
+            align = "right",
+            minWidth = 120
+          ),
+
+          criticality = reactable::colDef(
+            name = "Criticality",
+            align = "right"
           )
         ),
-        
+
         #wrap = FALSE,
-        #filterable = TRUE,
+        filterable = TRUE,
         searchable = TRUE,
         sortable = TRUE,
         defaultPageSize = 100,
@@ -82,7 +106,7 @@ mod_text_blob_server <- function(id){
 }
     
 ## To be copied in the UI
-# mod_text_blob_ui("text_blob_ui_1")
+# mod_sentiment_analysis_textblob_polarity_ui("sentiment_analysis_textblob_polarity_ui_1")
     
 ## To be copied in the server
-# mod_text_blob_server("text_blob_ui_1")
+# mod_sentiment_analysis_textblob_polarity_server("sentiment_analysis_textblob_polarity_ui_1")
