@@ -15,7 +15,6 @@ con_text_mining <- DBI::dbConnect(
 Sys.setenv(RETICULATE_PYTHON = "C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
 reticulate::use_python("C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
 reticulate::use_condaenv("text_mining_dashboard", required = TRUE)
-reticulate::py_config()
 polarity_textblob <- reticulate::py_run_file("textblob_polarity.py")$
   text_data %>% 
   dplyr::select(-feedback)
@@ -25,7 +24,14 @@ polarity_textblob <- reticulate::py_run_file("textblob_polarity.py")$
   
 text_data <- DBI::dbGetQuery(
   con_text_mining,
-  'SELECT * FROM text_data')
+  'SELECT * FROM text_data') %>%
+  dplyr::mutate(
+    criticality = dplyr::case_when(
+      criticality == -5 ~ '-4',
+      criticality == 5 ~ '4',
+      TRUE ~ criticality
+    )
+  )
 
 # Data for label
 index_training_data_label <- DBI::dbGetQuery(
@@ -98,4 +104,4 @@ usethis::use_data(row_index_criticality, overwrite = TRUE)
 usethis::use_data(accuracy_per_class_criticality, overwrite = TRUE)
 usethis::use_data(tuning_results_criticality, overwrite = TRUE)
 
-dbDisconnect(con_text_mining)
+DBI::dbDisconnect(con_text_mining)
