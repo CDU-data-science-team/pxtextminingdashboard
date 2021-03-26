@@ -97,7 +97,10 @@ mod_tfidf_server <- function(id, x, predictor) {
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
           "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text."))
+          the cotent of the text.", 
+          "<p> NOTE: IN THIS VERSION, USING THE TRUST SELECTION BOX WILL NOT 
+          RETURN TRUST-SPECIFIC PLOTS. THIS IS DUE TO THE LACK OF SUFFICIENT 
+          DATA. THE PLOTS TEMPORARILY DISPLAY TF-IDFs FOR ALL TRUSTS TOGETHER."))
     })
     
     output$classControl <- renderUI({
