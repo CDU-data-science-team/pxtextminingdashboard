@@ -13,7 +13,7 @@ app_ui <- function(request) {
     dashboardPage(
       
       dashboardHeader(
-        title = "Text Mining of Patient Feedback"
+        title = NULL # Add header with JavaScript inside dashboardBody instead. See https://stackoverflow.com/questions/45176030/add-text-on-right-of-shinydashboard-header
       ),
       
       dashboardSidebar(
@@ -42,6 +42,31 @@ app_ui <- function(request) {
         )
       ),
       dashboardBody(
+        
+        tags$head(
+          tags$style(
+            HTML(
+              '.myClass { 
+                font-size: 20px;
+                line-height: 50px;
+                text-align: left;
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                padding: 0 15px;
+                overflow: hidden;
+                color: white;
+              }'
+            )
+          )
+        ),
+        
+        tags$script(
+          HTML(
+            '$(document).ready(function() {
+              $("header").find("nav").append(\'<span class="myClass"> Text Mining of Patient Feedback </span>\');
+            })'
+          )
+        ),
+        
         tabItems(
           
           tabItem(
@@ -176,7 +201,7 @@ golem_add_external_resources <- function(){
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),
-      app_title = 'positiveAboutChangeTextClassificationDashboard'
+      app_title = 'pxtextminingdashboard'
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert() 

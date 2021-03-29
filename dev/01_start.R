@@ -19,13 +19,13 @@
 ## to change the name in the app_sys() function in app_config.R /!\
 ## 
 golem::fill_desc(
-  pkg_name = "positiveAboutChangeTextClassificationDashboard", # The Name of the package containing the App 
+  pkg_name = "pxtextminingdashboard", # The Name of the package containing the App 
   pkg_title = "PKG_TITLE", # The Title of the package containing the App 
   pkg_description = "PKG_DESC.", # The Description of the package containing the App 
-  author_first_name = "AUTHOR_FIRST", # Your First Name
-  author_last_name = "AUTHOR_LAST", # Your Last Name
-  author_email = "AUTHOR@MAIL.COM", # Your Email
-  repo_url = NULL # The URL of the GitHub Repo (optional) 
+  author_first_name = "Andreas", # Your First Name
+  author_last_name = "Soteriades", # Your Last Name
+  author_email = "andreas.soteriades@nottshc.nhs.uk", # Your Email
+  repo_url = "https://github.com/CDU-data-science-team/pxtextminingdashboard.git" # The URL of the GitHub Repo (optional) 
 )     
 
 ## Set {golem} options ----
