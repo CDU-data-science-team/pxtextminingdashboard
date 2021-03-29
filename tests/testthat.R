@@ -1,4 +1,4 @@
 library(testthat)
-library(positiveAboutChangeTextClassificationDashboard)
+library(pxtextminingdashboard)
 
-test_check("positiveAboutChangeTextClassificationDashboard")
+test_check("pxtextminingdashboard")
