@@ -49,68 +49,28 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    nrc_sentiments <- tidytext::get_sentiments("nrc") %>%
-      dplyr::select(sentiment) %>%
-      dplyr::distinct() %>%
-      dplyr::pull() %>%
-      sort()
+    nrc_sentiments <- experienceAnalysis::get_sentiments_nrc()
     
-    text_data_filtered <- reactive({
-      aux <- text_data %>%
-        #dplyr::filter(super != "Couldn't be improved") %>%
-        dplyr::mutate(linenumber = dplyr::row_number()) %>% 
-        dplyr::filter(
-          label %in% input$class,
-          organization %in% input$organization
-        )
+    net_sentiment_wide_nrc <- reactive({
+      experienceAnalysis::get_net_sentiment_wide_nrc(
+        text_data, 
+        class_col_name = "label", 
+        org_col_name = "organization",
+        filter_class = input$class, 
+        filter_organization = input$organization)
     })
     
-    net_sentiment_nrc <- reactive({
-      text_data_filtered() %>%
-        tidytext::unnest_tokens(word, feedback) %>%
-        dplyr::left_join(tidytext::get_sentiments("nrc"), by = "word") %>% # We want a left join so as not to lose comments with no sentiment
-        dplyr::count(linenumber, sentiment, name = "sentiment_count") %>%
-        dplyr::mutate(
-          sentiment_count =
-            dplyr::case_when(
-              is.na(sentiment) ~ NA_integer_,
-              TRUE ~ sentiment_count
-            )
-        ) %>%
-        dplyr::select(linenumber, sentiment, sentiment_count) %>%
-        tidyr::pivot_wider(names_from = sentiment,
-                           values_from = sentiment_count,
-                           values_fill = 0,
-                           names_sort = TRUE
-        ) %>%
-        dplyr::left_join(text_data_filtered(), by = "linenumber") %>%
-        dplyr::select(feedback, everything(), -`NA`) %>%
-        # dplyr::mutate(all_sentiments =
-        #                 dplyr::select(., dplyr::all_of(nrc_sentiments)) %>%
-        #                 split(seq(nrow(.))) %>%
-        #                 lapply(function(x) unlist(names(x)[x != 0]))
-        # ) %>%
-        #dplyr::select(feedback, all_sentiments, everything())
-        dplyr::select(feedback, everything())
-      })
-    
-    plot_data <- reactive({
+    net_sentiment_long_nrc <- reactive({
       
       #req(input$nrcSentiments)
       req(input$numberOfFacets)
       
       if (isTruthy(req(input$nrcSentiments))) {
-        net_sentiment_nrc() %>% 
-        dplyr::arrange(
-          dplyr::across(input$nrcSentiments, dplyr::desc)	
-        ) %>%
-        tidyr::pivot_longer(cols = dplyr::all_of(nrc_sentiments)) %>%
-        dplyr::filter(value != 0) %>%
-        dplyr::filter(linenumber %in% 
-                        unique(.$linenumber)[1:input$numberOfFacets]) %>%
-        dplyr::mutate(
-          name = factor(name, levels = sort(nrc_sentiments, decreasing = TRUE)),
-          linenumber = factor(linenumber, levels = unique(.$linenumber))
+        
+        experienceAnalysis::get_net_sentiment_long_nrc(
+          net_sentiment_wide_nrc(),
+          sorting_sentiments = input$nrcSentiments,
+          num_of_facets = input$numberOfFacets
         )
       } else {
         req(input$nrcSentiments)
@@ -160,7 +120,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   output$dynamicPlot <- renderUI({
     
     if (isTruthy(req(input$nrcSentiments))) {
-      number_of_plots <- length(unique(plot_data()$linenumber))
+      number_of_plots <- length(unique(net_sentiment_long_nrc()$linenumber))
       plot_height <- ceiling(number_of_plots / 5) * 300
       
       plotOutput(
@@ -179,19 +139,9 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     #   detail = 'This may take a few seconds...', 
     #   value = 0,
     #   {
-        p <- plot_data() %>%
-          ggplot2::ggplot(ggplot2::aes(value, name)) +
-          ggplot2::geom_col(fill = "blue", alpha = 0.6) +
-          ggplot2::facet_wrap(~ linenumber, ncol = 5) +
-          ggplot2::theme_bw() +
-          ggplot2::theme(
-            panel.grid.major = ggplot2::element_blank(),
-            panel.grid.minor = ggplot2::element_blank(),
-            axis.title.x = ggplot2::element_blank(),
-            axis.text.x = ggplot2::element_blank(),
-            axis.ticks.x = ggplot2::element_blank()
-          ) +
-          ggplot2::ylab('')
+        p <- experienceAnalysis::plot_net_sentiment_long_nrc(
+          net_sentiment_long_nrc()
+        )
         
     #     incProgress(1)
     #   }
@@ -205,7 +155,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   cacheKeyExpr = 
     {
       list(
-        plot_data(),
+        net_sentiment_long_nrc(),
         input$class, 
         input$ngramsType
       ) 
@@ -227,7 +177,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
   
   output$tooltipWindow <- renderText({
     
-    tooltip_info <- plot_data() %>%
+    tooltip_info <- net_sentiment_long_nrc() %>%
       tidyr::pivot_wider(
         names_from = name, 
         values_from = value, 
