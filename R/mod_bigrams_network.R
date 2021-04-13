@@ -59,9 +59,14 @@ mod_bigrams_network_server <- function(id, x, label, target) {
       req(input$class)
       req(input$bigramsProp)
       
-      bigrams_network_plot(x, y = target, class = input$class, 
-                           organization = input$organization,
-                           bigrams_prop = input$bigramsProp)
+      x %>% 
+        experienceAnalysis::get_bigrams_network(
+          target_col_name = target, 
+          filter_class = input$class,
+          filter_organization = input$organization, 
+          bigrams_prop = input$bigramsProp
+        ) %>% 
+        experienceAnalysis::plot_bigrams_network()
     })
     
     output$bigramsNetworkExplanation <- renderText({
