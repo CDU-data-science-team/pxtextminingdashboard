@@ -68,10 +68,18 @@ mod_tfidf_server <- function(id, x, target) {
         detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          p <- tfidf_ngrams(x, y = predictor, class = input$class, 
-                            organization = input$organization,
-                            ngrams_type = input$ngramsType)
-                     
+          p <- x %>% 
+            experienceAnalysis::get_tfidf_ngrams(
+              target_col_name = target, 
+              filter_class = input$class, 
+              filter_organization = input$organization,
+              ngrams_type = input$ngramsType
+            ) %>% 
+            experienceAnalysis::plot_tfidf_ngrams(
+              ngrams_type = input$ngramsType,
+              filter_class = input$class
+            )
+            
           incProgress(1)
         }
       )
