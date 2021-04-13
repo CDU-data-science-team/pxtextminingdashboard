@@ -12,14 +12,14 @@ app_server <- function( input, output, session ) {
     "predictions_table_ui_1",
     x = text_data,
     y = accuracy_per_class_label,
-    predictor = "label"
+    target = "label"
   )
   
   mod_predictions_table_server(
     "predictions_table_ui_2",
     x = text_data,
     y = accuracy_per_class_criticality,
-    predictor = "criticality"
+    target = "criticality"
   )
   
   #############################################################################
@@ -33,12 +33,12 @@ app_server <- function( input, output, session ) {
   mod_tfidf_server(
     "tfidf_ui_1",
     x = text_data,
-    predictor = "label"
+    target = "label"
   )
   mod_tfidf_server(
     "tfidf_ui_2",
     x = text_data,
-    predictor = "criticality"
+    target = "criticality"
   )
   
   #############################################################################
@@ -55,11 +55,11 @@ app_server <- function( input, output, session ) {
   mod_bigrams_network_server(
     "bigrams_network_ui_1",
     x = text_data,
-    predictor = "label"
+    target = "label"
   )
   mod_bigrams_network_server(
     "bigrams_network_ui_2",
     x = text_data,
-    predictor = "criticality"
+    target = "criticality"
   )
 }

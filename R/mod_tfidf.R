@@ -54,7 +54,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, predictor) {
+mod_tfidf_server <- function(id, x, target) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -108,8 +108,8 @@ mod_tfidf_server <- function(id, x, predictor) {
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[[predictor]]))),
-        selected = sort(unique(unlist(x[[predictor]])))[1]
+        choices = sort(unique(unlist(x[[target]]))),
+        selected = sort(unique(unlist(x[[target]])))[1]
       )
     })
     
