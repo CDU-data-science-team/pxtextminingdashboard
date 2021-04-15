@@ -11,14 +11,6 @@ con_text_mining <- DBI::dbConnect(
   database = "TEXT_MINING",
   encoding = "UTF-8")
 
-### TextBlob polarity scores from Python ###
-Sys.setenv(RETICULATE_PYTHON = "C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
-reticulate::use_python("C:/Users/andreas.soteriades/Anaconda3/envs/text_mining_dashboard/python.exe")
-reticulate::use_condaenv("text_mining_dashboard", required = TRUE)
-polarity_textblob <- reticulate::py_run_file("textblob_polarity.py")$
-  text_data %>% 
-  dplyr::select(-feedback)
-
 #odbc::dbWriteTable(con_text_mining, "polarity_textblob", polarity_textblob, 
 #  overwrite = TRUE, row.names = FALSE)
   
@@ -33,7 +25,8 @@ text_data <- DBI::dbGetQuery(
     )
   )
 
-# Data for label
+
+### Data for label ###
 index_training_data_label <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM index_training_data_label')
@@ -63,7 +56,8 @@ tuning_results_label <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM tuning_results_label')
 
-# Data for criticality
+
+### Data for criticality###
 index_training_data_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM index_training_data_criticality')
@@ -93,7 +87,8 @@ tuning_results_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM tuning_results_criticality')
 
-usethis::use_data(polarity_textblob, overwrite = TRUE)
+
+### Write data to 'data' folder in RDA format ###
 usethis::use_data(text_data, overwrite = TRUE)
 
 usethis::use_data(row_index_label, overwrite = TRUE)
