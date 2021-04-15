@@ -49,16 +49,13 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
     
     output$textBlob <- reactable::renderReactable({
       
-      aux <- polarity_textblob %>%
-        dplyr::left_join(text_data) %>% 
-        #dplyr::filter(super != "Couldn't be improved") %>%
-        dplyr::select(feedback, polarity, organization, label, criticality) %>%
-        dplyr::mutate(
-          polarity = round(polarity, 2),
-          criticality = dplyr::case_when(
-            !criticality %in% -5:5 ~ "Unassigned",
-            TRUE ~ criticality
-          )
+      aux <- text_data %>% 
+        experienceAnalysis::get_sentiment_indicators(
+          sys_setenv = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
+          which_python = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
+          which_venv = "conda",
+          venv_name = "textminingpy38", 
+          make_table = TRUE
         )
       
       reactable::reactable(
