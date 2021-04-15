@@ -50,7 +50,7 @@ mod_bigrams_network_ui <- function(id){
 #' bigrams_network Server Functions
 #'
 #' @noRd 
-mod_bigrams_network_server <- function(id, x, label, predictor) {
+mod_bigrams_network_server <- function(id, x, label, target) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -59,9 +59,14 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       req(input$class)
       req(input$bigramsProp)
       
-      bigrams_network_plot(x, y = predictor, class = input$class, 
-                           organization = input$organization,
-                           bigrams_prop = input$bigramsProp)
+      x %>% 
+        experienceAnalysis::get_bigrams_network(
+          target_col_name = target, 
+          filter_class = input$class,
+          filter_organization = input$organization, 
+          bigrams_prop = input$bigramsProp
+        ) %>% 
+        experienceAnalysis::plot_bigrams_network()
     })
     
     output$bigramsNetworkExplanation <- renderText({
@@ -80,7 +85,7 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
     
     output$classControl <- renderUI({
       
-      if (predictor == "label") {
+      if (target == "label") {
         
         aux <- x %>%
           dplyr::right_join(row_index_label, by = 'row_index')
@@ -93,8 +98,8 @@ mod_bigrams_network_server <- function(id, x, label, predictor) {
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(aux[[predictor]]))),
-        selected = sort(unique(unlist(aux[[predictor]])))[1]
+        choices = sort(unique(unlist(aux[[target]]))),
+        selected = sort(unique(unlist(aux[[target]])))[1]
       )
     })
     

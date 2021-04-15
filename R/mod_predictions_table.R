@@ -48,13 +48,13 @@ mod_predictions_table_ui <- function(id){
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id, x, y, predictor){
+mod_predictions_table_server <- function(id, x, y, target){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$pedictedLabels <- reactable::renderReactable({
       
-      if (predictor == "label") {
+      if (target == "label") {
         
         feedback_col_new_name <- paste0(
           "Feedback that model predicted as ", "\"", input$class, "\""
@@ -119,7 +119,7 @@ mod_predictions_table_server <- function(id, x, y, predictor){
     
     output$classControl <- renderUI({
       
-      if (predictor == "label") {
+      if (target == "label") {
         
         aux <- x %>%
           dplyr::right_join(row_index_label, by = 'row_index')
@@ -132,8 +132,8 @@ mod_predictions_table_server <- function(id, x, y, predictor){
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(aux[[predictor]]))),
-        selected = sort(unique(unlist(aux[[predictor]])))[1]
+        choices = sort(unique(unlist(aux[[target]]))),
+        selected = sort(unique(unlist(aux[[target]])))[1]
       )
     })
     

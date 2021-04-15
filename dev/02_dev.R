@@ -17,9 +17,10 @@
 ## Add one line by package you want to add as dependency
 usethis::use_package( "DBI" )
 usethis::use_package( "dplyr" )
-usethis::use_package( "igraph" )
+usethis::use_package( "experienceAnalysis" )
 usethis::use_package( "ggplot2" )
 usethis::use_package( "ggthemes" )
+usethis::use_package( "igraph" )
 usethis::use_package( "odbc" )
 usethis::use_package( "reactable" )
 usethis::use_package( "reticulate" )
@@ -36,11 +37,8 @@ golem::add_module(name = "sentiment_analysis")
 golem::add_module(name = "tidytext")
 golem::add_module(name = "text_blob")
 golem::add_module(name = "tfidf")
-golem::add_utils("ngrams_and_tfidf", module = "tfidf")
 golem::add_module(name = "bigrams_network" )
-golem::add_utils("bigrams", module = "bigrams_network")
 golem::add_module(name = "performance_metrics" )
-golem::add_utils("plot_learner_metrics", module = "performance_metrics")
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*

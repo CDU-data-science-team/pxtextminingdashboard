@@ -49,13 +49,15 @@ mod_performance_metrics_server <- function(id, x){
     
     output$learnerPerformance <- renderPlot({
       
-      plot_learner_metrics(x)
+      x %>% 
+        experienceAnalysis::get_best_estimators() %>% 
+        experienceAnalysis::plot_best_estimators()
     })
     
     output$rawMetrics <- reactable::renderReactable({
       
       x %>%
-        table_learner_metrics() %>%
+        experienceAnalysis::get_all_pipeline_tuning_results() %>%
         reactable::reactable()
       
     })

@@ -54,7 +54,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, predictor) {
+mod_tfidf_server <- function(id, x, target) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -68,10 +68,18 @@ mod_tfidf_server <- function(id, x, predictor) {
         detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          p <- tfidf_ngrams(x, y = predictor, class = input$class, 
-                            organization = input$organization,
-                            ngrams_type = input$ngramsType)
-                     
+          p <- x %>% 
+            experienceAnalysis::get_tfidf_ngrams(
+              target_col_name = target, 
+              filter_class = input$class, 
+              filter_organization = input$organization,
+              ngrams_type = input$ngramsType
+            ) %>% 
+            experienceAnalysis::plot_tfidf_ngrams(
+              ngrams_type = input$ngramsType,
+              filter_class = input$class
+            )
+            
           incProgress(1)
         }
       )
@@ -108,8 +116,8 @@ mod_tfidf_server <- function(id, x, predictor) {
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[[predictor]]))),
-        selected = sort(unique(unlist(x[[predictor]])))[1]
+        choices = sort(unique(unlist(x[[target]]))),
+        selected = sort(unique(unlist(x[[target]])))[1]
       )
     })
     
