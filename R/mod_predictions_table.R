@@ -61,7 +61,10 @@ mod_predictions_table_server <- function(id, x, y, target){
         )
         
         aux <- x %>%
-          dplyr::right_join(row_index_label, by = 'row_index') %>% 
+          #dplyr::right_join(row_index_label, by = 'row_index') %>% 
+          dplyr::right_join(predictions_test_label, by = 'row_index') %>% 
+          dplyr::select(-label) %>% 
+          dplyr::rename(label = label_pred) %>% 
           dplyr::filter(
             label %in% input$class,
             organization %in% input$organization
@@ -74,7 +77,10 @@ mod_predictions_table_server <- function(id, x, y, target){
         )
         
         aux <- x %>%
-          dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
+          #dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
+          dplyr::right_join(predictions_test_criticality, by = 'row_index') %>% 
+          dplyr::select(-criticality) %>% 
+          dplyr::rename(criticality = criticality_pred) %>% 
           dplyr::filter(
             criticality %in% input$class,
             organization %in% input$organization
