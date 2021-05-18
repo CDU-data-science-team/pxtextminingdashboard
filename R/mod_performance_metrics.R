@@ -31,8 +31,19 @@ mod_performance_metrics_ui <- function(id){
       column(
         width = 12,
         box(
-          width = 12,
-          title = "Technical - all tuned (hyper) parameters",
+          width = NULL,
+          title = 
+            HTML(
+            "<p><b>All tuned (hyper) parameters </b> </pr>
+            <p style='font-size:small;'> Lists all (hyper)parameter values tried 
+            during pipeline fitting, along with performance metrics.</pr>
+            <p style='font-size:small;'> This table was generated from the 
+            <a target='_blank' rel='noopener noreferrer' href='https://scikit-learn.org/stable/index.html'>Scikit-learn</a> 
+            output that follows pipeline fitting. It was derived from attribute 
+            <a target='_blank' rel='noopener noreferrer' href='https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html'>'cv_results_'</a>
+            with some modifications.</pr>"
+            ),
+          downloadButton(ns("downloadData"), "Download Data"),
           reactable::reactableOutput(ns("rawMetrics"))
         )
       )
@@ -43,7 +54,7 @@ mod_performance_metrics_ui <- function(id){
 #' performance_metrics Server Functions
 #'
 #' @noRd 
-mod_performance_metrics_server <- function(id, x){
+mod_performance_metrics_server <- function(id, x, target){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -56,10 +67,26 @@ mod_performance_metrics_server <- function(id, x){
     
     output$rawMetrics <- reactable::renderReactable({
       
-      x %>%
-        experienceAnalysis::get_all_pipeline_tuning_results() %>%
-        reactable::reactable()
+      metrics_table <- x %>%
+        experienceAnalysis::get_all_pipeline_tuning_results()
+      cols <- names(metrics_table)
       
+      metrics_table %>%
+        reactable::reactable(
+          height = 1000, # Fix the height to make table scrollable and headers sticky.
+          columns = # Fix max column width.
+            lapply(.,
+              function(cols) {
+                reactable::colDef(maxWidth = 201)
+              }
+            ),
+          defaultColDef = # Insert footer.
+            reactable::colDef(
+              footer = function(values, name) {
+                div(name, style = list(fontWeight = 600))
+              }
+          )
+        )
     })
     
     output$modelPerformanceBox <- renderText({
@@ -71,6 +98,12 @@ mod_performance_metrics_server <- function(id, x){
           training set, for the best hyperparameter values for each learner.
           The leftmost learner is used to make the predictions."))
     })
+    
+    output$downloadData <- downloadHandler(
+      filename = function() {paste0("performance_metrics_", target, ".csv")},
+      content = function(file) {
+        write.csv(x, file)
+      })
  
   })
 }
