@@ -94,9 +94,11 @@ usethis::use_data(text_data, overwrite = TRUE)
 usethis::use_data(row_index_label, overwrite = TRUE)
 usethis::use_data(accuracy_per_class_label, overwrite = TRUE)
 usethis::use_data(tuning_results_label, overwrite = TRUE)
+usethis::use_data(predictions_test_label, overwrite = TRUE)
 
 usethis::use_data(row_index_criticality, overwrite = TRUE)
 usethis::use_data(accuracy_per_class_criticality, overwrite = TRUE)
 usethis::use_data(tuning_results_criticality, overwrite = TRUE)
+usethis::use_data(predictions_test_criticality, overwrite = TRUE)
 
 DBI::dbDisconnect(con_text_mining)
