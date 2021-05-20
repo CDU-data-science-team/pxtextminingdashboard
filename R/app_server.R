@@ -8,18 +8,32 @@ app_server <- function( input, output, session ) {
   # Your application server logic 
   
   #############################################################################
+  # mod_predictions_table_server(
+  #   "predictions_table_ui_1",
+  #   x = text_data,
+  #   y = accuracy_per_class_label,
+  #   target = "label"
+  # )
+  # 
+  # mod_predictions_table_server(
+  #   "predictions_table_ui_2",
+  #   x = text_data,
+  #   y = accuracy_per_class_criticality,
+  #   target = "criticality"
+  # )
+  
   mod_predictions_table_server(
     "predictions_table_ui_1",
     x = text_data,
-    y = accuracy_per_class_label,
-    target = "label"
+    target = "label",
+    target_pred = "label_pred"
   )
   
   mod_predictions_table_server(
     "predictions_table_ui_2",
     x = text_data,
-    y = accuracy_per_class_criticality,
-    target = "criticality"
+    target = "criticality",
+    target_pred = "criticality_pred"
   )
   
   #############################################################################
@@ -44,11 +58,13 @@ app_server <- function( input, output, session ) {
   #############################################################################
   mod_performance_metrics_server(
     "performance_metrics_ui_1",
-    x = tuning_results_label
+    x = tuning_results_label,
+    target = "label"
   )
   mod_performance_metrics_server(
     "performance_metrics_ui_2",
-    x = tuning_results_criticality
+    x = tuning_results_criticality,
+    target = "criticality"
   )
   
   #############################################################################

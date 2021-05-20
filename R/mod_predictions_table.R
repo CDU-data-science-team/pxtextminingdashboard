@@ -48,7 +48,7 @@ mod_predictions_table_ui <- function(id){
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id, x, y, target){
+mod_predictions_table_server <- function(id, x, target, target_pred){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -108,14 +108,40 @@ mod_predictions_table_server <- function(id, x, y, target){
 
     output$modelAccuracyBox <- renderText({
       
-      accuracy_score <- y %>%
-        dplyr::filter(
-          class %in% input$class,
-          organization %in% input$organization
-        ) %>%
-        dplyr::select(accuracy) %>%
-        dplyr::mutate(accuracy = round(accuracy * 100)) %>%
-        dplyr::pull()
+      # accuracy_score <- y %>%
+      #   dplyr::filter(
+      #     class %in% input$class,
+      #     organization %in% input$organization
+      #   ) %>%
+      #   dplyr::select(accuracy) %>%
+      #   dplyr::mutate(accuracy = round(accuracy * 100)) %>%
+      #   dplyr::pull()
+      
+      if (target == "label") {
+        
+        accuracy_score <- x %>% 
+          dplyr::select(label, organization, row_index) %>% 
+          dplyr::left_join(predictions_test_label, by = "row_index")
+      } else {
+          
+        accuracy_score <- x %>% 
+            dplyr::select(label, organization, row_index) %>% 
+            dplyr::left_join(predictions_test_criticality, by = "row_index")
+        }
+        
+      accuracy_score <- accuracy_score %>% 
+        experienceAnalysis::calc_accuracy_per_class(
+            target_col_name = target, 
+            target_pred_col_name = target_pred,
+            grouping_variable = "organization"
+          ) %>% 
+          dplyr::filter(
+            class %in% input$class,
+            organization %in% input$organization
+          ) %>%
+          dplyr::select(accuracy) %>%
+          dplyr::mutate(accuracy = round(accuracy * 100)) %>%
+          dplyr::pull()
 
       HTML(paste0(
              "NOTE: Learner accuracy for this label is ", accuracy_score, "%.
