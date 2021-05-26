@@ -45,19 +45,23 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x, 
+                                                                  target, 
+                                                                  text_col, 
+                                                                  groups) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    nrc_sentiments <- experienceAnalysis::get_sentiments_nrc()
+    nrc_sentiments <- experienceAnalysis::prep_sentiments_nrc()
     
     net_sentiment_wide_nrc <- reactive({
-      experienceAnalysis::get_net_sentiment_wide_nrc(
-        text_data, 
-        class_col_name = "label", 
-        org_col_name = "organization",
+      experienceAnalysis::calc_net_sentiment_nrc(
+        x, 
+        target_col_name = target, 
+        text_col_name = text_col,
+        grouping_variables = groups,
         filter_class = input$class, 
-        filter_organization = input$organization)
+        filter_main_group = input$organization)
     })
     
     net_sentiment_long_nrc <- reactive({
@@ -67,10 +71,10 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
       
       if (isTruthy(req(input$nrcSentiments))) {
         
-        experienceAnalysis::get_net_sentiment_long_nrc(
+        experienceAnalysis::tidy_net_sentiment_nrc(
           net_sentiment_wide_nrc(),
           sorting_sentiments = input$nrcSentiments,
-          num_of_facets = input$numberOfFacets
+          num_of_lines = input$numberOfFacets
         )
       } else {
         req(input$nrcSentiments)
@@ -184,14 +188,16 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
         values_fill = 0
       ) %>%
       dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
-      dplyr::select(linenumber, organization, label, feedback, 
-                    dplyr::all_of(nrc_sentiments)) %>%
+      dplyr::select(
+        linenumber, 
+        dplyr::all_of(c(nrc_sentiments, groups[1], target, text_col))
+      ) %>%
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
-        "Organization" = organization,
-        "Feedback text tag" = label,
-        "Feedback text" = feedback
+        "Organization" = {{groups[1]}},
+        "Feedback text tag" = {{target}},
+        "Feedback text" = {{text_col}}
       )
     
     HTML(
@@ -212,8 +218,8 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     selectInput(
       session$ns("class"), 
       "Choose a label:",
-      choices = sort(unique(text_data$label)),
-      selected = sort(unique(text_data$label))[1]
+      choices = sort(unique(x[[target]])),
+      selected = sort(unique(x[[target]]))[1]
     )
   })
   
@@ -222,8 +228,8 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id){
     selectInput(
       session$ns("organization"), 
       "Choose an organization:",
-      choices = sort(unique(text_data$organization)),
-      selected = sort(unique(text_data$organization))[1]
+      choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+      selected = sort(unique(x[[groups[1]]]))[1]
     )
   })
   

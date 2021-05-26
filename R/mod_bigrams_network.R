@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_bigrams_network_ui <- function(id){
+mod_bigrams_network_ui <- function(id) {
   ns <- NS(id)
   tagList(
     
@@ -50,7 +50,7 @@ mod_bigrams_network_ui <- function(id){
 #' bigrams_network Server Functions
 #'
 #' @noRd 
-mod_bigrams_network_server <- function(id, x, label, target) {
+mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -60,10 +60,12 @@ mod_bigrams_network_server <- function(id, x, label, target) {
       req(input$bigramsProp)
       
       x %>% 
-        experienceAnalysis::get_bigrams_network(
+        experienceAnalysis::calc_bigrams_network(
           target_col_name = target, 
+          text_col_name = text_col,
+          grouping_variables = groups,
           filter_class = input$class,
-          filter_organization = input$organization, 
+          filter_main_group = input$organization, 
           bigrams_prop = input$bigramsProp
         ) %>% 
         experienceAnalysis::plot_bigrams_network()
@@ -108,8 +110,8 @@ mod_bigrams_network_server <- function(id, x, label, target) {
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(x$organization)),
-        selected = sort(unique(x$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
     
