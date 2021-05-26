@@ -13,6 +13,17 @@ app_ui <- function(request) {
     dashboardPage(
       
       dashboardHeader(
+        tags$li(class = "dropdown",
+                tags$a(
+                  href = "https://github.com/CDU-data-science-team/pxtextminingdashboard", 
+                  target = "_blank",
+                  tags$img(
+                    height = "20", 
+                    alt = "GitHub Logomark",
+                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png"
+                  )
+                )
+        ),
         title = NULL # Add header with JavaScript inside dashboardBody instead. See https://stackoverflow.com/questions/45176030/add-text-on-right-of-shinydashboard-header
       ),
       
@@ -196,7 +207,7 @@ golem_add_external_resources <- function(){
   add_resource_path(
     'www', app_sys('app/www')
   )
- 
+  
   tags$head(
     favicon(),
     bundle_resources(
