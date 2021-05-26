@@ -32,13 +32,13 @@ usethis::use_package( "tidytext" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
-golem::add_module(name = "predictions_table") # Name of the module
-golem::add_module(name = "sentiment_analysis")
-golem::add_module(name = "tidytext")
-golem::add_module(name = "text_blob")
-golem::add_module(name = "tfidf")
 golem::add_module(name = "bigrams_network" )
 golem::add_module(name = "performance_metrics" )
+golem::add_module(name = "predictions_table")
+golem::add_module(name = "sentiment_analysis")
+golem::add_module(name = "text_blob")
+golem::add_module(name = "tfidf")
+golem::add_module(name = "tidytext")
 
 ## Add helper functions ----
 ## Creates ftc_* and utils_*
