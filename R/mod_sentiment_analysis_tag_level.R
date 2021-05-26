@@ -53,7 +53,8 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_tag_level_server <- function(id){
+mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col, 
+                                                    groups) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -63,10 +64,12 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       
       net_sentiment_all_dicts <- reactive({
         
-        text_data %>% 
-          experienceAnalysis::get_net_sentiment_per_tag(
-            target_col_name = 'label', 
-            filter_organization = input$organization
+        x %>% 
+          experienceAnalysis::calc_net_sentiment_per_tag(
+            target_col_name = target,
+            text_col_name = text_col,
+            grouping_variables = groups,
+            filter_main_group = input$organization
           )
       })
       
@@ -81,11 +84,13 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       req(input$organization)
       
       bing_word_counts <- reactive({
-        text_data %>%
-          experienceAnalysis::get_bing_word_counts(
-            target_col_name = 'label',
-            filter_organization = input$organization,
-            filter_class = input$class
+        x %>%
+          experienceAnalysis::calc_bing_word_counts(
+            target_col_name = target,
+            text_col_name = text_col,
+            grouping_variables = groups,
+            filter_class = input$class,
+            filter_main_group = input$organization
           )
       })
       
@@ -131,8 +136,8 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(text_data$label)),
-        selected = sort(unique(text_data$label))[1]
+        choices = sort(unique(x[[target]])),
+        selected = sort(unique(x[[target]]))[1]
       )
     })
     
@@ -141,8 +146,8 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(text_data$organization)),
-        selected = sort(unique(text_data$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })

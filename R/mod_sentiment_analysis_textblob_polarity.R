@@ -32,7 +32,11 @@ mod_sentiment_analysis_textblob_polarity_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_textblob_polarity_server <- function(id){
+mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv, 
+                                                            which_python, 
+                                                            which_venv, 
+                                                            venv_name, 
+                                                            text_col_name) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -49,13 +53,14 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
     
     output$textBlob <- reactable::renderReactable({
       
-      aux <- text_data %>% 
-        experienceAnalysis::get_sentiment_indicators(
-          sys_setenv = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
-          which_python = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
-          which_venv = "conda",
-          venv_name = "textminingpy38", 
-          make_table = TRUE
+      aux <- x %>% 
+        experienceAnalysis::calc_sentiment_indicators(
+          sys_setenv = sys_setenv,
+          which_python = which_python,
+          which_venv = which_venv,
+          venv_name = venv_name, 
+          make_table = TRUE,
+          text_col_name = text_col
         )
       
       reactable::reactable(

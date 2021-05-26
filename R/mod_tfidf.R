@@ -54,7 +54,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, target) {
+mod_tfidf_server <- function(id, x, target, text_col, groups) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -69,10 +69,12 @@ mod_tfidf_server <- function(id, x, target) {
         value = 0, 
         {
           p <- x %>% 
-            experienceAnalysis::get_tfidf_ngrams(
+            experienceAnalysis::calc_tfidf_ngrams(
               target_col_name = target, 
+              text_col_name = text_col,
+              grouping_variables = groups,
               filter_class = input$class, 
-              filter_organization = input$organization,
+              filter_main_group = input$organization,
               ngrams_type = input$ngramsType
             ) %>% 
             experienceAnalysis::plot_tfidf_ngrams(
@@ -126,8 +128,8 @@ mod_tfidf_server <- function(id, x, target) {
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(x$organization)),
-        selected = sort(unique(x$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
     
