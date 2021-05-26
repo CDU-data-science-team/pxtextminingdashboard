@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_performance_metrics_ui <- function(id){
+mod_performance_metrics_ui <- function(id) {
   ns <- NS(id)
   tagList(
     
@@ -18,6 +18,7 @@ mod_performance_metrics_ui <- function(id){
           title = "Best-perfroming learners",
           width = NULL,
           plotOutput(ns("learnerPerformance")),
+          plotOutput(ns("confusionMatrix")),
           box(
             width = NULL, 
             background = "red",
@@ -54,20 +55,34 @@ mod_performance_metrics_ui <- function(id){
 #' performance_metrics Server Functions
 #'
 #' @noRd 
-mod_performance_metrics_server <- function(id, x, target){
-  moduleServer( id, function(input, output, session){
+mod_performance_metrics_server <- function(id, x, target, target_pred, groups, 
+                                           preds, row_indices, tuning_results) {
+  moduleServer( id, function(input, output, session) {
     ns <- session$ns
     
     output$learnerPerformance <- renderPlot({
       
-      x %>% 
+      tuning_results %>% 
         experienceAnalysis::prep_best_estimators() %>% 
         experienceAnalysis::plot_best_estimators()
     })
     
+    output$confusionMatrix <- renderPlot({
+      
+      x %>%
+        dplyr::right_join(preds, by = "row_index") %>% 
+        dplyr::select(dplyr::all_of(c(target, target_pred, groups))) %>% 
+        experienceAnalysis::plot_confusion_matrix(
+          target_col_name = target,
+          target_pred_col_name = target_pred,
+          grouping_variables = NULL,
+          type = "heatmap"
+        )
+    })
+    
     output$rawMetrics <- reactable::renderReactable({
       
-      metrics_table <- x %>%
+      metrics_table <- tuning_results %>%
         experienceAnalysis::prep_all_pipeline_tuning_results()
       cols <- names(metrics_table)
       
@@ -102,8 +117,7 @@ mod_performance_metrics_server <- function(id, x, target){
     output$downloadData <- downloadHandler(
       filename = function() {paste0("performance_metrics_", target, ".csv")},
       content = function(file) {
-        write.csv(x, file)
+        write.csv(tuning_results, file)
       })
- 
   })
 }

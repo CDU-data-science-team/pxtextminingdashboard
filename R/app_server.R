@@ -77,13 +77,24 @@ app_server <- function( input, output, session ) {
   #############################################################################
   mod_performance_metrics_server(
     "performance_metrics_ui_1",
-    x = tuning_results_label,
-    target = "label"
+    x = text_data,
+    target = "label",
+    target_pred = "label_pred",
+    groups = "organization",
+    preds = predictions_test_label,
+    row_indices = row_index_label,
+    tuning_results = tuning_results_label
   )
+  
   mod_performance_metrics_server(
     "performance_metrics_ui_2",
-    x = tuning_results_criticality,
-    target = "criticality"
+    x = text_data,
+    target = "criticality",
+    target_pred = "criticality_pred",
+    groups = "organization",
+    preds = predictions_test_criticality,
+    row_indices = row_index_criticality,
+    tuning_results = tuning_results_criticality
   )
   
   #############################################################################
