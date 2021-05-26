@@ -100,7 +100,7 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
       
       accuracy_score <- x %>% 
         dplyr::select(dplyr::all_of(c(target, groups)), row_index) %>% 
-        dplyr::left_join(preds, by = "row_index") %>% 
+        dplyr::right_join(preds, by = "row_index") %>% 
         experienceAnalysis::calc_accuracy_per_class(
             target_col_name = target, 
             target_pred_col_name = target_pred,
