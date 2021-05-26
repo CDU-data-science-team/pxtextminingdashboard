@@ -42,16 +42,6 @@ predictions_test_label <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM predictions_test_label')
 
-# accuracy_per_class_label <- text_data %>% 
-#   dplyr::select(label, organization, row_index) %>% 
-#   dplyr::left_join(predictions_test_label, by = "row_index") %>% 
-#   dplyr::mutate(actual_vs_predicted = label == label_pred) %>% 
-#   dplyr::filter(!is.na(actual_vs_predicted)) %>% 
-#   dplyr::group_by(organization, label) %>% 
-#   dplyr::summarise(accuracy = sum(actual_vs_predicted) / 
-#                      length(actual_vs_predicted)) %>% 
-#   dplyr::rename(class = label)
-
 tuning_results_label <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM tuning_results_label')
@@ -72,16 +62,6 @@ row_index_criticality <- index_training_data_criticality %>%
 predictions_test_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM predictions_test_criticality')
-
-# accuracy_per_class_criticality <- text_data %>% 
-#   dplyr::select(criticality, organization, row_index) %>% 
-#   dplyr::left_join(predictions_test_criticality, by = "row_index") %>% 
-#   dplyr::mutate(actual_vs_predicted = criticality == criticality_pred) %>% 
-#   dplyr::filter(!is.na(actual_vs_predicted)) %>% 
-#   dplyr::group_by(organization, criticality) %>% 
-#   dplyr::summarise(accuracy = sum(actual_vs_predicted) / 
-#                      length(actual_vs_predicted)) %>% 
-#   dplyr::rename(class = criticality)
 
 tuning_results_criticality <- DBI::dbGetQuery(
   con_text_mining,
