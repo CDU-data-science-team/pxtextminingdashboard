@@ -16,7 +16,7 @@ mod_predictions_table_ui <- function(id){
         width = 12,
         
         box(
-          title = "Predicted text for each label",
+          title = "Predicted text for each class",
           width = NULL,
           
           box(
@@ -37,7 +37,7 @@ mod_predictions_table_ui <- function(id){
             )
           ),
           
-          reactable::reactableOutput(ns("pedictedLabels")) %>%
+          reactable::reactableOutput(ns("predictedClasses")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
         )
       )
@@ -53,7 +53,7 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    output$pedictedLabels <- reactable::renderReactable({
+    output$predictedClasses <- reactable::renderReactable({
       
       feedback_col_new_name <- paste0(
         "Feedback that model predicted as ", "\"", input$class, "\""
@@ -122,7 +122,7 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
         dplyr::pull()
 
       HTML(paste0(
-             "NOTE: Learner accuracy for this label is ", accuracy_score, "%.
+             "NOTE: Learner accuracy for this class is ", accuracy_score, "%.
              This means that in 100 feedback records, ", accuracy_score,
              "  are predicted correctly."))
     })
@@ -134,7 +134,7 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
       
       selectInput(
         session$ns("class"), 
-        "Choose a label:",
+        "Choose a class:",
         choices = sort(unique(unlist(aux[[target]]))),
         selected = sort(unique(unlist(aux[[target]])))[1]
       )
