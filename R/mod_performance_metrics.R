@@ -35,7 +35,7 @@ mod_performance_metrics_ui <- function(id) {
           width = NULL,
           title = 
             HTML(
-            "<p><b>All tuned (hyper) parameters </b> </pr>
+            "<p>All tuned (hyper) parameters</pr>
             <p style='font-size:small;'> Lists all (hyper)parameter values tried 
             during pipeline fitting, along with performance metrics.</pr>
             <p style='font-size:small;'> This table was generated from the 
