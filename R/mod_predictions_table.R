@@ -61,14 +61,14 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
       
       aux <- x %>%
         dplyr::right_join(preds, by = "row_index") %>% 
-        dplyr::select(-dplyr::all_of(target)) %>% 
-        dplyr::rename_with(
-          ~ target, 
-          .cols = dplyr::all_of(paste0(target, "_pred"))
-        ) %>% 
+        # dplyr::select(-dplyr::all_of(target)) %>% 
+        # dplyr::rename_with(
+        #   ~ target, 
+        #   .cols = dplyr::all_of(paste0(target, "_pred"))
+        # ) %>% 
         dplyr::filter(
           dplyr::across(
-            dplyr::all_of(target),
+            dplyr::all_of(target_pred),
             ~ . %in% input$class
           ),
           dplyr::across(
@@ -76,16 +76,23 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
             ~ . %in% input$organization
           )
         ) %>%
-        dplyr::select(dplyr::all_of(c(text_col, groups)))
+        dplyr::select(dplyr::all_of(c(text_col, target, groups)))
+      
+      reactable_cols <- list(
+        reactable::colDef(name = feedback_col_new_name),
+        reactable::colDef(name = "Actual class", align = "right"),
+        reactable::colDef(name = "Organization", align = "right")
+      )
+      names(reactable_cols) <- c(text_col, target, groups[1])
         
       reactable::reactable(
         aux,
-        columns = 
-          list(
-            feedback = reactable::colDef(name = feedback_col_new_name),
-            organization = reactable::colDef(name = "Organization", 
-                                             align = "right")
-          ),
+        columns = reactable_cols,
+          # list(
+          #   feedback = reactable::colDef(name = feedback_col_new_name),
+          #   organization = reactable::colDef(name = "Organization", 
+          #                                    align = "right")
+          # ),
         #rownames = TRUE,
         searchable = TRUE,
         sortable = FALSE,
