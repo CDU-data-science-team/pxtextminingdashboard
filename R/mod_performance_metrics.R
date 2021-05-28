@@ -15,10 +15,19 @@ mod_performance_metrics_ui <- function(id) {
       column(
         width = 12,
         box(
+          title = "Confusion matrix",
+          width = NULL,
+          plotOutput(ns("confusionMatrix")),
+          box(
+            width = NULL, 
+            background = "red",
+            HTML("TO DO: Add a brief explanation how to read the matrix here.")
+          )
+        ),
+        box(
           title = "Best-perfroming learners",
           width = NULL,
           plotOutput(ns("learnerPerformance")),
-          plotOutput(ns("confusionMatrix")),
           box(
             width = NULL, 
             background = "red",
