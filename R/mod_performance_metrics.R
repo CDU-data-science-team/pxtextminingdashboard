@@ -80,6 +80,7 @@ mod_performance_metrics_ui <- function(id) {
             )
           ),
           
+          downloadButton(ns("downloadPredictionsOnTest"), "Download Data"),
           reactable::reactableOutput(ns("predictedClasses")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
         )
@@ -102,7 +103,7 @@ mod_performance_metrics_ui <- function(id) {
             <a target='_blank' rel='noopener noreferrer' href='https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html'>'cv_results_'</a>
             with some modifications.</pr>"
             ),
-          downloadButton(ns("downloadData"), "Download Data"),
+          downloadButton(ns("downloadPerformanceMetrics"), "Download Data"),
           reactable::reactableOutput(ns("rawMetrics"))
         )
       )
@@ -243,10 +244,22 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
           The leftmost learner is used to make the predictions."))
     })
     
-    output$downloadData <- downloadHandler(
+    output$downloadPerformanceMetrics <- downloadHandler(
       filename = function() {paste0("performance_metrics_", target, ".csv")},
       content = function(file) {
         write.csv(metrics_table, file)
+      }
+    )
+    
+    output$downloadPredictionsOnTest <- downloadHandler(
+      filename = function() {paste0("performance_metrics_", target, ".csv")},
+      content = function(file) {
+        write.csv(
+          x %>%
+            dplyr::right_join(preds, by = "row_index") %>% 
+            dplyr::select(dplyr::all_of(c(text_col, target, groups))), 
+          file
+        )
       }
     )
     
