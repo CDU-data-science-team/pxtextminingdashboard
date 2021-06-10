@@ -13,6 +13,7 @@ app_ui <- function(request) {
     dashboardPage(
       
       dashboardHeader(
+        # https://github.com/nhs-r-community/demos-and-how-tos/commit/90c4ea79a05239e28143f9085cf54f50d4404c7b
         tags$li(class = "dropdown",
                 tags$a(
                   href = "https://github.com/CDU-data-science-team/pxtextminingdashboard", 
@@ -20,7 +21,8 @@ app_ui <- function(request) {
                   tags$img(
                     height = "20", 
                     alt = "GitHub Logomark",
-                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png"
+                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png",
+                    # src = "img/github_logo.png"
                   )
                 )
         ),
