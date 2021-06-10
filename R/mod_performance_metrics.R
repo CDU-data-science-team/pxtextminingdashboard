@@ -56,7 +56,7 @@ mod_performance_metrics_ui <- function(id) {
         width = 12,
         
         box(
-          title = "Predicted text for each class",
+          title = "Predictions on the test set",
           width = NULL,
           
           box(
