@@ -13,7 +13,7 @@ mod_performance_metrics_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 12,
+        width = 6,
         box(
           title = "Confusion matrix",
           width = NULL,
@@ -37,7 +37,10 @@ mod_performance_metrics_ui <- function(id) {
               x-axis as being about a different class on the y-axis."
             )
           )
-        ),
+        )
+      ),
+      column(
+        width = 6,
         box(
           title = "Best-perfroming learners",
           width = NULL,
