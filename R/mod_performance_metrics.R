@@ -209,11 +209,11 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
         "Learner accuracy for this class is ", accuracy_score, "%."))
     })
     
+    metrics_table <- tuning_results %>%
+      experienceAnalysis::prep_all_pipeline_tuning_results()
+    cols <- names(metrics_table)
+    
     output$rawMetrics <- reactable::renderReactable({
-      
-      metrics_table <- tuning_results %>%
-        experienceAnalysis::prep_all_pipeline_tuning_results()
-      cols <- names(metrics_table)
       
       metrics_table %>%
         reactable::reactable(
@@ -246,8 +246,9 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
     output$downloadData <- downloadHandler(
       filename = function() {paste0("performance_metrics_", target, ".csv")},
       content = function(file) {
-        write.csv(tuning_results, file)
-      })
+        write.csv(metrics_table, file)
+      }
+    )
     
     output$classControl <- renderUI({
       
