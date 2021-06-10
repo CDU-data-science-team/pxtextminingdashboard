@@ -13,18 +13,23 @@ mod_tfidf_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("organizationControl"))
       ),
       
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("ngramsNumControl"))
+      ),
+      
+      column(
+        width = 3,
+        uiOutput(ns("barsNumberControl"))
       )
     ),
     
@@ -75,7 +80,8 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
               grouping_variables = groups,
               filter_class = input$class, 
               filter_main_group = input$organization,
-              ngrams_type = input$ngramsType
+              ngrams_type = input$ngramsType,
+              number_of_ngrams = input$barsNum
             ) %>% 
             experienceAnalysis::plot_tfidf_ngrams(
               ngrams_type = input$ngramsType,
@@ -107,10 +113,7 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
           "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text.", 
-          "<p> NOTE: IN THIS VERSION, USING THE TRUST SELECTION BOX WILL NOT 
-          RETURN TRUST-SPECIFIC PLOTS. THIS IS DUE TO THE LACK OF SUFFICIENT 
-          DATA. THE PLOTS TEMPORARILY DISPLAY TF-IDFs FOR ALL TRUSTS TOGETHER."))
+          the cotent of the text."))
     })
     
     output$classControl <- renderUI({
@@ -140,6 +143,17 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
         label = HTML("<b>Choose between unigrams or bigrams:</b>"),
         choices = c("Unigrams", "Bigrams"),
         selected = "Unigrams"
+      )
+    })
+    
+    output$barsNumberControl <- renderUI({
+      
+      sliderInput(
+        session$ns("barsNum"),
+        label = HTML("<b>Number of bars:</b>"),
+        value = 15,
+        min = 1,
+        max = 100
       )
     })
   })
