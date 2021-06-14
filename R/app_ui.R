@@ -94,8 +94,8 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
-                    mod_predictions_table_ui("predictions_table_ui_1")
+                    "Predictions",
+                    mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_1")
                   ),
                   
                   tabPanel(
@@ -111,8 +111,9 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
+                    "Predictions",
                     mod_predictions_table_ui("predictions_table_ui_2")
+                    # mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_2")
                   ),
                   
                   tabPanel(
