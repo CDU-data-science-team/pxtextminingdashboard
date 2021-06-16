@@ -21,7 +21,7 @@ app_ui <- function(request) {
                   tags$img(
                     height = "20", 
                     alt = "GitHub Logomark",
-                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png",
+                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png"
                     # src = "img/github_logo.png"
                   )
                 )
