@@ -10,12 +10,12 @@ app_server <- function( input, output, session ) {
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_1",
     x = text_data, 
+    python_setup = TRUE,
     sys_setenv = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
     which_python = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
     which_venv = "conda",
     venv_name = "textminingpy38",
-    file_path = NULL, 
-    predictor = "feedback", 
+    text_col = "feedback", 
     preds_column = "predictions",
     column_names = c("feedback", "organization"), 
     pipe_path = "C:\\Users\\andreas.soteriades\\Documents\\git_projects\\pxtextmining\\results for label-mac\\pipeline_label_mac.sav"
@@ -24,12 +24,12 @@ app_server <- function( input, output, session ) {
   # mod_predictions_unlabelled_data_server(
   #   "predictions_unlabelled_data_ui_2",
   #   x = text_data, 
+  #   python_setup = TRUE,
   #   sys_setenv = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
   #   which_python = "C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe", 
   #   which_venv = "conda",
   #   venv_name = "textminingpy38",
-  #   file_path = NULL, 
-  #   predictor = "feedback", 
+  #   text_col = "feedback", 
   #   preds_column = "predictions",
   #   column_names = c("feedback", "organization"), 
   #   pipe_path = "C:\\Users\\andreas.soteriades\\Documents\\git_projects\\pxtextmining\\pxtextmining\\results for criticality\\test_pipeline_criticality.sav"

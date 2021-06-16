@@ -48,22 +48,23 @@ mod_predictions_unlabelled_data_ui <- function(id) {
 #' predictions_unlabelled_data Server Functions
 #'
 #' @noRd 
-mod_predictions_unlabelled_data_server <- function(id, x, sys_setenv, 
+mod_predictions_unlabelled_data_server <- function(id, x, python_setup, 
+                                                   sys_setenv, 
                                                    which_python, which_venv, 
-                                                   venv_name, file_path, 
-                                                   predictor, preds_column,
+                                                   venv_name, 
+                                                   text_col, preds_column,
                                                    column_names, pipe_path) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
     preds <- experienceAnalysis::calc_predict_unlabelled_text(
       x,
+      python_setup,
       sys_setenv,
       which_python,
       which_venv,
       venv_name,
-      file_path,
-      predictor,
+      text_col,
       pipe_path,
       preds_column, 
       column_names
