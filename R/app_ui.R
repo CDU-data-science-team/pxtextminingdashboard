@@ -21,7 +21,7 @@ app_ui <- function(request) {
                   tags$img(
                     height = "20", 
                     alt = "GitHub Logomark",
-                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png",
+                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png"
                     # src = "img/github_logo.png"
                   )
                 )
@@ -94,8 +94,8 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
-                    mod_predictions_table_ui("predictions_table_ui_1")
+                    "Predictions",
+                    mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_1")
                   ),
                   
                   tabPanel(
@@ -111,8 +111,9 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
+                    "Predictions",
                     mod_predictions_table_ui("predictions_table_ui_2")
+                    # mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_2")
                   ),
                   
                   tabPanel(
