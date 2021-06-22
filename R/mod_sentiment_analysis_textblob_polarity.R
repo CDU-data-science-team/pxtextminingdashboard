@@ -36,7 +36,7 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
                                                             which_python, 
                                                             which_venv, 
                                                             venv_name, 
-                                                            text_col_name) {
+                                                            text_col) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
