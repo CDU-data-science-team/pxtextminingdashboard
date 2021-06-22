@@ -112,8 +112,7 @@ app_ui <- function(request) {
                   
                   tabPanel(
                     "Predictions",
-                    mod_predictions_table_ui("predictions_table_ui_2")
-                    # mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_2")
+                    mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_2")
                   ),
                   
                   tabPanel(
