@@ -53,15 +53,22 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
     
     output$textBlob <- reactable::renderReactable({
       
-      aux <- x %>% 
-        experienceAnalysis::calc_sentiment_indicators(
-          sys_setenv = sys_setenv,
-          which_python = which_python,
-          which_venv = which_venv,
-          venv_name = venv_name, 
-          make_table = TRUE,
-          text_col_name = text_col
-        )
+      withProgress(
+        message = "Making the calculations",
+        detail = "May take a minute or two...", 
+        value = 0, 
+        {
+          aux <- x %>% 
+            experienceAnalysis::calc_sentiment_indicators(
+              sys_setenv = sys_setenv,
+              which_python = which_python,
+              which_venv = which_venv,
+              venv_name = venv_name, 
+              make_table = TRUE,
+              text_col_name = text_col
+            ) 
+        }
+      )
       
       reactable::reactable(
         aux,
