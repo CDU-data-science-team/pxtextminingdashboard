@@ -195,7 +195,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
-        "Organization" = {{groups[1]}},
+        "Organization" = dplyr::all_of(groups[1]), # Can't subset vector within {{}}.
         "Feedback text tag" = {{target}},
         "Feedback text" = {{text_col}}
       )
