@@ -13,6 +13,19 @@ app_ui <- function(request) {
     dashboardPage(
       
       dashboardHeader(
+        # https://github.com/nhs-r-community/demos-and-how-tos/commit/90c4ea79a05239e28143f9085cf54f50d4404c7b
+        tags$li(class = "dropdown",
+                tags$a(
+                  href = "https://github.com/CDU-data-science-team/pxtextminingdashboard", 
+                  target = "_blank",
+                  tags$img(
+                    height = "20", 
+                    alt = "GitHub Logomark",
+                    src = "https://cdn.icon-icons.com/icons2/2368/PNG/512/github_logo_icon_143772.png"
+                    # src = "img/github_logo.png"
+                  )
+                )
+        ),
         title = NULL # Add header with JavaScript inside dashboardBody instead. See https://stackoverflow.com/questions/45176030/add-text-on-right-of-shinydashboard-header
       ),
       
@@ -81,8 +94,8 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
-                    mod_predictions_table_ui("predictions_table_ui_1")
+                    "Predictions",
+                    mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_1")
                   ),
                   
                   tabPanel(
@@ -98,8 +111,8 @@ app_ui <- function(request) {
                 tabsetPanel(
                   
                   tabPanel(
-                    "Predicted text",
-                    mod_predictions_table_ui("predictions_table_ui_2")
+                    "Predictions",
+                    mod_predictions_unlabelled_data_ui("predictions_unlabelled_data_ui_2")
                   ),
                   
                   tabPanel(
@@ -196,7 +209,7 @@ golem_add_external_resources <- function(){
   add_resource_path(
     'www', app_sys('app/www')
   )
- 
+  
   tags$head(
     favicon(),
     bundle_resources(

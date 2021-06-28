@@ -16,7 +16,7 @@ mod_predictions_table_ui <- function(id){
         width = 12,
         
         box(
-          title = "Predicted text for each label",
+          title = "Predicted text for each class",
           width = NULL,
           
           box(
@@ -37,7 +37,7 @@ mod_predictions_table_ui <- function(id){
             )
           ),
           
-          reactable::reactableOutput(ns("pedictedLabels")) %>%
+          reactable::reactableOutput(ns("predictedClasses")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
         )
       )
@@ -48,48 +48,51 @@ mod_predictions_table_ui <- function(id){
 #' predictions_table Server Functions
 #'
 #' @noRd 
-mod_predictions_table_server <- function(id, x, y, predictor){
+mod_predictions_table_server <- function(id, x, target, target_pred, text_col, 
+                                         groups, preds, row_indices) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    output$pedictedLabels <- reactable::renderReactable({
+    output$predictedClasses <- reactable::renderReactable({
       
-      if (predictor == "label") {
-        
-        feedback_col_new_name <- paste0(
-          "Feedback that model predicted as ", "\"", input$class, "\""
-        )
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_label, by = 'row_index') %>% 
-          dplyr::filter(
-            label %in% input$class,
-            organization %in% input$organization
-          ) %>%
-          dplyr::select(feedback, organization)
-      } else {
-        
-        feedback_col_new_name <- paste0(
-          "Feedback that model predicted as ", "\"", input$class, "\""
-        )
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_criticality, by = 'row_index') %>% 
-          dplyr::filter(
-            criticality %in% input$class,
-            organization %in% input$organization
-          ) %>%
-          dplyr::select(feedback, organization)
-      }
+      feedback_col_new_name <- paste0(
+        "Feedback that model predicted as ", "\"", input$class, "\""
+      )
+      
+      aux <- x %>%
+        dplyr::right_join(preds, by = "row_index") %>% 
+        # dplyr::select(-dplyr::all_of(target)) %>% 
+        # dplyr::rename_with(
+        #   ~ target, 
+        #   .cols = dplyr::all_of(paste0(target, "_pred"))
+        # ) %>% 
+        dplyr::filter(
+          dplyr::across(
+            dplyr::all_of(target_pred),
+            ~ . %in% input$class
+          ),
+          dplyr::across(
+            dplyr::all_of(groups),
+            ~ . %in% input$organization
+          )
+        ) %>%
+        dplyr::select(dplyr::all_of(c(text_col, target, groups)))
+      
+      reactable_cols <- list(
+        reactable::colDef(name = feedback_col_new_name),
+        reactable::colDef(name = "Actual class", align = "right"),
+        reactable::colDef(name = "Organization", align = "right")
+      )
+      names(reactable_cols) <- c(text_col, target, groups[1])
         
       reactable::reactable(
         aux,
-        columns = 
-          list(
-            feedback = reactable::colDef(name = feedback_col_new_name),
-            organization = reactable::colDef(name = "Organization", 
-                                             align = "right")
-          ),
+        columns = reactable_cols,
+          # list(
+          #   feedback = reactable::colDef(name = feedback_col_new_name),
+          #   organization = reactable::colDef(name = "Organization", 
+          #                                    align = "right")
+          # ),
         #rownames = TRUE,
         searchable = TRUE,
         sortable = FALSE,
@@ -102,38 +105,45 @@ mod_predictions_table_server <- function(id, x, y, predictor){
 
     output$modelAccuracyBox <- renderText({
       
-      accuracy_score <- y %>%
+      accuracy_score <- x %>% 
+        dplyr::select(dplyr::all_of(c(target, groups)), row_index) %>% 
+        dplyr::right_join(preds, by = "row_index") %>% 
+        experienceAnalysis::calc_accuracy_per_class(
+            target_col_name = target, 
+            target_pred_col_name = target_pred,
+            grouping_variables = groups,
+            column_names = NULL
+          ) %>% 
         dplyr::filter(
-          class %in% input$class,
-          organization %in% input$organization
+          dplyr::across(
+            dplyr::all_of(target),
+            ~ . %in% input$class
+          ),
+          dplyr::across(
+            dplyr::all_of(groups),
+            ~ . %in% input$organization
+          )
         ) %>%
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
         dplyr::pull()
 
       HTML(paste0(
-             "NOTE: Learner accuracy for this label is ", accuracy_score, "%.
+             "NOTE: Learner accuracy for this class is ", accuracy_score, "%.
              This means that in 100 feedback records, ", accuracy_score,
              "  are predicted correctly."))
     })
     
     output$classControl <- renderUI({
       
-      if (predictor == "label") {
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_label, by = 'row_index')
-      } else {
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_criticality, by = 'row_index')
-      }
+      aux <- x %>%
+        dplyr::right_join(row_indices, by = 'row_index')
       
       selectInput(
         session$ns("class"), 
-        "Choose a label:",
-        choices = sort(unique(unlist(aux[[predictor]]))),
-        selected = sort(unique(unlist(aux[[predictor]])))[1]
+        "Choose a class:",
+        choices = sort(unique(unlist(aux[[target]]))),
+        selected = sort(unique(unlist(aux[[target]])))[1]
       )
     })
     
@@ -142,8 +152,8 @@ mod_predictions_table_server <- function(id, x, y, predictor){
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(x$organization)),
-        selected = sort(unique(x$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })

@@ -32,7 +32,11 @@ mod_sentiment_analysis_textblob_polarity_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_textblob_polarity_server <- function(id){
+mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv, 
+                                                            which_python, 
+                                                            which_venv, 
+                                                            venv_name, 
+                                                            text_col) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -49,17 +53,22 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id){
     
     output$textBlob <- reactable::renderReactable({
       
-      aux <- polarity_textblob %>%
-        dplyr::left_join(text_data) %>% 
-        #dplyr::filter(super != "Couldn't be improved") %>%
-        dplyr::select(feedback, polarity, organization, label, criticality) %>%
-        dplyr::mutate(
-          polarity = round(polarity, 2),
-          criticality = dplyr::case_when(
-            !criticality %in% -5:5 ~ "Unassigned",
-            TRUE ~ criticality
-          )
-        )
+      withProgress(
+        message = "Making the calculations",
+        detail = "May take a minute or two...", 
+        value = 0, 
+        {
+          aux <- x %>% 
+            experienceAnalysis::calc_sentiment_indicators(
+              sys_setenv = sys_setenv,
+              which_python = which_python,
+              which_venv = which_venv,
+              venv_name = venv_name, 
+              make_table = TRUE,
+              text_col_name = text_col
+            ) 
+        }
+      )
       
       reactable::reactable(
         aux,

@@ -53,109 +53,49 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_tag_level_server <- function(id){
+mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col, 
+                                                    groups) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    tidy_feedback <- reactive({
-      text_data %>%
-        dplyr::group_by(label, organization) %>%
-        dplyr::mutate(linenumber = dplyr::row_number()) %>%
-        tidytext::unnest_tokens(word, feedback) %>%
-        dplyr::ungroup()
-    })
-    
-    # Find net sentiment in each tag
-    net_sentiment_afinn <- reactive({
-      tidy_feedback() %>%
-        dplyr::inner_join(tidytext::get_sentiments("afinn"), by = "word") %>% 
-        dplyr::group_by(label, organization) %>%
-        dplyr::summarise(sentiment = sum(value)) %>% 
-        dplyr::mutate(method = "AFINN")
-    })
-    
-    net_sentiment_bing_and_nrc <- reactive({
-      dplyr::bind_rows(
-        tidy_feedback() %>%
-          dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>% 
-          dplyr::filter(sentiment %in% c("positive", "negative")) %>%
-          dplyr::mutate(method = "Bing et al."),
-        
-        tidy_feedback() %>%
-          dplyr::inner_join(tidytext::get_sentiments("nrc"), by = "word") %>% 
-          dplyr::filter(sentiment %in% c("positive", "negative")) %>%
-          dplyr::mutate(method = "NRC")
-      ) %>%
-        dplyr::count(label, organization, method, sentiment) %>%
-        tidyr::spread(sentiment, n, fill = 0) %>%
-        dplyr::mutate(sentiment = positive - negative) %>%
-        dplyr::ungroup()
-    })
-    
     output$netSentiment <- renderPlot({
       
-      netSentiment_all_dicts <- reactive({
+      req(input$organization)
+      
+      net_sentiment_all_dicts <- reactive({
         
-        net_sentiment_afinn() %>% 
-          dplyr::bind_rows(
-            net_sentiment_bing_and_nrc()
-          ) %>%
-          dplyr::filter(organization %in% input$organization)
+        x %>% 
+          experienceAnalysis::calc_net_sentiment_per_tag(
+            target_col_name = target,
+            text_col_name = text_col,
+            grouping_variables = groups,
+            filter_main_group = input$organization
+          )
       })
       
       
-      netSentiment_all_dicts() %>%
-        ggplot2::ggplot(ggplot2::aes(sentiment, reorder(label, sentiment))) +
-        ggplot2::geom_col(fill = 'blue', alpha = 0.6) +
-        ggplot2::facet_wrap(~ method, ncol = 1, scales = "free") +
-        ggplot2::labs(
-          x = "Net sentiment", 
-          y = NULL,
-          title = "Net sentiment per tag"
-        ) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(
-          panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank(),
-          axis.text.x = ggplot2::element_text(angle = 90),
-          axis.text.y = ggplot2::element_text(size = 12)
-        )
+      net_sentiment_all_dicts() %>%
+        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = 'label')
     })
     
     output$mostCommonWords <- renderPlot({
       
-      # Most common positive and negative words
+      req(input$class)
+      req(input$organization)
+      
       bing_word_counts <- reactive({
-        tidy_feedback() %>%
-          dplyr::filter(
-            label %in% input$class,
-            organization %in% input$organization
-          ) %>%
-          dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>%
-          dplyr::count(word, sentiment, sort = TRUE)
+        x %>%
+          experienceAnalysis::calc_bing_word_counts(
+            target_col_name = target,
+            text_col_name = text_col,
+            grouping_variables = groups,
+            filter_class = input$class,
+            filter_main_group = input$organization
+          )
       })
       
-      # bing_word_counts <- bing_word_counts_temp() %>%
-      #   dplyr::inner_join(tidytext::get_sentiments("bing"), by = "word") %>%
-      #   dplyr::count(word, sentiment, sort = TRUE)
-      
       bing_word_counts() %>%
-        dplyr::group_by(sentiment) %>%
-        dplyr::top_n(10) %>%
-        dplyr::ungroup() %>%
-        ggplot2::ggplot(ggplot2::aes(n, reorder(word, n), fill = sentiment)) +
-        ggplot2::geom_col(show.legend = FALSE) +
-        ggplot2::facet_wrap(~sentiment, scales = "free_y") +
-        #ggplot2::labs(x = "Contribution to sentiment") +
-        ggplot2::ylab("") + 
-        ggplot2::theme_bw() +
-        ggplot2::theme(
-          panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank(),
-          axis.title.x = ggplot2::element_blank(),
-          axis.text.x = ggplot2::element_text(angle = 90),
-          axis.text.y = ggplot2::element_text(size = 12)
-        )
+        experienceAnalysis::plot_bing_word_counts()
     })
     
     output$sentimentAnalysisExplanation <- renderText({
@@ -196,8 +136,8 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(text_data$label)),
-        selected = sort(unique(text_data$label))[1]
+        choices = sort(unique(x[[target]])),
+        selected = sort(unique(x[[target]]))[1]
       )
     })
     
@@ -206,8 +146,8 @@ mod_sentiment_analysis_tag_level_server <- function(id){
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(text_data$organization)),
-        selected = sort(unique(text_data$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })

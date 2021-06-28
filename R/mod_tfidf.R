@@ -13,18 +13,23 @@ mod_tfidf_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("organizationControl"))
       ),
       
       column(
-        width = 4,
+        width = 3,
         uiOutput(ns("ngramsNumControl"))
+      ),
+      
+      column(
+        width = 3,
+        uiOutput(ns("barsNumberControl"))
       )
     ),
     
@@ -54,7 +59,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, predictor) {
+mod_tfidf_server <- function(id, x, target, text_col, groups) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -68,10 +73,21 @@ mod_tfidf_server <- function(id, x, predictor) {
         detail = 'This may take a few seconds...', 
         value = 0, 
         {
-          p <- tfidf_ngrams(x, y = predictor, class = input$class, 
-                            organization = input$organization,
-                            ngrams_type = input$ngramsType)
-                     
+          p <- x %>% 
+            experienceAnalysis::calc_tfidf_ngrams(
+              target_col_name = target, 
+              text_col_name = text_col,
+              grouping_variables = groups,
+              filter_class = input$class, 
+              filter_main_group = input$organization,
+              ngrams_type = input$ngramsType,
+              number_of_ngrams = input$barsNum
+            ) %>% 
+            experienceAnalysis::plot_tfidf_ngrams(
+              ngrams_type = input$ngramsType,
+              filter_class = input$class
+            )
+            
           incProgress(1)
         }
       )
@@ -97,10 +113,7 @@ mod_tfidf_server <- function(id, x, predictor) {
           standard frequency as it adjusts for words that appear too frequently
           in the text. For example, stop words like ", "\"", "a", "\"", " and ",
           "\"", "the", "\"", " are very frequent but uniformative of
-          the cotent of the text.", 
-          "<p> NOTE: IN THIS VERSION, USING THE TRUST SELECTION BOX WILL NOT 
-          RETURN TRUST-SPECIFIC PLOTS. THIS IS DUE TO THE LACK OF SUFFICIENT 
-          DATA. THE PLOTS TEMPORARILY DISPLAY TF-IDFs FOR ALL TRUSTS TOGETHER."))
+          the cotent of the text."))
     })
     
     output$classControl <- renderUI({
@@ -108,8 +121,8 @@ mod_tfidf_server <- function(id, x, predictor) {
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(x[[predictor]]))),
-        selected = sort(unique(unlist(x[[predictor]])))[1]
+        choices = sort(unique(unlist(x[[target]]))),
+        selected = sort(unique(unlist(x[[target]])))[1]
       )
     })
     
@@ -118,8 +131,8 @@ mod_tfidf_server <- function(id, x, predictor) {
       selectInput(
         session$ns("organization"), 
         "Choose an organization:",
-        choices = sort(unique(x$organization)),
-        selected = sort(unique(x$organization))[1]
+        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
+        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
     
@@ -130,6 +143,17 @@ mod_tfidf_server <- function(id, x, predictor) {
         label = HTML("<b>Choose between unigrams or bigrams:</b>"),
         choices = c("Unigrams", "Bigrams"),
         selected = "Unigrams"
+      )
+    })
+    
+    output$barsNumberControl <- renderUI({
+      
+      sliderInput(
+        session$ns("barsNum"),
+        label = HTML("<b>Number of bars:</b>"),
+        value = 15,
+        min = 1,
+        max = 100
       )
     })
   })
