@@ -54,6 +54,12 @@ mod_predictions_unlabelled_data_server <- function(id, x, python_setup,
                                                    venv_name, 
                                                    text_col, preds_column,
                                                    column_names, pipe_path) {
+  cat(str(get_golem_config("python_setup")))
+  cat(str(python_setup))
+  cat(str(get_golem_config("pipe_path")))
+  cat(str(pipe_path))
+  cat(str(venv_name))
+  cat(str(get_golem_config("venv_name")))
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
