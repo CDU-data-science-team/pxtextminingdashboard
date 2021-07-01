@@ -92,7 +92,7 @@ simple to quite complex. One way to go is with the use of *sentiment lexicons*
 These are lexicons that process large amounts of text from a variety of resources
 in order to empirically determine the sentiment expressed in a word. Once the 
 text has been broken into tokens and a sentiment has been assigned to each token 
-(where applicable- it obviously make no sense to assign a sentiment to the word 
+(where applicable- it obviously makes no sense to assign a sentiment to the word 
 "chair"!), one can calculate all sorts of summary statistics, like the number of 
 times an angry or happy sentiment was expressed in the evaluated text.
 
