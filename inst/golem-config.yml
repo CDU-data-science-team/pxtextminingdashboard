@@ -30,5 +30,5 @@ trusts_abc:
   which_python: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
   which_venv: conda
   venv_name: textminingpy38
-  pipeline_path_label: C:\\Users\\andreas.soteriades\\Documents\\git_projects\\pxtextmining\\results_label\\pipeline_label.sav
-  pipeline_path_criticality: C:\\Users\\andreas.soteriades\\Documents\\git_projects\\pxtextmining\\results_criticality\\pipeline_criticality.sav
+  pipeline_path_label: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_label/pipeline_label.sav
+  pipeline_path_criticality: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_criticality/pipeline_criticality.sav
