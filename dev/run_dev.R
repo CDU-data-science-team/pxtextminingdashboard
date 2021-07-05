@@ -1,5 +1,5 @@
 # Select trust to run app for
-Sys.setenv("R_CONFIG_ACTIVE" = "trusts_abc")
+Sys.setenv("R_CONFIG_ACTIVE" = "trust_a")
 
 # Set options here
 options(golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
