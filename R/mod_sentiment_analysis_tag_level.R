@@ -21,8 +21,6 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
           background = 'red', width = NULL
         ),
         
-        uiOutput(ns("organizationControl")),
-        
         column(
           width = 5,
           uiOutput(ns("classControl")),
@@ -60,8 +58,6 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
     
     output$netSentiment <- renderPlot({
       
-      req(input$organization)
-      
       net_sentiment_all_dicts <- reactive({
         
         x %>% 
@@ -69,7 +65,7 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
             target_col_name = target,
             text_col_name = text_col,
             grouping_variables = groups,
-            filter_main_group = input$organization
+            filter_main_group = get_golem_config("filter_organization")
           )
       })
       
@@ -81,7 +77,6 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
     output$mostCommonWords <- renderPlot({
       
       req(input$class)
-      req(input$organization)
       
       bing_word_counts <- reactive({
         x %>%
@@ -90,7 +85,7 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
             text_col_name = text_col,
             grouping_variables = groups,
             filter_class = input$class,
-            filter_main_group = input$organization
+            filter_main_group = get_golem_config("filter_organization")
           )
       })
       
@@ -138,16 +133,6 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
         "Choose a label:",
         choices = sort(unique(x[[target]])),
         selected = sort(unique(x[[target]]))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })

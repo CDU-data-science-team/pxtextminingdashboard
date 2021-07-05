@@ -13,22 +13,17 @@ mod_tfidf_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 3,
+        width = 4,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 3,
-        uiOutput(ns("organizationControl"))
-      ),
-      
-      column(
-        width = 3,
+        width = 4,
         uiOutput(ns("ngramsNumControl"))
       ),
       
       column(
-        width = 3,
+        width = 4,
         uiOutput(ns("barsNumberControl"))
       )
     ),
@@ -59,7 +54,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, target, text_col, groups) {
+mod_tfidf_server <- function(id, x, target, text_col, groups, filter_main) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -79,7 +74,7 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
               text_col_name = text_col,
               grouping_variables = groups,
               filter_class = input$class, 
-              filter_main_group = input$organization,
+              filter_main_group = filter_main,
               ngrams_type = input$ngramsType,
               number_of_ngrams = input$barsNum
             ) %>% 
@@ -123,16 +118,6 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
         "Choose a label:",
         choices = sort(unique(unlist(x[[target]]))),
         selected = sort(unique(unlist(x[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
     

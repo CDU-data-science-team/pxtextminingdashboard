@@ -27,13 +27,8 @@ mod_predictions_table_ui <- function(id){
           
           fluidRow(
             column(
-              width = 6,
+              width = 4,
               uiOutput(ns("classControl"))
-            ),
-            
-            column(
-              width = 6,
-              uiOutput(ns("organizationControl"))
             )
           ),
           
@@ -70,18 +65,13 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
           dplyr::across(
             dplyr::all_of(target_pred),
             ~ . %in% input$class
-          ),
-          dplyr::across(
-            dplyr::all_of(groups),
-            ~ . %in% input$organization
           )
         ) %>%
         dplyr::select(dplyr::all_of(c(text_col, target, groups)))
       
       reactable_cols <- list(
         reactable::colDef(name = feedback_col_new_name),
-        reactable::colDef(name = "Actual class", align = "right"),
-        reactable::colDef(name = "Organization", align = "right")
+        reactable::colDef(name = "Actual class", align = "right")
       )
       names(reactable_cols) <- c(text_col, target, groups[1])
         
@@ -118,10 +108,6 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
           dplyr::across(
             dplyr::all_of(target),
             ~ . %in% input$class
-          ),
-          dplyr::across(
-            dplyr::all_of(groups),
-            ~ . %in% input$organization
           )
         ) %>%
         dplyr::select(accuracy) %>%
@@ -144,16 +130,6 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
         "Choose a class:",
         choices = sort(unique(unlist(aux[[target]]))),
         selected = sort(unique(unlist(aux[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })

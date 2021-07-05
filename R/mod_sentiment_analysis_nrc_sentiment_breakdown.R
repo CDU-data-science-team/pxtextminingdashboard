@@ -21,12 +21,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
     
     fluidRow(
       
-      column(width = 6,
-             uiOutput(ns("organizationControl")),
-             uiOutput(ns("classControl"))
-      ),
-      
-      column(width = 6,
+      column(width = 4,
              uiOutput(ns("nrcSentimentControl")),
              uiOutput(ns("numberOfFacetsControl"))
       )
@@ -61,7 +56,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
         text_col_name = text_col,
         grouping_variables = groups,
         filter_class = input$class, 
-        filter_main_group = input$organization)
+        filter_main_group = get_golem_config("filter_organization"))
     })
     
     net_sentiment_long_nrc <- reactive({
@@ -195,7 +190,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
-        "Organization" = dplyr::all_of(groups[1]), # Can't subset vector within {{}}.
+        "Organization" = get_golem_config("filter_organization"),
         "Feedback text tag" = {{target}},
         "Feedback text" = {{text_col}}
       )
@@ -222,16 +217,5 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
       selected = sort(unique(x[[target]]))[1]
     )
   })
-  
-  output$organizationControl <- renderUI({
-    
-    selectInput(
-      session$ns("organization"), 
-      "Choose an organization:",
-      choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-      selected = sort(unique(x[[groups[1]]]))[1]
-    )
-  })
-  
  })
 }

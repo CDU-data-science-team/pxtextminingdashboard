@@ -72,11 +72,6 @@ mod_performance_metrics_ui <- function(id) {
             column(
               width = 6,
               uiOutput(ns("classControl"))
-            ),
-            
-            column(
-              width = 6,
-              uiOutput(ns("organizationControl"))
             )
           ),
           
@@ -115,8 +110,8 @@ mod_performance_metrics_ui <- function(id) {
 #'
 #' @noRd 
 mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
-                                           groups, preds, row_indices, 
-                                           tuning_results) {
+                                           groups, filter_main, preds, 
+                                           row_indices, tuning_results) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
     
@@ -155,17 +150,16 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
           ),
           dplyr::across(
             dplyr::all_of(groups),
-            ~ . %in% input$organization
+            ~ . %in% filter_main
           )
         ) %>%
         dplyr::select(dplyr::all_of(c(text_col, target, groups)))
       
       reactable_cols <- list(
         reactable::colDef(name = feedback_col_new_name),
-        reactable::colDef(name = "Actual class", align = "right"),
-        reactable::colDef(name = "Organization", align = "right")
+        reactable::colDef(name = "Actual class", align = "right")
       )
-      names(reactable_cols) <- c(text_col, target, groups[1])
+      names(reactable_cols) <- c(text_col, target)
       
       reactable::reactable(
         aux,
@@ -199,7 +193,7 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
           ),
           dplyr::across(
             dplyr::all_of(groups),
-            ~ . %in% input$organization
+            ~ . %in% filter_main
           )
         ) %>%
         dplyr::select(accuracy) %>%
@@ -273,16 +267,6 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
         "Choose a class:",
         choices = sort(unique(unlist(aux[[target]]))),
         selected = sort(unique(unlist(aux[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })
