@@ -72,7 +72,7 @@ mod_predictions_unlabelled_data_server <- function(id, x, python_setup,
           text_col,
           pipe_path,
           preds_column, 
-          column_names
+          column_names[1]
         )
         
         incProgress(1)
