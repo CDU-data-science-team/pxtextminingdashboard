@@ -21,10 +21,8 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
     
     fluidRow(
       
-      column(width = 4,
-             uiOutput(ns("nrcSentimentControl")),
-             uiOutput(ns("numberOfFacetsControl"))
-      )
+      column(width = 6, uiOutput(ns("nrcSentimentControl"))),
+      column(width = 6, uiOutput(ns("numberOfFacetsControl")))
     ),
     
     h4("Click a plot to see further information"),
@@ -42,8 +40,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_ui <- function(id){
 #' @noRd 
 mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x, 
                                                                   target, 
-                                                                  text_col, 
-                                                                  groups) {
+                                                                  text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -54,9 +51,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
         x, 
         target_col_name = target, 
         text_col_name = text_col,
-        grouping_variables = groups,
-        filter_class = input$class, 
-        filter_main_group = get_golem_config("filter_organization"))
+        filter_class = input$class)
     })
     
     net_sentiment_long_nrc <- reactive({
@@ -185,12 +180,11 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
       dplyr::filter(linenumber %in% input$plot_click$panelvar1) %>%
       dplyr::select(
         linenumber, 
-        dplyr::all_of(c(nrc_sentiments, groups[1], target, text_col))
+        dplyr::all_of(c(nrc_sentiments, target, text_col))
       ) %>%
       dplyr::slice(1) %>%
       dplyr::rename(
         "Comment number" = linenumber,
-        "Organization" = get_golem_config("filter_organization"),
         "Feedback text tag" = {{target}},
         "Feedback text" = {{text_col}}
       )

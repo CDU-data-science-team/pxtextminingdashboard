@@ -36,7 +36,9 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
                                                             which_python, 
                                                             which_venv, 
                                                             venv_name, 
-                                                            text_col) {
+                                                            text_col, 
+                                                            target_label, 
+                                                            target_criticality) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -46,10 +48,6 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
        comment is. It ranges between -1 (very negative) to 
        1 (very positive).")
     })
-    
-    sticky_style <- list(position = "sticky", left = 0, 
-                         background = "#fff", zIndex = 1,
-                         borderRight = "1px solid #eee")
     
     output$textBlob <- reactable::renderReactable({
       
@@ -64,45 +62,54 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
               which_python = which_python,
               which_venv = which_venv,
               venv_name = venv_name, 
-              make_table = TRUE,
               text_col_name = text_col
-            ) 
+            ) %>% 
+            dplyr::bind_cols(
+              x %>% 
+                dplyr::select(
+                  dplyr::all_of(c(text_col, target_label, target_criticality))
+                )
+            )
         }
       )
       
-      reactable::reactable(
-        aux,
-        columns = list(
-          feedback = reactable::colDef(
-            name = "Feedback",
-            style = sticky_style,
-            headerStyle = sticky_style,
-            minWidth = 300
-          ),
-
-          polarity = reactable::colDef(
-            name = "Polarity",
-            align = "right",
-            class = "border-left cell number"
-          ),
-
-          organization = reactable::colDef(
-            name = "Organization",
-            align = "right"
-          ),
-
-          label = reactable::colDef(
-            name = "Label",
-            align = "right",
-            minWidth = 120
-          ),
-
-          criticality = reactable::colDef(
-            name = "Criticality",
-            align = "right"
-          )
+      # reactable stuff
+      reactable_sticky_style <- list(position = "sticky", left = 0, 
+                                     background = "#fff", zIndex = 1,
+                                     borderRight = "1px solid #eee")
+      
+      reactable_columns <- list(
+        reactable::colDef(
+          name = "Feedback",
+          style = reactable_sticky_style,
+          headerStyle = reactable_sticky_style,
+          minWidth = 300
         ),
-
+        
+        reactable::colDef(
+          name = "Polarity",
+          align = "right",
+          class = "border-left cell number"
+        ),
+        
+        reactable::colDef(
+          name = "Label",
+          align = "right",
+          minWidth = 120
+        ),
+        
+        reactable::colDef(
+          name = "Criticality",
+          align = "right"
+        )
+      )
+      
+      names(reactable_columns) <- c(text_col, "text_blob_polarity", target_label, 
+                                    target_criticality)
+      
+      reactable::reactable(
+        aux[names(reactable_columns)],
+        columns = reactable_columns,
         #wrap = FALSE,
         filterable = TRUE,
         searchable = TRUE,

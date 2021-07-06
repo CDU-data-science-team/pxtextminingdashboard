@@ -45,8 +45,7 @@ mod_bigrams_network_ui <- function(id) {
 #' bigrams_network Server Functions
 #'
 #' @noRd 
-mod_bigrams_network_server <- function(id, x, target, text_col, groups, 
-                                       filter_main) {
+mod_bigrams_network_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -59,9 +58,7 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups,
         experienceAnalysis::calc_bigrams_network(
           target_col_name = target, 
           text_col_name = text_col,
-          grouping_variables = groups[1],
           filter_class = input$class,
-          filter_main_group = filter_main, 
           bigrams_prop = input$bigramsProp
         ) %>% 
         experienceAnalysis::plot_bigrams_network()

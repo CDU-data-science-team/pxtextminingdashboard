@@ -44,7 +44,7 @@ mod_predictions_table_ui <- function(id){
 #'
 #' @noRd 
 mod_predictions_table_server <- function(id, x, target, target_pred, text_col, 
-                                         groups, preds, row_indices) {
+                                         preds, row_indices) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -67,13 +67,13 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
             ~ . %in% input$class
           )
         ) %>%
-        dplyr::select(dplyr::all_of(c(text_col, target, groups)))
+        dplyr::select(dplyr::all_of(c(text_col, target)))
       
       reactable_cols <- list(
         reactable::colDef(name = feedback_col_new_name),
         reactable::colDef(name = "Actual class", align = "right")
       )
-      names(reactable_cols) <- c(text_col, target, groups[1])
+      names(reactable_cols) <- c(text_col, target)
         
       reactable::reactable(
         aux,
@@ -96,12 +96,11 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
     output$modelAccuracyBox <- renderText({
       
       accuracy_score <- x %>% 
-        dplyr::select(dplyr::all_of(c(target, groups)), row_index) %>% 
+        dplyr::select(dplyr::all_of(target), row_index) %>% 
         dplyr::right_join(preds, by = "row_index") %>% 
         experienceAnalysis::calc_accuracy_per_class(
             target_col_name = target, 
             target_pred_col_name = target_pred,
-            grouping_variables = groups,
             column_names = NULL
           ) %>% 
         dplyr::filter(

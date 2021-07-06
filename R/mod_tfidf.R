@@ -54,7 +54,7 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, target, text_col, groups, filter_main) {
+mod_tfidf_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -72,9 +72,7 @@ mod_tfidf_server <- function(id, x, target, text_col, groups, filter_main) {
             experienceAnalysis::calc_tfidf_ngrams(
               target_col_name = target, 
               text_col_name = text_col,
-              grouping_variables = groups,
               filter_class = input$class, 
-              filter_main_group = filter_main,
               ngrams_type = input$ngramsType,
               number_of_ngrams = input$barsNum
             ) %>% 

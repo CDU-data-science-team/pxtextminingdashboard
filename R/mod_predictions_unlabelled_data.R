@@ -19,24 +19,6 @@ mod_predictions_unlabelled_data_ui <- function(id) {
           title = "Predicted text for each class",
           width = NULL,
           
-          # box(
-          #   width = NULL, 
-          #   background = "red",
-          #   htmlOutput(ns("modelAccuracyBox"))
-          # ),
-          
-          # fluidRow(
-          #   column(
-          #     width = 6,
-          #     uiOutput(ns("classControl"))
-          #   ),
-          #   
-          #   column(
-          #     width = 6,
-          #     uiOutput(ns("organizationControl"))
-          #   )
-          # ),
-          
           reactable::reactableOutput(ns("predictions")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
         )

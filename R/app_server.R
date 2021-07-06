@@ -32,21 +32,6 @@ app_server <- function( input, output, session ) {
     paste0("column_names_", c("text", "organization")), 
     ~ get_golem_config(.x)
   )
-  groups <- purrr::map_chr(
-    paste0("var_groups_", 1), # Keeping it generic in case more than one group is used in a future version.
-    ~ get_golem_config(.x)
-  )
-  
-  # Filters
-  filter_main <- get_golem_config("filter_organization")
-  
-  # Convert 'NULL' from YAML into actual NULL
-  var_groups_1 <- get_golem_config("var_groups_1")
-  if (var_groups_1 == "none") {
-    var_groups_1 <- NULL
-    filter_main <- NULL
-    groups <- NULL
-  }
   
   # Python variables
   python_setup <- as.logical(get_golem_config("python_setup"))
@@ -97,7 +82,6 @@ app_server <- function( input, output, session ) {
     target = target_label,
     target_pred = target_pred_label,
     text_col,
-    groups,
     preds = preds_label,
     row_indices = row_indices_label
   )
@@ -108,7 +92,6 @@ app_server <- function( input, output, session ) {
     target = target_criticality,
     target_pred = target_pred_criticality,
     text_col,
-    groups,
     preds = preds_criticality,
     row_indices = row_indices_criticality
   )
@@ -118,16 +101,14 @@ app_server <- function( input, output, session ) {
     "sentiment_analysis_tag_level_ui_1",
     x, 
     target = target_label,
-    text_col,
-    groups
+    text_col
   )
   
   mod_sentiment_analysis_nrc_sentiment_breakdown_server(
     "sentiment_analysis_nrc_sentiment_breakdown_ui_1",
     x, 
     target = target_label,
-    text_col,
-    groups
+    text_col
   )
   
   mod_sentiment_analysis_textblob_polarity_server(
@@ -137,7 +118,9 @@ app_server <- function( input, output, session ) {
     which_python, 
     which_venv, 
     venv_name, 
-    text_col
+    text_col,
+    target_label,
+    target_criticality
   )
   
   #############################################################################
@@ -145,18 +128,14 @@ app_server <- function( input, output, session ) {
     "tfidf_ui_1",
     x, 
     target = target_label,
-    text_col,
-    groups,
-    filter_main
+    text_col
   )
   
   mod_tfidf_server(
     "tfidf_ui_2",
     x, 
     target = target_criticality,
-    text_col,
-    groups,
-    filter_main
+    text_col
   )
   
   #############################################################################
@@ -166,8 +145,6 @@ app_server <- function( input, output, session ) {
     target = target_label,
     target_pred = target_pred_label,
     text_col,
-    groups,
-    filter_main,
     preds = preds_label,
     row_indices = row_indices_label,
     tuning_results = tuning_results_label
@@ -179,8 +156,6 @@ app_server <- function( input, output, session ) {
     target = target_criticality,
     target_pred = target_pred_criticality,
     text_col,
-    groups,
-    filter_main,
     preds = preds_criticality,
     row_indices = row_indices_criticality,
     tuning_results = tuning_results_criticality
@@ -191,17 +166,13 @@ app_server <- function( input, output, session ) {
     "bigrams_network_ui_1",
     x, 
     target = target_label,
-    text_col,
-    groups,
-    filter_main
+    text_col
   )
   
   mod_bigrams_network_server(
     "bigrams_network_ui_2",
     x, 
     target = target_criticality,
-    text_col,
-    groups,
-    filter_main
+    text_col
   )
 }

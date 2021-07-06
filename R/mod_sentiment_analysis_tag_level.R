@@ -51,8 +51,7 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col, 
-                                                    groups) {
+mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -63,15 +62,13 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
         x %>% 
           experienceAnalysis::calc_net_sentiment_per_tag(
             target_col_name = target,
-            text_col_name = text_col,
-            grouping_variables = groups,
-            filter_main_group = get_golem_config("filter_organization")
+            text_col_name = text_col
           )
       })
       
       
       net_sentiment_all_dicts() %>%
-        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = 'label')
+        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = target)
     })
     
     output$mostCommonWords <- renderPlot({
@@ -83,9 +80,7 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
           experienceAnalysis::calc_bing_word_counts(
             target_col_name = target,
             text_col_name = text_col,
-            grouping_variables = groups,
-            filter_class = input$class,
-            filter_main_group = get_golem_config("filter_organization")
+            filter_class = input$class
           )
       })
       
