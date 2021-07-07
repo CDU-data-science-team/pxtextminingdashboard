@@ -64,6 +64,7 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
               venv_name = venv_name, 
               text_col_name = text_col
             ) %>% 
+            dplyr::mutate(text_blob_polarity = round(text_blob_polarity, 3)) %>% 
             dplyr::bind_cols(
               x %>% 
                 dplyr::select(
