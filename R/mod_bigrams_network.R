@@ -13,17 +13,12 @@ mod_bigrams_network_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 4,
+        width = 6,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 4,
-        uiOutput(ns("organizationControl"))
-      ),
-      
-      column(
-        width = 4,
+        width = 6,
         uiOutput(ns("bigramsPropControl"))
       )
     ),
@@ -50,7 +45,7 @@ mod_bigrams_network_ui <- function(id) {
 #' bigrams_network Server Functions
 #'
 #' @noRd 
-mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
+mod_bigrams_network_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -63,9 +58,7 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
         experienceAnalysis::calc_bigrams_network(
           target_col_name = target, 
           text_col_name = text_col,
-          grouping_variables = groups,
           filter_class = input$class,
-          filter_main_group = input$organization, 
           bigrams_prop = input$bigramsProp
         ) %>% 
         experienceAnalysis::plot_bigrams_network()
@@ -102,16 +95,6 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
         "Choose a label:",
         choices = sort(unique(unlist(aux[[target]]))),
         selected = sort(unique(unlist(aux[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
     

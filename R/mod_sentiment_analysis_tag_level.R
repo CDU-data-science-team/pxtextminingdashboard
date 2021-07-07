@@ -21,8 +21,6 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
           background = 'red', width = NULL
         ),
         
-        uiOutput(ns("organizationControl")),
-        
         column(
           width = 5,
           uiOutput(ns("classControl")),
@@ -53,44 +51,36 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col, 
-                                                    groups) {
+mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$netSentiment <- renderPlot({
-      
-      req(input$organization)
       
       net_sentiment_all_dicts <- reactive({
         
         x %>% 
           experienceAnalysis::calc_net_sentiment_per_tag(
             target_col_name = target,
-            text_col_name = text_col,
-            grouping_variables = groups,
-            filter_main_group = input$organization
+            text_col_name = text_col
           )
       })
       
       
       net_sentiment_all_dicts() %>%
-        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = 'label')
+        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = target)
     })
     
     output$mostCommonWords <- renderPlot({
       
       req(input$class)
-      req(input$organization)
       
       bing_word_counts <- reactive({
         x %>%
           experienceAnalysis::calc_bing_word_counts(
             target_col_name = target,
             text_col_name = text_col,
-            grouping_variables = groups,
-            filter_class = input$class,
-            filter_main_group = input$organization
+            filter_class = input$class
           )
       })
       
@@ -138,16 +128,6 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
         "Choose a label:",
         choices = sort(unique(x[[target]])),
         selected = sort(unique(x[[target]]))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
       )
     })
   })
