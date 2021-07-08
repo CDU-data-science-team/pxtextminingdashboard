@@ -37,7 +37,9 @@ mod_tfidf_ui <- function(id) {
         box(
           width = NULL,
           
-          plotOutput(ns("tfidf_bars"), height = "1000px") %>%
+          downloadButton(ns("downloadTfidfNgrams"), "Download plot"),
+          
+          plotOutput(ns("tfidfBars"), height = "1000px") %>%
             shinycssloaders::withSpinner(hide.ui = TRUE),
           
           box(
@@ -58,40 +60,49 @@ mod_tfidf_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    plot_function <- reactive({
+    # Define reactive function arguments to pass to plotTfidfNgrams(). This is 
+    # necessary for the download button, as the plot to download is for the 
+    # chosen ngram type and class.
+    ngramsType <- reactive({input$ngramsType})
+    filterClass <- reactive({input$class})
+    
+    dataTfidf <- reactive({
       
-      req(input$class)
-      req(input$ngramsType)
+      req(filterClass())
+      
+      x %>% 
+        experienceAnalysis::calc_tfidf_ngrams(
+          target_col_name = target, 
+          text_col_name = text_col,
+          filter_class = filterClass(), 
+          ngrams_type = ngramsType(),
+          number_of_ngrams = input$barsNum
+        )
+    })
+    
+    # We want to debounce the EXPRESSION dataTfidf (note no "()") before
+    # passing the reactive element dataTfidf() that has the data. We therefore 
+    # must use object dataTfidf_d instead of the original dataTfidf in what 
+    # follows from now on.
+    dataTfidf_d <- dataTfidf %>% # No "()" to indicate we are debouncing the EXPRESSION NOT the reactive object.
+      debounce(1000)
+      
+    output$tfidfBars <- renderPlot({
+      
+      req(filterClass())
       
       withProgress(
         message = 'Calculation in progress',
-        detail = 'This may take a few seconds...', 
-        value = 0, 
+        detail = 'This may take a few seconds...',
+        value = 0,
         {
-          p <- x %>% 
-            experienceAnalysis::calc_tfidf_ngrams(
-              target_col_name = target, 
-              text_col_name = text_col,
-              filter_class = input$class, 
-              ngrams_type = input$ngramsType,
-              number_of_ngrams = input$barsNum
-            ) %>% 
-            experienceAnalysis::plot_tfidf_ngrams(
-              ngrams_type = input$ngramsType,
-              filter_class = input$class
+          dataTfidf_d() %>% 
+            plotTfidfNgrams(
+              ngrams_type = ngramsType(), 
+              filter_class = filterClass()
             )
-            
-          incProgress(1)
         }
       )
-      
-      return(p)
-    }) %>% 
-      debounce(1000)
-    
-    output$tfidf_bars <- renderPlot({
-      
-      plot_function()
     })
     
     output$tfidfExplanation <- renderText({
@@ -139,5 +150,22 @@ mod_tfidf_server <- function(id, x, target, text_col) {
         max = 100
       )
     })
+    
+    output$downloadTfidfNgrams <- downloadHandler(
+      filename = function() {
+        
+        filterClass_clean <- clean_text(filterClass())
+        
+        paste0("tfidf_bars_", target, "_", filterClass_clean, "_", 
+               tolower(ngramsType()), ".pdf")
+      },
+      content = function(file) {
+        ggplot2::ggsave(file, 
+                        plot = plotTfidfNgrams(x = dataTfidf_d(), 
+                                               ngrams_type = ngramsType(), 
+                                               filter_class = filterClass()), 
+                        device = pdf, height = 16, units = "in")
+      }
+    )
   })
 }

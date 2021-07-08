@@ -12,29 +12,39 @@ mod_bigrams_network_ui <- function(id) {
   tagList(
     
     fluidRow(
+      
       column(
         width = 6,
+        
         uiOutput(ns("classControl"))
       ),
       
       column(
         width = 6,
+        
         uiOutput(ns("bigramsPropControl"))
       )
     ),
     
     fluidRow(
       width = 12,
+      
       column(
         width = 12,
+        
         box(
           width = NULL,
+          
+          downloadButton(ns("downloadBigramsNetwork"), "Download plot"),
+          
           plotOutput(ns("bigramsNetwork")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE),
+          
           box(
+            width = NULL,
+            
             htmlOutput(ns("bigramsNetworkExplanation")), 
-            background = 'red', 
-            width = NULL
+            background = 'red'
           )
         )
       )
@@ -49,19 +59,28 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    output$bigramsNetwork <- renderPlot({
-      
-      req(input$class)
-      req(input$bigramsProp)
+    # Define reactive function argument to pass to plotBigramsNetwork(). This 
+    # is necessary for the download button, as the plot to download is for the 
+    # chosen class.
+    filterClass <- reactive({input$class})
+    
+    dataBigramsNetwork <- reactive({
       
       x %>% 
         experienceAnalysis::calc_bigrams_network(
           target_col_name = target, 
           text_col_name = text_col,
-          filter_class = input$class,
+          filter_class = filterClass(),
           bigrams_prop = input$bigramsProp
-        ) %>% 
-        experienceAnalysis::plot_bigrams_network()
+        )
+    })
+    
+    output$bigramsNetwork <- renderPlot({
+      
+      req(filterClass())
+      req(input$bigramsProp)
+      
+      plotBigramsNetwork(dataBigramsNetwork())
     })
     
     output$bigramsNetworkExplanation <- renderText({
@@ -90,11 +109,13 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
           dplyr::right_join(row_index_criticality, by = 'row_index')
       }
       
+      choices <- sort(unique(unlist(aux[[target]])))
+      
       selectInput(
         session$ns("class"), 
         "Choose a label:",
-        choices = sort(unique(unlist(aux[[target]]))),
-        selected = sort(unique(unlist(aux[[target]])))[1]
+        choices = choices,
+        selected = choices[1]
       )
     })
     
@@ -108,5 +129,18 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
         max = 100
       )
     })
+    
+    output$downloadBigramsNetwork <- downloadHandler(
+      filename = function() {
+        
+        filterClass_clean <- clean_text(filterClass())
+        
+        paste0("bigram_network_", target, "_", filterClass_clean, ".pdf")
+      },
+      content = function(file) {
+        ggplot2::ggsave(file, plot = plotBigramsNetwork(dataBigramsNetwork()), 
+                        device = pdf, width = 10, height = 8)
+      }
+    )
   })
 }

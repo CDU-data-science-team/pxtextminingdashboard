@@ -204,11 +204,13 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
   
   output$classControl <- renderUI({
     
+    choices <- sort(unique(x[[target]]))
+    
     selectInput(
       session$ns("class"), 
       "Choose a label:",
-      choices = sort(unique(x[[target]])),
-      selected = sort(unique(x[[target]]))[1]
+      choices = choices,
+      selected = choices[1]
     )
   })
  })
