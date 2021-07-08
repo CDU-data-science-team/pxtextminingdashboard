@@ -12,15 +12,22 @@ mod_performance_metrics_ui <- function(id) {
   tagList(
     
     fluidRow(
+      
       column(
         width = 6,
+        
         box(
           title = "Confusion matrix",
           width = NULL,
+          
+          downloadButton(ns("downloadConfusionMatrix"), "Download plot"),
+          
           plotOutput(ns("confusionMatrix")),
+          
           box(
             width = NULL, 
             background = "red",
+            
             HTML(
               "The <a target='_blank' rel='noopener noreferrer' href='https://en.wikipedia.org/wiki/Confusion_matrix'>Confusion Matrix</a> 
               is a way to visually detect which classes the model has performed
@@ -39,12 +46,18 @@ mod_performance_metrics_ui <- function(id) {
           )
         )
       ),
+      
       column(
         width = 6,
+        
         box(
           title = "Best-perfroming learners",
           width = NULL,
+          
+          downloadButton(ns("downloadLearnerPerformance"), "Download plot"),
+          
           plotOutput(ns("learnerPerformance")),
+          
           box(
             width = NULL, 
             background = "red",
@@ -75,7 +88,8 @@ mod_performance_metrics_ui <- function(id) {
             )
           ),
           
-          downloadButton(ns("downloadPredictionsOnTest"), "Download Data"),
+          downloadButton(ns("downloadPredictionsOnTest"), "Download data"),
+          
           reactable::reactableOutput(ns("predictedClasses")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
         )
@@ -83,11 +97,14 @@ mod_performance_metrics_ui <- function(id) {
     ),
     
     fluidRow(
+      
       column(
         width = 12,
+        
         box(
           width = NULL,
           title = 
+            
             HTML(
             "<p>All tuned (hyper) parameters</pr>
             <p style='font-size:small;'> Lists all (hyper)parameter values tried 
@@ -98,7 +115,9 @@ mod_performance_metrics_ui <- function(id) {
             <a target='_blank' rel='noopener noreferrer' href='https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html'>'cv_results_'</a>
             with some modifications.</pr>"
             ),
-          downloadButton(ns("downloadPerformanceMetrics"), "Download Data"),
+          
+          downloadButton(ns("downloadPerformanceMetrics"), "Download data"),
+          
           reactable::reactableOutput(ns("rawMetrics"))
         )
       )
@@ -114,30 +133,35 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
     
+    #######################
+    # Learner performance #
+    #######################
+    dataLearnerPerformance <- tuning_results %>% 
+      experienceAnalysis::prep_best_estimators()
+    
     output$learnerPerformance <- renderPlot({
       
-      tuning_results %>% 
-        experienceAnalysis::prep_best_estimators() %>% 
-        experienceAnalysis::plot_best_estimators()
+      plotLearnerPerformance(dataLearnerPerformance)
     })
+    
+    ####################
+    # Confusion matrix #
+    ####################
+    dataConfusionMatrix <- x %>%
+      dplyr::right_join(preds, by = "row_index") %>% 
+      dplyr::select(dplyr::all_of(c(target, target_pred)))
     
     output$confusionMatrix <- renderPlot({
       
-      x %>%
-        dplyr::right_join(preds, by = "row_index") %>% 
-        dplyr::select(dplyr::all_of(c(target, target_pred))) %>% 
-        experienceAnalysis::plot_confusion_matrix(
-          target_col_name = target,
-          target_pred_col_name = target_pred,
-          type = "heatmap"
-        )
+      dataConfusionMatrix %>% 
+        plotConfusionMatrix(target_col_name = target,
+                            target_pred_col_name = target_pred)
     })
     
-    output$predictedClasses <- reactable::renderReactable({
-      
-      feedback_col_new_name <- paste0(
-        "Feedback that model predicted as ", "\"", input$class, "\""
-      )
+    #######################
+    # Predictions on test #
+    #######################
+    dataReactable <- reactive(
       
       aux <- x %>%
         dplyr::right_join(preds, by = "row_index") %>% 
@@ -148,6 +172,13 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
           )
         ) %>%
         dplyr::select(dplyr::all_of(c(text_col, target)))
+    )
+    
+    output$predictedClasses <- reactable::renderReactable({
+      
+      feedback_col_new_name <- paste0(
+        "Feedback that model predicted as ", "\"", input$class, "\""
+      )
       
       reactable_cols <- list(
         reactable::colDef(name = feedback_col_new_name),
@@ -156,7 +187,7 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
       names(reactable_cols) <- c(text_col, target)
       
       reactable::reactable(
-        aux,
+        dataReactable(),
         # height = 1000, # Fix the height to make table scrollable and headers sticky.
         columns = reactable_cols,
         #rownames = TRUE,
@@ -169,9 +200,12 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
       )
     })
     
-    output$modelAccuracyBox <- renderText({
+    ######################
+    # Accuracy per class #
+    ######################
+    dataAccuracyScore <- reactive({
       
-      accuracy_score <- x %>% 
+      x %>% 
         dplyr::select(dplyr::all_of(target), row_index) %>% 
         dplyr::right_join(preds, by = "row_index") %>% 
         experienceAnalysis::calc_accuracy_per_class(
@@ -188,18 +222,25 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
         dplyr::select(accuracy) %>%
         dplyr::mutate(accuracy = round(accuracy * 100)) %>%
         dplyr::pull()
-      
-      HTML(paste0(
-        "Learner accuracy for this class is ", accuracy_score, "%."))
     })
     
-    metrics_table <- tuning_results %>%
+    output$modelAccuracyBox <- renderText({
+      
+      HTML(paste0(
+        "Learner accuracy for this class is ", dataAccuracyScore(), "%."))
+    })
+    
+    ##################
+    # Tuning results #
+    ##################
+    dataMetricsTable <- tuning_results %>%
       experienceAnalysis::prep_all_pipeline_tuning_results()
-    cols <- names(metrics_table)
     
     output$rawMetrics <- reactable::renderReactable({
       
-      metrics_table %>%
+      cols <- names(dataMetricsTable)
+      
+      dataMetricsTable %>%
         reactable::reactable(
           height = 1000, # Fix the height to make table scrollable and headers sticky.
           columns = # Fix max column width.
@@ -227,10 +268,31 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
           The leftmost learner is used to make the predictions."))
     })
     
+    output$downloadConfusionMatrix <- downloadHandler(
+      filename = function() {paste0("confusion_matrix_", target, ".pdf")},
+      content = function(file) {
+        ggplot2::ggsave(file, 
+                        plot = plotConfusionMatrix(dataConfusionMatrix, 
+                                                   target_col_name = target,
+                                                   target_pred_col_name = target_pred
+                                                   ), 
+                        device = pdf, width = 10, height = 10, units = "in")
+      }
+    )
+    
+    output$downloadLearnerPerformance <- downloadHandler(
+      filename = function() {paste0("learner_performance_", target, ".pdf")},
+      content = function(file) {
+        ggplot2::ggsave(file, 
+                        plot = plotLearnerPerformance(dataLearnerPerformance), 
+                        device = pdf, width = 12, units = "in")
+      }
+    )
+    
     output$downloadPerformanceMetrics <- downloadHandler(
       filename = function() {paste0("performance_metrics_", target, ".csv")},
       content = function(file) {
-        write.csv(metrics_table, file)
+        write.csv(dataMetricsTable, file)
       }
     )
     
@@ -251,11 +313,13 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
       aux <- x %>%
         dplyr::right_join(row_indices, by = 'row_index')
       
+      choices <- sort(unique(unlist(aux[[target]])))
+      
       selectInput(
         session$ns("class"), 
         "Choose a class:",
-        choices = sort(unique(unlist(aux[[target]]))),
-        selected = sort(unique(unlist(aux[[target]])))[1]
+        choices = choices,
+        selected = choices[1]
       )
     })
   })

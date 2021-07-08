@@ -50,6 +50,7 @@ app_server <- function( input, output, session ) {
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_1",
     x,
+    target = target_label,
     python_setup,
     sys_setenv,
     which_python, 
@@ -64,6 +65,7 @@ app_server <- function( input, output, session ) {
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_2",
     x,
+    target = target_criticality,
     python_setup,
     sys_setenv,
     which_python, 

@@ -124,11 +124,13 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
       aux <- x %>%
         dplyr::right_join(row_indices, by = 'row_index')
       
+      choices <- sort(unique(unlist(aux[[target]])))
+      
       selectInput(
         session$ns("class"), 
         "Choose a class:",
-        choices = sort(unique(unlist(aux[[target]]))),
-        selected = sort(unique(unlist(aux[[target]])))[1]
+        choices = choices,
+        selected = choices[1]
       )
     })
   })
