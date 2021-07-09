@@ -28,10 +28,6 @@ app_server <- function( input, output, session ) {
   target_pred_criticality <- get_golem_config("var_target_pred_criticality")
   text_col <- get_golem_config("var_text_col")
   preds_column <- get_golem_config("column_names_predictions")
-  column_names <- purrr::map_chr(
-    paste0("column_names_", c("text", "organization")), 
-    ~ get_golem_config(.x)
-  )
   
   # Python variables
   python_setup <- as.logical(get_golem_config("python_setup"))
@@ -58,7 +54,7 @@ app_server <- function( input, output, session ) {
     venv_name, 
     text_col, 
     preds_column,
-    column_names,
+    column_names = text_col,
     pipe_path = pipe_path_label
   )
   
@@ -73,7 +69,7 @@ app_server <- function( input, output, session ) {
     venv_name, 
     text_col, 
     preds_column,
-    column_names,
+    column_names = text_col,
     pipe_path = pipe_path_criticality
   )
   
