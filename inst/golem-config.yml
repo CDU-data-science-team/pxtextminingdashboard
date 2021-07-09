@@ -33,4 +33,3 @@ trusts_abc:
   var_target_pred_label: label_pred
   var_target_pred_criticality: criticality_pred
   var_text_col: feedback
-  column_names_predictions: predictions
