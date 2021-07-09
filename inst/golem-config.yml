@@ -2,12 +2,18 @@ default:
   golem_name: pxtextminingdashboard
   golem_version: 0.0.0.9000
   app_prod: no
+  python_setup: TRUE
+  sys_setenv: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
+  which_python: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
+  which_venv: conda
+  venv_name: textminingpy38
+  pipeline_path_label: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_label/pipeline_label.sav
+  pipeline_path_criticality: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_criticality/pipeline_criticality.sav
 production:
   app_prod: yes
 dev:
   golem_wd: !expr here::here()
-trust_a:
-  filter_organization: Trust A
+trusts_abc:
   dataset_text: text_data
   dataset_preds_label: predictions_test_label
   dataset_preds_criticality: predictions_test_criticality
@@ -20,41 +26,4 @@ trust_a:
   var_target_pred_label: label_pred
   var_target_pred_criticality: criticality_pred
   var_text_col: feedback
-  var_groups_1: organization
-  var_preds_column: predictions
-  column_names_text: feedback
-  column_names_organization: organization
   column_names_predictions: predictions
-  python_setup: TRUE
-  sys_setenv: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
-  which_python: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
-  which_venv: conda
-  venv_name: textminingpy38
-  pipeline_path_label: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_label/pipeline_label.sav
-  pipeline_path_criticality: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_criticality/pipeline_criticality.sav
-trust_b:
-  filter_organization: none
-  dataset_text: text_data
-  dataset_preds_label: predictions_test_label
-  dataset_preds_criticality: predictions_test_criticality
-  dataset_row_index_label: row_index_label
-  dataset_row_index_criticality: row_index_criticality
-  dataset_tuning_results_label: tuning_results_label
-  dataset_tuning_results_criticality: tuning_results_criticality
-  var_target_label: label
-  var_target_criticality: criticality
-  var_target_pred_label: label_pred
-  var_target_pred_criticality: criticality_pred
-  var_text_col: feedback
-  var_groups_1: none
-  var_preds_column: predictions
-  column_names_text: feedback
-  column_names_organization: organization
-  column_names_predictions: predictions
-  python_setup: TRUE
-  sys_setenv: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
-  which_python: C:/Users/andreas.soteriades/Anaconda3/envs/textminingpy38/python.exe
-  which_venv: conda
-  venv_name: textminingpy38
-  pipeline_path_label: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_label/pipeline_label.sav
-  pipeline_path_criticality: C:/Users/andreas.soteriades/Documents/git_projects/pxtextmining/results_criticality/pipeline_criticality.sav
