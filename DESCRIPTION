@@ -30,7 +30,8 @@ Imports:
     shinycssloaders,
     reticulate,
     experienceAnalysis,
-    yardstick
+    yardstick,
+    textdata
 Remotes: 
     CDU-data-science-team/nottshcMethods
     CDU-data-science-team/experienceAnalysis
