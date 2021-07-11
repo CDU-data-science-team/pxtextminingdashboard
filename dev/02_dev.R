@@ -29,6 +29,7 @@ usethis::use_package( "shinycssloaders" )
 usethis::use_package( "shinydashboard" )
 usethis::use_package( "tidyr" )
 usethis::use_package( "tidytext" )
+usethis::use_package( "yardstick" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/

@@ -1,3 +1,8 @@
+
+# select production/ dev
+
+where_am_i <- "production"
+
 # Select trust to run app for
 Sys.setenv("R_CONFIG_ACTIVE" = "trusts_abc")
 

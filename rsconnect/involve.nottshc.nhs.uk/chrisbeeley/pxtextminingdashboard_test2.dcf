@@ -1,0 +1,13 @@
+name: pxtextminingdashboard_test2
+title: pxtextminingdashboard_test
+username: chrisbeeley
+account: chrisbeeley
+server: involve.nottshc.nhs.uk
+hostUrl: https://involve.nottshc.nhs.uk:8443/__api__
+appId: 98
+bundleId: 3001
+url: https://involve.nottshc.nhs.uk:8443/content/ffca6d25-ec64-4414-ae80-0a6d603d6d52/
+when: 1625828891.27763
+lastSyncTime: 1625828891.27765
+asMultiple: FALSE
+asStatic: FALSE

@@ -9,8 +9,8 @@ production:
   which_python: Server
   which_venv: Server
   venv_name: Server
-  pipeline_path_label: Server
-  pipeline_path_criticality: Server
+  pipeline_path_label: pipeline_label.sav
+  pipeline_path_criticality: pipeline_criticality.sav
 dev:
   golem_wd: !expr here::here()
   python_setup: TRUE
