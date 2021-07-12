@@ -98,8 +98,9 @@ mod_tfidf_server <- function(id, x, target, text_col) {
         {
           dataTfidf_d() %>% 
             plotTfidfNgrams(
-              ngrams_type = ngramsType(), 
-              filter_class = filterClass()
+              title = paste0("Most frequent ", ngramsType(),
+                             " in feedback text that is about\n",
+                             "\"", filterClass(), "\"")
             )
         }
       )
@@ -162,8 +163,12 @@ mod_tfidf_server <- function(id, x, target, text_col) {
       content = function(file) {
         ggplot2::ggsave(file, 
                         plot = plotTfidfNgrams(x = dataTfidf_d(), 
-                                               ngrams_type = ngramsType(), 
-                                               filter_class = filterClass()), 
+                                               title = paste0("Most frequent ", 
+                                                              ngramsType(),
+                                                              " in feedback text that is about\n",
+                                                              "\"", 
+                                                              filterClass(), 
+                                                              "\"")), 
                         device = pdf, height = 16, units = "in")
       }
     )
