@@ -2,6 +2,7 @@
 
 export("%>%")
 export(run_app)
+import(golem)
 import(shiny)
 import(shinydashboard)
 importFrom(golem,activate_js)

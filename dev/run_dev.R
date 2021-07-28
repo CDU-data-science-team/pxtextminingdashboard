@@ -1,3 +1,6 @@
+
+# pkgload::load_all()
+
 # Select trust to run app for
 Sys.setenv("R_CONFIG_ACTIVE" = "trusts_abc")
 
@@ -12,4 +15,4 @@ golem::detach_all_attached()
 golem::document_and_reload()
 
 # Run the application
-run_app()
+run_app(where_am_i = "production")

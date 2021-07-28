@@ -3,6 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}. 
 #'     DO NOT REMOVE.
 #' @import shiny
+#' @import golem
 #' @noRd
 app_server <- function( input, output, session ) {
   # Your application server logic 
@@ -30,15 +31,27 @@ app_server <- function( input, output, session ) {
   preds_column <- get_golem_config("column_names_predictions")
   
   # Python variables
-  python_setup <- as.logical(get_golem_config("python_setup"))
-  sys_setenv <- get_golem_config("sys_setenv")
-  which_python <- get_golem_config("which_python") 
-  which_venv <- get_golem_config("which_venv") 
-  venv_name <- get_golem_config("venv_name") 
+  python_setup <- as.logical(
+    get_golem_config("python_setup", config = get_golem_options("where_am_i")))
+  
+  sys_setenv <- get_golem_config(
+    "sys_setenv", config = get_golem_options("where_am_i"))
+  
+  which_python <- get_golem_config(
+    "which_python", config = get_golem_options("where_am_i"))
+  
+  which_venv <- get_golem_config(
+    "which_venv", config = get_golem_options("where_am_i")) 
+  
+  venv_name <- get_golem_config(
+    "venv_name", config = get_golem_options("where_am_i"))
   
   # Scikit-learn pipelines
-  pipe_path_label <- get_golem_config("pipeline_path_label")
-  pipe_path_criticality <- get_golem_config("pipeline_path_criticality")
+  pipe_path_label <- get_golem_config(
+    "pipeline_path_label", config = get_golem_options("where_am_i"))
+  
+  pipe_path_criticality <- get_golem_config(
+    "pipeline_path_criticality", config = get_golem_options("where_am_i"))
   
   #############################################################################
   # Modules #
