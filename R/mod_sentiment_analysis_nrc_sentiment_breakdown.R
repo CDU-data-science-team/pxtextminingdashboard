@@ -64,7 +64,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
         experienceAnalysis::tidy_net_sentiment_nrc(
           net_sentiment_wide_nrc(),
           sorting_sentiments = input$nrcSentiments,
-          num_of_lines = input$numberOfFacets
+          num_of_docs = input$numberOfFacets
         )
       } else {
         req(input$nrcSentiments)

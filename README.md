@@ -88,7 +88,8 @@ positive or negative about a particular service?
 
 There are several ways of extracting sentiment from text, ranging from fairly 
 simple to quite complex. One way to go is with the use of *sentiment lexicons* 
-(Silge & Robinson, 2017, [section 2.1](https://www.tidytextmining.com/sentiment.html#the-sentiments-datasets)).
+(Silge & Robinson, 2017, [section 2.1](https://www.tidytextmining.com/sentiment.html#the-sentiments-datasets). See
+also Hu & Liu, 2004, Mohammad & Turney, 2013, and Nielsen 2013.).
 These are lexicons that process large amounts of text from a variety of resources
 in order to empirically determine the sentiment expressed in a word. Once the 
 text has been broken into tokens and a sentiment has been assigned to each token 
@@ -155,6 +156,19 @@ The dashboard summarizes TF-IDF and *n*-gram analysis in two ways:
 ## References
 IBM (2021). Text Mining [Online]. Available at: 
 https://www.ibm.com/cloud/learn/text-mining (accessed 28 June 2021).
+
+Hu M. & Liu B. (2004). Mining and summarizing customer
+reviews. Proceedings of the ACM SIGKDD International Conference on
+Knowledge Discovery & Data Mining (KDD-2004), Seattle, Washington, USA,
+Aug 22-25, 2004.
+
+Mohammad S.M. & Turney P.D. (2013). Crowdsourcing a Word–Emotion
+Association Lexicon. Computational Intelligence, 29(3):436-465.
+
+Nielsen F.A. (2013). A new ANEW: Evaluation of a word list for
+sentiment analysis in microblogs. Proceedings of the ESWC2011 Workshop
+on 'Making Sense of Microposts': Big things come in small packages 718
+in CEUR Workshop Proceedings 93-98. https://arxiv.org/abs/1103.2903.
 
 Silge J. & Robinson D. (2017). Text Mining with R: A Tidy Approach. Sebastopol, 
 CA: O’Reilly Media. ISBN 978-1-491-98165-8.
