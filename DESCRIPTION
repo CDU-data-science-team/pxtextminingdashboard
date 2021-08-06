@@ -1,6 +1,6 @@
 Package: pxtextminingdashboard
-Title: PKG_TITLE
-Version: 0.2.0
+Title: Text Mining Dashboard of Patient Experience Feedback
+Version: 0.5.0
 Authors@R: person('Andreas', 'Soteriades', email = 'andreas.soteriades@nottshc.nhs.uk', role = c('cre', 'aut'))
 Description: PKG_DESC.
 License: MIT + file LICENSE
