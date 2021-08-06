@@ -12,6 +12,7 @@ app_server <- function( input, output, session ) {
   #############################################################################
   # Datasets
   x <- get(get_golem_config("dataset_text"))
+  x_unlabelled <- get(get_golem_config("dataset_unlabelled"))
   preds_label <- get(get_golem_config("dataset_preds_label"))
   row_indices_label <- get(get_golem_config("dataset_row_index_label"))
   tuning_results_label <- get(get_golem_config("dataset_tuning_results_label"))
@@ -45,7 +46,7 @@ app_server <- function( input, output, session ) {
   #############################################################################
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_1",
-    x,
+    x = x_unlabelled,
     target = target_label,
     python_setup,
     sys_setenv,
@@ -60,7 +61,7 @@ app_server <- function( input, output, session ) {
   
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_2",
-    x,
+    x = x_unlabelled,
     target = target_criticality,
     python_setup,
     sys_setenv,

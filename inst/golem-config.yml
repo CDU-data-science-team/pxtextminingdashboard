@@ -15,6 +15,7 @@ dev:
   golem_wd: !expr here::here()
 trusts_abc:
   dataset_text: text_data
+  dataset_unlabelled: text_data
   dataset_preds_label: predictions_test_label
   dataset_preds_criticality: predictions_test_criticality
   dataset_row_index_label: row_index_label
