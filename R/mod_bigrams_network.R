@@ -99,17 +99,7 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
     
     output$classControl <- renderUI({
       
-      if (target == "label") {
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_label, by = 'row_index')
-      } else {
-        
-        aux <- x %>%
-          dplyr::right_join(row_index_criticality, by = 'row_index')
-      }
-      
-      choices <- sort(unique(unlist(aux[[target]])))
+      choices <- sort(unique(unlist(x[[target]])))
       
       selectInput(
         session$ns("class"), 
