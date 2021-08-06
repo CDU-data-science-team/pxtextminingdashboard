@@ -28,6 +28,12 @@ app_server <- function( input, output, session ) {
   target_criticality <- get_golem_config("var_target_criticality")
   target_pred_criticality <- get_golem_config("var_target_pred_criticality")
   text_col <- get_golem_config("var_text_col")
+  # The below is an interesting case. We want preds_column = NULL in 
+  # experienceAnalysis::calc_predict_unlabelled_text. We therefore use a mock 
+  # YAML object column_names_predictions, but we never list it in the YAML file. 
+  # This means that get_golem_config("column_names_predictions") will have 
+  # nothing to get, and so it will assign NULL to preds_column, which is what we 
+  # want.
   preds_column <- get_golem_config("column_names_predictions")
   
   # Python variables
