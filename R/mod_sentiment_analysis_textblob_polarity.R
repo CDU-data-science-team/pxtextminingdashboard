@@ -12,19 +12,28 @@ mod_sentiment_analysis_textblob_polarity_ui <- function(id){
   tagList(
     # Boxes need to be put in a row (or column)
     fluidRow(
-      column(12,
-             box(width = NULL, background = "red",
-                 htmlOutput(ns("textBlobBox"))
-             )
+      column(
+        width = 12,
+        
+        box(
+          width = NULL, 
+          background = "red",
+          htmlOutput(ns("textBlobBox"))
+        )
       )
     ),
     
     fluidRow(
-      column(width = 12,  
-             box(width = NULL,
-                 downloadButton(ns("downloadTextBlob"), "Download data"),
-                 reactable::reactableOutput(ns("textBlob"))
-              )
+      column(
+        width = 12, 
+        
+        box(
+          width = NULL,
+          
+          uiOutput(ns("classControl")),
+          downloadButton(ns("downloadTextBlob"), "Download data"),
+          reactable::reactableOutput(ns("textBlob"))
+        )
       )
     )
   )
@@ -114,16 +123,22 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
     
     output$textBlob <- reactable::renderReactable({
       
-      reactable::reactable(
-        polarities(),
-        columns = reactable_columns,
-        #wrap = FALSE,
-        filterable = TRUE,
-        searchable = TRUE,
-        sortable = TRUE,
-        defaultPageSize = 100,
-        pageSizeOptions = 100
-      )
+      polarities() %>% 
+        dplyr::filter(
+          dplyr::across(
+            dplyr::all_of(target_label),
+            ~ . %in% input$class
+          )
+        ) %>% 
+        reactable::reactable(
+          columns = reactable_columns,
+          #wrap = FALSE,
+          filterable = TRUE,
+          searchable = TRUE,
+          sortable = TRUE,
+          defaultPageSize = 100,
+          pageSizeOptions = 100
+        )
     })
     
     output$downloadTextBlob <- downloadHandler(
@@ -132,6 +147,19 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
         write.csv(polarities(), file)
       }
     )
+    
+    output$classControl <- renderUI({
+      
+      choices <- sort(unique(polarities()[[target_label]]))
+      
+      selectInput(
+        session$ns("class"), 
+        "Choose a class to see the polarities for this class:",
+        choices = choices,
+        selected = choices[1],
+        multiple = TRUE
+      )
+    })
   })
 }
     
