@@ -103,7 +103,7 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
       
       selectInput(
         session$ns("class"), 
-        "Choose a label:",
+        "Choose a class:",
         choices = choices,
         selected = choices[1]
       )

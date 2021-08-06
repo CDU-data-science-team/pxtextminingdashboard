@@ -125,7 +125,7 @@ mod_tfidf_server <- function(id, x, target, text_col) {
       
       selectInput(
         session$ns("class"), 
-        "Choose a label:",
+        "Choose a class:",
         choices = sort(unique(unlist(x[[target]]))),
         selected = sort(unique(unlist(x[[target]])))[1]
       )

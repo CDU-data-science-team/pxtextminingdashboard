@@ -208,7 +208,7 @@ mod_sentiment_analysis_nrc_sentiment_breakdown_server <- function(id, x,
     
     selectInput(
       session$ns("class"), 
-      "Choose a label:",
+      "Choose a class:",
       choices = choices,
       selected = choices[1]
     )

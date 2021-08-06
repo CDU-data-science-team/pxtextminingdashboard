@@ -72,7 +72,7 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
       ),
       
       reactable::colDef(
-        name = "Label",
+        name = "Theme",
         align = "right",
         minWidth = 120
       ),
