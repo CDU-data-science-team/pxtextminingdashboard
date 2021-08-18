@@ -123,11 +123,13 @@ mod_tfidf_server <- function(id, x, target, text_col) {
     
     output$classControl <- renderUI({
       
+      choices = sort(unique(unlist(x[[target]])))
+      
       selectInput(
         session$ns("class"), 
         "Choose a class:",
-        choices = sort(unique(unlist(x[[target]]))),
-        selected = sort(unique(unlist(x[[target]])))[1]
+        choices = choices,
+        selected = choices[1]
       )
     })
     
