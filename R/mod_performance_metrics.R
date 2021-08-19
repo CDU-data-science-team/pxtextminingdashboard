@@ -42,7 +42,7 @@ mod_performance_metrics_ui <- function(id) {
       column(
         width = 6,
         box(
-          title = "Best-perfroming learners",
+          title = "Best-performing learners",
           width = NULL,
           plotOutput(ns("learnerPerformance")),
           box(
