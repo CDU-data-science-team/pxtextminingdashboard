@@ -10,7 +10,7 @@ Reading through all patient feedback comments, identifying issues and summarizin
 them in a way that can aid decision-making, can be time-consuming and requires 
 several staff hours. 
 
-**How can we take some work of the shoulders of staff? And how can we be confident 
+**How can we take some work off the shoulders of staff? And how can we be confident 
 that we identify burning issues in a timely manner?**
 
 We can automate much of the process with the power of algorithms: *Text Mining* 
