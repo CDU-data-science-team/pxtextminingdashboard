@@ -51,7 +51,7 @@ mod_performance_metrics_ui <- function(id) {
         width = 6,
         
         box(
-          title = "Best-perfroming learners",
+          title = "Best-performing learners",
           width = NULL,
           
           downloadButton(ns("downloadLearnerPerformance"), "Download plot"),
