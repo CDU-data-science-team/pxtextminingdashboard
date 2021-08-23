@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_sentiment_analysis_tag_level_ui <- function(id){
+mod_sentiment_analysis_tag_level_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
@@ -21,11 +21,11 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
           background = 'red', width = NULL
         ),
         
-        uiOutput(ns("organizationControl")),
-        
         column(
           width = 5,
           uiOutput(ns("classControl")),
+          
+          downloadButton(ns("downloadMostCommonWords"), "Download plot"),
           
           plotOutput(ns("mostCommonWords"), height = "400px"),
           
@@ -37,6 +37,8 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
         
         column(
           width = 7,
+          
+          downloadButton(ns("downloadNetSentiment"), "Download plot"),
           
           plotOutput(ns("netSentiment"), height = "800px"),
           
@@ -53,49 +55,49 @@ mod_sentiment_analysis_tag_level_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col, 
-                                                    groups) {
-  moduleServer( id, function(input, output, session){
+mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col) {
+  moduleServer( id, function(input, output, session) {
     ns <- session$ns
+    
+    #################
+    # Net sentiment #
+    #################
+    net_sentiment_all_dicts <- x %>% 
+      experienceAnalysis::calc_net_sentiment_per_tag(
+        target_col_name = target,
+        text_col_name = text_col
+      )
     
     output$netSentiment <- renderPlot({
       
-      req(input$organization)
+      net_sentiment_all_dicts %>% 
+        plotNetSentiment(target_col_name = target, 
+                         title = "Net sentiment per tag")
+    })
+    
+    ####################
+    # Bing word counts #
+    ####################
+    # Define reactive function argument to pass to plotBingWordCounts(). This is 
+    # necessary for the download button, as the plot to download is for the 
+    # chosen class.
+    filterClass <- reactive({input$class})
+    
+    bing_word_counts <- reactive({
       
-      net_sentiment_all_dicts <- reactive({
-        
-        x %>% 
-          experienceAnalysis::calc_net_sentiment_per_tag(
-            target_col_name = target,
-            text_col_name = text_col,
-            grouping_variables = groups,
-            filter_main_group = input$organization
-          )
-      })
+      req(filterClass())
       
-      
-      net_sentiment_all_dicts() %>%
-        experienceAnalysis::plot_net_sentiment_per_tag(target_col_name = 'label')
+      x %>%
+        experienceAnalysis::calc_bing_word_counts(
+          target_col_name = target,
+          text_col_name = text_col,
+          filter_class = filterClass()
+        )
     })
     
     output$mostCommonWords <- renderPlot({
       
-      req(input$class)
-      req(input$organization)
-      
-      bing_word_counts <- reactive({
-        x %>%
-          experienceAnalysis::calc_bing_word_counts(
-            target_col_name = target,
-            text_col_name = text_col,
-            grouping_variables = groups,
-            filter_class = input$class,
-            filter_main_group = input$organization
-          )
-      })
-      
-      bing_word_counts() %>%
-        experienceAnalysis::plot_bing_word_counts()
+      plotBingWordCounts(bing_word_counts())
     })
     
     output$sentimentAnalysisExplanation <- renderText({
@@ -133,22 +135,38 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col,
     
     output$classControl <- renderUI({
       
+      choices <- sort(unique(x[[target]]))
+      
       selectInput(
         session$ns("class"), 
-        "Choose a label:",
-        choices = sort(unique(x[[target]])),
-        selected = sort(unique(x[[target]]))[1]
+        "Choose a class:",
+        choices = choices,
+        selected = choices[1]
       )
     })
     
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
-      )
-    })
+    output$downloadMostCommonWords <- downloadHandler(
+      filename = function() {
+        
+        filterClass_clean <- clean_text(filterClass())
+        
+        paste0("most_common_words_", target, "_", filterClass_clean, ".pdf")
+      },
+      content = function(file) {
+        ggplot2::ggsave(file, plot = plotBingWordCounts(bing_word_counts()), 
+                        device = pdf)
+      }
+    )
+    
+    output$downloadNetSentiment <- downloadHandler(
+      filename = function() {paste0("net_sentiment_", target, ".pdf")},
+      content = function(file) {
+        ggplot2::ggsave(file, 
+                        plot = plotNetSentiment(net_sentiment_all_dicts, 
+                                                target_col_name = target, 
+                                                title = "Net sentiment per tag"), 
+                        device = pdf, height = 10, units = "in")
+      }
+    )
   })
 }

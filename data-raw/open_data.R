@@ -19,8 +19,8 @@ text_data <- DBI::dbGetQuery(
   'SELECT * FROM text_data') %>%
   dplyr::mutate(
     criticality = dplyr::case_when(
-      criticality == -5 ~ '-4',
-      criticality == 5 ~ '4',
+      criticality == -5 ~ "-4",
+      criticality == 5 ~ "4",
       TRUE ~ criticality
     )
   )
@@ -41,16 +41,6 @@ row_index_label <- index_training_data_label %>%
 predictions_test_label <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM predictions_test_label')
-
-# accuracy_per_class_label <- text_data %>% 
-#   dplyr::select(label, organization, row_index) %>% 
-#   dplyr::left_join(predictions_test_label, by = "row_index") %>% 
-#   dplyr::mutate(actual_vs_predicted = label == label_pred) %>% 
-#   dplyr::filter(!is.na(actual_vs_predicted)) %>% 
-#   dplyr::group_by(organization, label) %>% 
-#   dplyr::summarise(accuracy = sum(actual_vs_predicted) / 
-#                      length(actual_vs_predicted)) %>% 
-#   dplyr::rename(class = label)
 
 tuning_results_label <- DBI::dbGetQuery(
   con_text_mining,
@@ -73,16 +63,6 @@ predictions_test_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM predictions_test_criticality')
 
-# accuracy_per_class_criticality <- text_data %>% 
-#   dplyr::select(criticality, organization, row_index) %>% 
-#   dplyr::left_join(predictions_test_criticality, by = "row_index") %>% 
-#   dplyr::mutate(actual_vs_predicted = criticality == criticality_pred) %>% 
-#   dplyr::filter(!is.na(actual_vs_predicted)) %>% 
-#   dplyr::group_by(organization, criticality) %>% 
-#   dplyr::summarise(accuracy = sum(actual_vs_predicted) / 
-#                      length(actual_vs_predicted)) %>% 
-#   dplyr::rename(class = criticality)
-
 tuning_results_criticality <- DBI::dbGetQuery(
   con_text_mining,
   'SELECT * FROM tuning_results_criticality')
@@ -92,12 +72,10 @@ tuning_results_criticality <- DBI::dbGetQuery(
 usethis::use_data(text_data, overwrite = TRUE)
 
 usethis::use_data(row_index_label, overwrite = TRUE)
-#usethis::use_data(accuracy_per_class_label, overwrite = TRUE)
 usethis::use_data(tuning_results_label, overwrite = TRUE)
 usethis::use_data(predictions_test_label, overwrite = TRUE)
 
 usethis::use_data(row_index_criticality, overwrite = TRUE)
-#usethis::use_data(accuracy_per_class_criticality, overwrite = TRUE)
 usethis::use_data(tuning_results_criticality, overwrite = TRUE)
 usethis::use_data(predictions_test_criticality, overwrite = TRUE)
 

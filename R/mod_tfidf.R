@@ -13,22 +13,17 @@ mod_tfidf_ui <- function(id) {
     
     fluidRow(
       column(
-        width = 3,
+        width = 4,
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 3,
-        uiOutput(ns("organizationControl"))
-      ),
-      
-      column(
-        width = 3,
+        width = 4,
         uiOutput(ns("ngramsNumControl"))
       ),
       
       column(
-        width = 3,
+        width = 4,
         uiOutput(ns("barsNumberControl"))
       )
     ),
@@ -42,7 +37,9 @@ mod_tfidf_ui <- function(id) {
         box(
           width = NULL,
           
-          plotOutput(ns("tfidf_bars"), height = "1000px") %>%
+          downloadButton(ns("downloadTfidfNgrams"), "Download plot"),
+          
+          plotOutput(ns("tfidfBars"), height = "1000px") %>%
             shinycssloaders::withSpinner(hide.ui = TRUE),
           
           box(
@@ -59,46 +56,54 @@ mod_tfidf_ui <- function(id) {
 #' tfidf_and_word_processing Server Functions
 #'
 #' @noRd 
-mod_tfidf_server <- function(id, x, target, text_col, groups) {
+mod_tfidf_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    plot_function <- reactive({
+    # Define reactive function arguments to pass to plotTfidfNgrams(). This is 
+    # necessary for the download button, as the plot to download is for the 
+    # chosen ngram type and class.
+    ngramsType <- reactive({input$ngramsType})
+    filterClass <- reactive({input$class})
+    
+    dataTfidf <- reactive({
       
-      req(input$class)
-      req(input$ngramsType)
+      req(filterClass())
+      
+      x %>% 
+        experienceAnalysis::calc_tfidf_ngrams(
+          target_col_name = target, 
+          text_col_name = text_col,
+          filter_class = filterClass(), 
+          ngrams_type = ngramsType(),
+          number_of_ngrams = input$barsNum
+        )
+    })
+    
+    # We want to debounce the EXPRESSION dataTfidf (note no "()") before
+    # passing the reactive element dataTfidf() that has the data. We therefore 
+    # must use object dataTfidf_d instead of the original dataTfidf in what 
+    # follows from now on.
+    dataTfidf_d <- dataTfidf %>% # No "()" to indicate we are debouncing the EXPRESSION NOT the reactive object.
+      debounce(1000)
+      
+    output$tfidfBars <- renderPlot({
+      
+      req(filterClass())
       
       withProgress(
         message = 'Calculation in progress',
-        detail = 'This may take a few seconds...', 
-        value = 0, 
+        detail = 'This may take a few seconds...',
+        value = 0,
         {
-          p <- x %>% 
-            experienceAnalysis::calc_tfidf_ngrams(
-              target_col_name = target, 
-              text_col_name = text_col,
-              grouping_variables = groups,
-              filter_class = input$class, 
-              filter_main_group = input$organization,
-              ngrams_type = input$ngramsType,
-              number_of_ngrams = input$barsNum
-            ) %>% 
-            experienceAnalysis::plot_tfidf_ngrams(
-              ngrams_type = input$ngramsType,
-              filter_class = input$class
+          dataTfidf_d() %>% 
+            plotTfidfNgrams(
+              title = paste0("Most frequent ", ngramsType(),
+                             " in feedback text that is about\n",
+                             "\"", filterClass(), "\"")
             )
-            
-          incProgress(1)
         }
       )
-      
-      return(p)
-    }) %>% 
-      debounce(1000)
-    
-    output$tfidf_bars <- renderPlot({
-      
-      plot_function()
     })
     
     output$tfidfExplanation <- renderText({
@@ -118,21 +123,27 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
     
     output$classControl <- renderUI({
       
-      selectInput(
-        session$ns("class"), 
-        "Choose a label:",
-        choices = sort(unique(unlist(x[[target]]))),
-        selected = sort(unique(unlist(x[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
+      # There are nonsense criticality values in the dataset that must be 
+      # filtered out so they do not show on the class selection box. We have the
+      # row indices of the valid criticality values (as we do for the valid 
+      # label values) and thus we can use a simple join to keep pnly them.
+      if (target == "label") {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_label, by = 'row_index')
+      } else {
+        
+        aux <- x %>%
+          dplyr::right_join(row_index_criticality, by = 'row_index')
+      }
+      
+      choices <- sort(unique(unlist(aux[[target]])))
       
       selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
+        session$ns("class"), 
+        "Choose a class:",
+        choices = choices,
+        selected = choices[1]
       )
     })
     
@@ -156,5 +167,26 @@ mod_tfidf_server <- function(id, x, target, text_col, groups) {
         max = 100
       )
     })
+    
+    output$downloadTfidfNgrams <- downloadHandler(
+      filename = function() {
+        
+        filterClass_clean <- clean_text(filterClass())
+        
+        paste0("tfidf_bars_", target, "_", filterClass_clean, "_", 
+               tolower(ngramsType()), ".pdf")
+      },
+      content = function(file) {
+        ggplot2::ggsave(file, 
+                        plot = plotTfidfNgrams(x = dataTfidf_d(), 
+                                               title = paste0("Most frequent ", 
+                                                              ngramsType(),
+                                                              " in feedback text that is about\n",
+                                                              "\"", 
+                                                              filterClass(), 
+                                                              "\"")), 
+                        device = pdf, height = 16, units = "in")
+      }
+    )
   })
 }

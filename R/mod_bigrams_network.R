@@ -12,34 +12,39 @@ mod_bigrams_network_ui <- function(id) {
   tagList(
     
     fluidRow(
+      
       column(
-        width = 4,
+        width = 6,
+        
         uiOutput(ns("classControl"))
       ),
       
       column(
-        width = 4,
-        uiOutput(ns("organizationControl"))
-      ),
-      
-      column(
-        width = 4,
+        width = 6,
+        
         uiOutput(ns("bigramsPropControl"))
       )
     ),
     
     fluidRow(
       width = 12,
+      
       column(
         width = 12,
+        
         box(
           width = NULL,
+          
+          downloadButton(ns("downloadBigramsNetwork"), "Download plot"),
+          
           plotOutput(ns("bigramsNetwork")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE),
+          
           box(
+            width = NULL,
+            
             htmlOutput(ns("bigramsNetworkExplanation")), 
-            background = 'red', 
-            width = NULL
+            background = 'red'
           )
         )
       )
@@ -50,25 +55,32 @@ mod_bigrams_network_ui <- function(id) {
 #' bigrams_network Server Functions
 #'
 #' @noRd 
-mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
+mod_bigrams_network_server <- function(id, x, target, text_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    output$bigramsNetwork <- renderPlot({
-      
-      req(input$class)
-      req(input$bigramsProp)
+    # Define reactive function argument to pass to plotBigramsNetwork(). This 
+    # is necessary for the download button, as the plot to download is for the 
+    # chosen class.
+    filterClass <- reactive({input$class})
+    
+    dataBigramsNetwork <- reactive({
       
       x %>% 
         experienceAnalysis::calc_bigrams_network(
           target_col_name = target, 
           text_col_name = text_col,
-          grouping_variables = groups,
-          filter_class = input$class,
-          filter_main_group = input$organization, 
+          filter_class = filterClass(),
           bigrams_prop = input$bigramsProp
-        ) %>% 
-        experienceAnalysis::plot_bigrams_network()
+        )
+    })
+    
+    output$bigramsNetwork <- renderPlot({
+      
+      req(filterClass())
+      req(input$bigramsProp)
+      
+      plotBigramsNetwork(dataBigramsNetwork())
     })
     
     output$bigramsNetworkExplanation <- renderText({
@@ -87,6 +99,10 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
     
     output$classControl <- renderUI({
       
+      # There are nonsense criticality values in the dataset that must be 
+      # filtered out so they do not show on the class selection box. We have the
+      # row indices of the valid criticality values (as we do for the valid 
+      # label values) and thus we can use a simple join to keep pnly them.
       if (target == "label") {
         
         aux <- x %>%
@@ -97,21 +113,13 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
           dplyr::right_join(row_index_criticality, by = 'row_index')
       }
       
-      selectInput(
-        session$ns("class"), 
-        "Choose a label:",
-        choices = sort(unique(unlist(aux[[target]]))),
-        selected = sort(unique(unlist(aux[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
+      choices <- sort(unique(unlist(aux[[target]])))
       
       selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
+        session$ns("class"), 
+        "Choose a class:",
+        choices = choices,
+        selected = choices[1]
       )
     })
     
@@ -125,5 +133,18 @@ mod_bigrams_network_server <- function(id, x, target, text_col, groups) {
         max = 100
       )
     })
+    
+    output$downloadBigramsNetwork <- downloadHandler(
+      filename = function() {
+        
+        filterClass_clean <- clean_text(filterClass())
+        
+        paste0("bigram_network_", target, "_", filterClass_clean, ".pdf")
+      },
+      content = function(file) {
+        ggplot2::ggsave(file, plot = plotBigramsNetwork(dataBigramsNetwork()), 
+                        device = pdf, width = 10, height = 8)
+      }
+    )
   })
 }

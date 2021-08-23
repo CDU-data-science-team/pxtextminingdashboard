@@ -27,13 +27,8 @@ mod_predictions_table_ui <- function(id){
           
           fluidRow(
             column(
-              width = 6,
+              width = 4,
               uiOutput(ns("classControl"))
-            ),
-            
-            column(
-              width = 6,
-              uiOutput(ns("organizationControl"))
             )
           ),
           
@@ -49,7 +44,7 @@ mod_predictions_table_ui <- function(id){
 #'
 #' @noRd 
 mod_predictions_table_server <- function(id, x, target, target_pred, text_col, 
-                                         groups, preds, row_indices) {
+                                         preds, row_indices) {
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -70,20 +65,15 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
           dplyr::across(
             dplyr::all_of(target_pred),
             ~ . %in% input$class
-          ),
-          dplyr::across(
-            dplyr::all_of(groups),
-            ~ . %in% input$organization
           )
         ) %>%
-        dplyr::select(dplyr::all_of(c(text_col, target, groups)))
+        dplyr::select(dplyr::all_of(c(text_col, target)))
       
       reactable_cols <- list(
         reactable::colDef(name = feedback_col_new_name),
-        reactable::colDef(name = "Actual class", align = "right"),
-        reactable::colDef(name = "Organization", align = "right")
+        reactable::colDef(name = "Actual class", align = "right")
       )
-      names(reactable_cols) <- c(text_col, target, groups[1])
+      names(reactable_cols) <- c(text_col, target)
         
       reactable::reactable(
         aux,
@@ -106,22 +96,17 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
     output$modelAccuracyBox <- renderText({
       
       accuracy_score <- x %>% 
-        dplyr::select(dplyr::all_of(c(target, groups)), row_index) %>% 
+        dplyr::select(dplyr::all_of(target), row_index) %>% 
         dplyr::right_join(preds, by = "row_index") %>% 
         experienceAnalysis::calc_accuracy_per_class(
             target_col_name = target, 
             target_pred_col_name = target_pred,
-            grouping_variables = groups,
             column_names = NULL
           ) %>% 
         dplyr::filter(
           dplyr::across(
             dplyr::all_of(target),
             ~ . %in% input$class
-          ),
-          dplyr::across(
-            dplyr::all_of(groups),
-            ~ . %in% input$organization
           )
         ) %>%
         dplyr::select(accuracy) %>%
@@ -139,21 +124,13 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
       aux <- x %>%
         dplyr::right_join(row_indices, by = 'row_index')
       
+      choices <- sort(unique(unlist(aux[[target]])))
+      
       selectInput(
         session$ns("class"), 
         "Choose a class:",
-        choices = sort(unique(unlist(aux[[target]]))),
-        selected = sort(unique(unlist(aux[[target]])))[1]
-      )
-    })
-    
-    output$organizationControl <- renderUI({
-      
-      selectInput(
-        session$ns("organization"), 
-        "Choose an organization:",
-        choices = sort(unique(x[[groups[1]]])), # The first group is always the "main" one (see {experienceAnalysis}), i.e. the Trust/Organization in the Patient Experience case.
-        selected = sort(unique(x[[groups[1]]]))[1]
+        choices = choices,
+        selected = choices[1]
       )
     })
   })

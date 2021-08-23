@@ -19,23 +19,8 @@ mod_predictions_unlabelled_data_ui <- function(id) {
           title = "Predicted text for each class",
           width = NULL,
           
-          # box(
-          #   width = NULL, 
-          #   background = "red",
-          #   htmlOutput(ns("modelAccuracyBox"))
-          # ),
-          
-          # fluidRow(
-          #   column(
-          #     width = 6,
-          #     uiOutput(ns("classControl"))
-          #   ),
-          #   
-          #   column(
-          #     width = 6,
-          #     uiOutput(ns("organizationControl"))
-          #   )
-          # ),
+          uiOutput(ns("classControl")),
+          downloadButton(ns("downloadPredictions"), "Download data"),
           
           reactable::reactableOutput(ns("predictions")) %>%
             shinycssloaders::withSpinner(hide.ui = FALSE)
@@ -48,40 +33,71 @@ mod_predictions_unlabelled_data_ui <- function(id) {
 #' predictions_unlabelled_data Server Functions
 #'
 #' @noRd 
-mod_predictions_unlabelled_data_server <- function(id, x, python_setup, 
-                                                   sys_setenv, 
-                                                   which_python, which_venv, 
-                                                   venv_name, 
-                                                   text_col, preds_column,
-                                                   column_names, pipe_path) {
+mod_predictions_unlabelled_data_server <- function(id, x, target, text_col,
+                                                   preds_column, column_names,
+                                                   pipe_path, theme) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    withProgress(
-      message = "Making the predictions",
-      detail = "May take a minute or two...", 
-      value = 0, 
-      {
-        preds <- experienceAnalysis::calc_predict_unlabelled_text(
-          x,
-          python_setup,
-          sys_setenv,
-          which_python,
-          which_venv,
-          venv_name,
-          text_col,
-          pipe_path,
-          preds_column, 
-          column_names
-        )
-        
-        incProgress(1)
+    dataPredictions <- reactive({
+      
+      withProgress(
+        message = "Making the predictions",
+        detail = "May take a minute or two...", 
+        value = 0, 
+        {
+          x %>% 
+            pxtextmineR::factory_predict_unlabelled_text_r(
+              predictor = text_col,
+              pipe_path_or_object = pipe_path,
+              preds_column,
+              column_names,
+              theme
+            )
+        }
+      )
+    })
+    
+    # When we pass NULL to preds_column in experienceAnalysis::calc_predict_unlabelled_text,
+    # the column name with the predicted classes is 
+    # paste0(text_col_name, "_preds") or, here, paste0(text_col, "_preds"). 
+    # We need the preds object for filtering dataPredictions() by input$class.
+    if (is.null(preds_column)) {
+      preds <- paste0(text_col, "_preds")
+    } else {
+      preds <- preds_column
+    }
+    
+    output$predictions <- reactable::renderReactable({
+
+      dataPredictions() %>% 
+        dplyr::filter(
+          dplyr::across(
+            dplyr::all_of(preds),
+            ~ . %in% input$class
+          )
+        ) %>% 
+        reactable::reactable(filterable = TRUE)
+    })
+    
+    output$downloadPredictions <- downloadHandler(
+      filename = function() {paste0("predictions_", target, ".csv")},
+      content = function(file) {
+        write.csv(dataPredictions(), file)
       }
     )
     
-    output$predictions <- reactable::renderReactable({
+    output$classControl <- renderUI({
       
-      reactable::reactable(preds)
+      choices <- sort(unique(dataPredictions()[[preds]]))
+      
+      selectInput(
+        session$ns("class"), 
+        "Choose a class to see the predicted text for this class:",
+        choices = choices,
+        selected = choices[1],
+        multiple = TRUE
+      )
     })
   })
 }
