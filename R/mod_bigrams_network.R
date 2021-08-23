@@ -99,6 +99,10 @@ mod_bigrams_network_server <- function(id, x, target, text_col) {
     
     output$classControl <- renderUI({
       
+      # There are nonsense criticality values in the dataset that must be 
+      # filtered out so they do not show on the class selection box. We have the
+      # row indices of the valid criticality values (as we do for the valid 
+      # label values) and thus we can use a simple join to keep pnly them.
       if (target == "label") {
         
         aux <- x %>%
