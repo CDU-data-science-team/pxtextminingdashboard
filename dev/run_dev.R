@@ -15,4 +15,4 @@ golem::detach_all_attached()
 golem::document_and_reload()
 
 # Run the application
-run_app(where_am_i = "production")
+run_app(where_am_i = "dev") # Change to "production" to run on server.

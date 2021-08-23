@@ -32,7 +32,8 @@ Imports:
     reticulate,
     experienceAnalysis,
     yardstick,
-    textdata
+    textdata,
+    pxtextmineR
 Remotes: 
     CDU-data-science-team/nottshcMethods
     CDU-data-science-team/experienceAnalysis

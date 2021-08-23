@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_sentiment_analysis_textblob_polarity_ui <- function(id){
+mod_sentiment_analysis_textblob_polarity_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # Boxes need to be put in a row (or column)
@@ -42,14 +42,11 @@ mod_sentiment_analysis_textblob_polarity_ui <- function(id){
 #' sentiment_analysis Server Functions
 #'
 #' @noRd 
-mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv, 
-                                                            which_python, 
-                                                            which_venv, 
-                                                            venv_name, 
+mod_sentiment_analysis_textblob_polarity_server <- function(id, x,
                                                             text_col, 
                                                             target_label, 
                                                             target_criticality) {
-  moduleServer( id, function(input, output, session){
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
     # reactable stuff
@@ -94,13 +91,8 @@ mod_sentiment_analysis_textblob_polarity_server <- function(id, x, sys_setenv,
         value = 0, 
         {
           aux <- x %>% 
-            experienceAnalysis::calc_sentiment_indicators(
-              sys_setenv = sys_setenv,
-              which_python = which_python,
-              which_venv = which_venv,
-              venv_name = venv_name, 
-              text_col_name = text_col
-            ) %>% 
+            dplyr::select(dplyr::all_of(text_col)) %>% 
+            pxtextmineR::sentiment_scores_r() %>% 
             dplyr::mutate(text_blob_polarity = round(text_blob_polarity, 3)) %>% 
             dplyr::bind_cols(
               x %>% 
