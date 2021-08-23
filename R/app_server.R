@@ -30,28 +30,12 @@ app_server <- function( input, output, session ) {
   target_pred_criticality <- get_golem_config("var_target_pred_criticality")
   text_col <- get_golem_config("var_text_col")
   # The below is an interesting case. We want preds_column = NULL in 
-  # experienceAnalysis::calc_predict_unlabelled_text. We therefore use a mock 
+  # pxtextmineR::factory_predict_unlabelled_text_r. We therefore use a mock 
   # YAML object column_names_predictions, but we never list it in the YAML file. 
   # This means that get_golem_config("column_names_predictions") will have 
   # nothing to get, and so it will assign NULL to preds_column, which is what we 
   # want.
   preds_column <- get_golem_config("column_names_predictions")
-  
-  # Python variables
-  python_setup <- as.logical(
-    get_golem_config("python_setup", config = get_golem_options("where_am_i")))
-  
-  sys_setenv <- get_golem_config(
-    "sys_setenv", config = get_golem_options("where_am_i"))
-  
-  which_python <- get_golem_config(
-    "which_python", config = get_golem_options("where_am_i"))
-  
-  which_venv <- get_golem_config(
-    "which_venv", config = get_golem_options("where_am_i")) 
-  
-  venv_name <- get_golem_config(
-    "venv_name", config = get_golem_options("where_am_i"))
   
   # Scikit-learn pipelines
   pipe_path_label <- get_golem_config(
@@ -67,30 +51,22 @@ app_server <- function( input, output, session ) {
     "predictions_unlabelled_data_ui_1",
     x = x_unlabelled,
     target = target_label,
-    python_setup,
-    sys_setenv,
-    which_python, 
-    which_venv, 
-    venv_name, 
-    text_col, 
+    text_col,
+    pipe_path = pipe_path_label,
     preds_column,
     column_names = text_col,
-    pipe_path = pipe_path_label
+    theme = NULL
   )
   
   mod_predictions_unlabelled_data_server(
     "predictions_unlabelled_data_ui_2",
     x = x_unlabelled,
     target = target_criticality,
-    python_setup,
-    sys_setenv,
-    which_python, 
-    which_venv, 
-    venv_name, 
-    text_col, 
+    text_col,
+    pipe_path = pipe_path_criticality,
     preds_column,
     column_names = text_col,
-    pipe_path = pipe_path_criticality
+    theme = target_label
   )
   
   #############################################################################
@@ -132,10 +108,6 @@ app_server <- function( input, output, session ) {
   mod_sentiment_analysis_textblob_polarity_server(
     "sentiment_analysis_textblob_polarity_ui_1",
     x, 
-    sys_setenv,
-    which_python, 
-    which_venv, 
-    venv_name, 
     text_col,
     target_label,
     target_criticality
