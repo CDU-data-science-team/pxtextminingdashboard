@@ -137,7 +137,7 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
     # Learner performance #
     #######################
     dataLearnerPerformance <- tuning_results %>% 
-      experienceAnalysis::prep_best_estimators()
+      prep_best_estimators()
     
     output$learnerPerformance <- renderPlot({
       
@@ -234,7 +234,7 @@ mod_performance_metrics_server <- function(id, x, target, target_pred, text_col,
     # Tuning results #
     ##################
     dataMetricsTable <- tuning_results %>%
-      experienceAnalysis::prep_all_pipeline_tuning_results()
+      prep_all_pipeline_tuning_results()
     
     output$rawMetrics <- reactable::renderReactable({
       
