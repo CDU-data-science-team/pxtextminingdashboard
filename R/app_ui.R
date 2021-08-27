@@ -34,7 +34,7 @@ app_ui <- function(request) {
           ),
           
           menuItem(
-            "TF-IDF & Bigrams", 
+            "Words analysis", 
             tabName = "tab_tfidf", 
             icon = icon("dashboard")
           )
@@ -151,17 +151,17 @@ app_ui <- function(request) {
               #title = "tabs",
               
               tabPanel(
-                "Sentiment - label", 
+                "Sentiment summaries - theme-level", 
                 mod_sentiment_analysis_tag_level_ui("sentiment_analysis_tag_level_ui_1")
               ),
               
               tabPanel(
-                "Sentiment - text",
+                "Sentiment breakdown - text-level",
                 mod_sentiment_analysis_nrc_sentiment_breakdown_ui("sentiment_analysis_nrc_sentiment_breakdown_ui_1")
               ),
               
               tabPanel(
-                "Polarity - text",
+                "Polarity - text-level",
                 mod_sentiment_analysis_textblob_polarity_ui("sentiment_analysis_textblob_polarity_ui_1")
               )
             )

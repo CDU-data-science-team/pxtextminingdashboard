@@ -72,7 +72,7 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col) {
       
       net_sentiment_all_dicts %>% 
         plotNetSentiment(target_col_name = target, 
-                         title = "Net sentiment per tag")
+                         title = "Net sentiment per theme")
     })
     
     ####################
@@ -164,7 +164,7 @@ mod_sentiment_analysis_tag_level_server <- function(id, x, target, text_col) {
         ggplot2::ggsave(file, 
                         plot = plotNetSentiment(net_sentiment_all_dicts, 
                                                 target_col_name = target, 
-                                                title = "Net sentiment per tag"), 
+                                                title = "Net sentiment per theme"), 
                         device = pdf, height = 10, units = "in")
       }
     )
