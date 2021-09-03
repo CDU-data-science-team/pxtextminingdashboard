@@ -24,7 +24,7 @@ The interactive dashboard can be shipped as an [`R`](https://www.r-project.org/)
 package and it comes with real open-source patient feedback text records for 
 demonstration purposes. A key feature though is that it can be used with *any* 
 text dataset from *any* organisation. We are offering the possibility of hosting 
-the dashboard for different text data on our server. Here is an [example](https://involve.nottshc.nhs.uk:8443/text_mining_dashboard/) with our 
+the dashboard for different text data on our server. Here is an [example](https://involve.nottshc.nhs.uk/rsconnect/pxtextminingdashboard/) with our 
 own data.
 
 ## Dashboard structure
