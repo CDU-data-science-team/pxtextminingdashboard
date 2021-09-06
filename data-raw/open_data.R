@@ -1,4 +1,16 @@
-## code to prepare `open_data` dataset goes here
+
+# write the data in the right format
+
+df <- readr::read_csv("data-raw/text_data.csv")
+
+# skimr::skim(df)
+
+# care opinion
+
+co_1 <- readxl::read_excel("data-raw/CO1 coded SC .xlsx", 
+                           col_names = c("crit", paste0("cat_", 1 : 6),
+                           "feedback"))
+co_2 <- readxl::read_excel("data-raw/CO2.xlsx")
 
 ## Connect to database ##
 con_text_mining <- DBI::dbConnect(
