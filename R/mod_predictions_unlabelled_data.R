@@ -19,6 +19,11 @@ mod_predictions_unlabelled_data_ui <- function(id) {
           title = "Predicted text for each class",
           width = NULL,
           
+          selectInput(ns("select_organisation"),
+                      "Select organisation (defaults to all)",
+                      choices = unique(text_data$organization),
+                      multiple = TRUE),
+          
           uiOutput(ns("classControl")),
           downloadButton(ns("downloadPredictions"), "Download data"),
           
@@ -69,8 +74,16 @@ mod_predictions_unlabelled_data_server <- function(id, x, target, text_col,
     }
     
     output$predictions <- reactable::renderReactable({
-
-      dataPredictions() %>% 
+      
+      return_predictions <- dataPredictions()
+      
+      if(isTruthy(input$select_organisation)){
+        
+        return_predictions <- return_predictions %>% 
+          filter(organization %in% input$select_organisation)
+      }
+      
+      return_predictions %>% 
         dplyr::filter(
           dplyr::across(
             dplyr::all_of(preds),
@@ -96,7 +109,7 @@ mod_predictions_unlabelled_data_server <- function(id, x, target, text_col,
         "Choose a class to see the predicted text for this class:",
         choices = choices,
         selected = choices[1],
-        multiple = TRUE
+        multiple = FALSE
       )
     })
   })

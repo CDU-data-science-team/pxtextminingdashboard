@@ -130,7 +130,8 @@ mod_predictions_table_server <- function(id, x, target, target_pred, text_col,
         session$ns("class"), 
         "Choose a class:",
         choices = choices,
-        selected = choices[1]
+        selected = choices[1],
+        multiple = FALSE
       )
     })
   })
