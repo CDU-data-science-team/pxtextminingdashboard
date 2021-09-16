@@ -131,8 +131,7 @@ DBI::dbWriteTable(con_text_mining, "text_data", final,
 
 text_data <- DBI::dbGetQuery(
   con_text_mining,
-  'SELECT * FROM text_data') %>%
-  dplyr::filter(organization == "Care Opinion")
+  'SELECT * FROM text_data')
 
 index_training_data_label <- DBI::dbGetQuery(
   con_text_mining,

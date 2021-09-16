@@ -46,12 +46,21 @@ mod_predictions_unlabelled_data_server <- function(id, x, target, text_col,
     
     dataPredictions <- reactive({
       
+      return_predictions <- x
+      
+      if(isTruthy(input$select_organisation)){
+        
+        return_predictions <- return_predictions %>% 
+          dplyr::filter(organization %in% input$select_organisation)
+      }
+      
+      
       withProgress(
         message = "Making the predictions",
         detail = "May take a minute or two...", 
         value = 0, 
         {
-          x %>% 
+          return_predictions %>% 
             pxtextmineR::factory_predict_unlabelled_text_r(
               predictor = text_col,
               pipe_path_or_object = pipe_path,
@@ -75,15 +84,7 @@ mod_predictions_unlabelled_data_server <- function(id, x, target, text_col,
     
     output$predictions <- reactable::renderReactable({
       
-      return_predictions <- dataPredictions()
-      
-      if(isTruthy(input$select_organisation)){
-        
-        return_predictions <- return_predictions %>% 
-          filter(organization %in% input$select_organisation)
-      }
-      
-      return_predictions %>% 
+      dataPredictions() %>% 
         dplyr::filter(
           dplyr::across(
             dplyr::all_of(preds),
