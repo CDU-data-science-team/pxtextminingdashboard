@@ -1,6 +1,6 @@
 Package: pxtextminingdashboard
 Title: Text Mining Dashboard of Patient Experience Feedback
-Version: 0.6.1
+Version: 0.6.2
 Authors@R: person('Andreas', 'Soteriades', email = 'andreas.soteriades@nottshc.nhs.uk', role = c('cre', 'aut'))
 Description: Text Mining Dashboard of Patient Experience Feedback.
 License: MIT + file LICENSE
