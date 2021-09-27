@@ -37,7 +37,6 @@ Imports:
     pxtextmineR,
     stringr
 Remotes: 
-    CDU-data-science-team/nottshcMethods,
     CDU-data-science-team/experienceAnalysis
 Encoding: UTF-8
 LazyData: true
