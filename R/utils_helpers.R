@@ -100,7 +100,6 @@ prep_all_pipeline_tuning_results <- function(x) {
 prep_best_estimators <- function(x) {
   
   best_estimators <- x %>%
-    dplyr::mutate(learner = sub("\\(.*", "", param_clf__estimator)) %>%
     dplyr::group_by(learner) %>%
     dplyr::arrange(
       dplyr::desc(tidyselect::all_of("mean_test_Class Balance Accuracy"))
