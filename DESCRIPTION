@@ -34,7 +34,8 @@ Imports:
     yardstick,
     textdata,
     pxtextmineR,
-    stringr
+    stringr,
+    ggraph
 Remotes: 
     CDU-data-science-team/nottshcMethods
     CDU-data-science-team/experienceAnalysis

@@ -32,6 +32,7 @@ usethis::use_package("tidyr")
 usethis::use_package("tidytext")
 usethis::use_package("yardstick")
 usethis::use_package("textdata")
+usethis::use_package("ggraph")
 
 ## Add modules ----
 ## Create a module infrastructure in R/

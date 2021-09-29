@@ -99,7 +99,8 @@ suce <- suce_tbl %>%
   dplyr::mutate(organization = "Trust A", 
                 question = paste0("Trust A - Q", 
                                   stringr::str_sub(comment_type, -1))) %>% 
-  dplyr::select(-comment_type)
+  dplyr::select(-comment_type) %>% 
+  dplyr::mutate(criticality = as.character(criticality))
 
 # add the other two trusts
 
@@ -108,16 +109,17 @@ two_trusts <- readr::read_csv("data-raw/text_data.csv")
 two_trusts <- two_trusts %>% 
   dplyr::mutate(code = toupper(code)) %>% 
   dplyr::filter(organization != "Trust A") %>% 
-  dplyr::select(-row_index) 
-  
-final <- rbind(care_opinion, suce, two_trusts) %>% 
+  dplyr::select(-row_index)
+
+final <- rbind(suce, two_trusts) %>% 
   dplyr::mutate(row_index = 0:(nrow(.) - 1)) %>% 
   dplyr::mutate(
     criticality = dplyr::case_when(
-      criticality == -5 ~ -4L,
-      criticality == 5 ~ 4L,
-      criticality >= -4 & criticality <=4 ~ criticality,
-      TRUE ~ NA
+      criticality == "-5" ~ "-4",
+      criticality == "5" ~ "4",
+      criticality %in% c("-4", "-3", "-2", "-1", "0",
+                         "4", "3", "2", "1") ~ criticality,
+      TRUE ~ NA_character_
     )
   )
 
@@ -174,6 +176,8 @@ tuning_results_criticality <- DBI::dbGetQuery(
 
 ### Write data to 'data' folder in RDA format ###
 usethis::use_data(text_data, overwrite = TRUE)
+
+# write unlabelled 
 
 usethis::use_data(row_index_label, overwrite = TRUE)
 usethis::use_data(tuning_results_label, overwrite = TRUE)
