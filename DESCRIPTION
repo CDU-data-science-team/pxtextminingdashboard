@@ -1,48 +1,46 @@
 Package: pxtextminingdashboard
 Title: Text Mining Dashboard of Patient Experience Feedback
-Version: 0.6.1
+Version: 0.6.5
 Authors@R: person('Andreas', 'Soteriades', email = 'andreas.soteriades@nottshc.nhs.uk', role = c('cre', 'aut'))
 Description: Text Mining Dashboard of Patient Experience Feedback.
 License: MIT + file LICENSE
 Imports: 
-    config (>= 0.3),
-    golem (>= 0.3.0),
-    shiny (>= 1.5.0),
-    processx,
     attempt,
-    DT,
-    glue,
-    htmltools,
-    shinydashboard,
-    reactable,
-    dplyr,
-    ggplot2,
-    magrittr,
-    tidytext,
-    pkgload,
-    plotly,
-    igraph,
-    ggthemes,
-    quanteda,
-    tidyr,
-    textdata,
+    config (>= 0.3),
     DBI,
-    odbc,
-    shinycssloaders,
-    reticulate,
+    dplyr,             
+    DT,
     experienceAnalysis,
-    yardstick,
+    ggplot2,
+    ggraph,
+    ggthemes,
+    glue,
+    golem (>= 0.3.0),
+    htmltools,
+    igraph,
+    magrittr,
+    odbc,
+    pkgload,
+    processx,
+    reactable,
+    reticulate,
+    shiny (>= 1.5.0),
+    shinycssloaders,
+    shinydashboard,
+    stringr,
     textdata,
     pxtextmineR,
     stringr,
     ggraph
+    tidyr,
+    tidytext,
+    yardstick
 Remotes: 
-    CDU-data-science-team/nottshcMethods
-    CDU-data-science-team/experienceAnalysis
+    CDU-data-science-team/experienceAnalysis,
     nhs-r-community/pxtextmineR
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     testthat,
     spelling,
