@@ -175,6 +175,10 @@ tuning_results_criticality <- DBI::dbGetQuery(
   'SELECT * FROM tuning_results_criticality')
 
 ### Write data to 'data' folder in RDA format ###
+
+text_data <- text_data %>% 
+  dplyr::filter(!is.na(criticality))
+
 usethis::use_data(text_data, overwrite = TRUE)
 
 # write unlabelled 

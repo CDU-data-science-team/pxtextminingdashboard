@@ -1,0 +1,13 @@
+name: text_mining_dashboard
+title: text_mining_dashboard
+username: chrisbeeley
+account: chrisbeeley
+server: involve.nottshc.nhs.uk
+hostUrl: https://involve.nottshc.nhs.uk/rsconnect/__api__
+appId: 54
+bundleId: 3862
+url: https://involve.nottshc.nhs.uk/rsconnect/text_mining_dashboard/
+when: 1632924804.9363
+lastSyncTime: 1632924804.93631
+asMultiple: FALSE
+asStatic: FALSE
