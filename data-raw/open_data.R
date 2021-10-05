@@ -176,8 +176,13 @@ tuning_results_criticality <- DBI::dbGetQuery(
 
 ### Write data to 'data' folder in RDA format ###
 
-text_data <- text_data %>% 
-  dplyr::filter(!is.na(criticality))
+# save CO data in csv for repo
+
+care_opinion <- care_opinion %>% 
+  dplyr::mutate(code = tolower(code),
+                row_index = 0 : (nrow(.) - 1))
+
+write.csv(care_opinion, file = "~/co.csv", row.names = FALSE)
 
 usethis::use_data(text_data, overwrite = TRUE)
 

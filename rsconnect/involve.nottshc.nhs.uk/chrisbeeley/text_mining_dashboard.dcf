@@ -5,9 +5,9 @@ account: chrisbeeley
 server: involve.nottshc.nhs.uk
 hostUrl: https://involve.nottshc.nhs.uk/rsconnect/__api__
 appId: 54
-bundleId: 3862
+bundleId: 3894
 url: https://involve.nottshc.nhs.uk/rsconnect/text_mining_dashboard/
-when: 1632924804.9363
-lastSyncTime: 1632924804.93631
+when: 1633010262.08918
+lastSyncTime: 1633010262.08919
 asMultiple: FALSE
 asStatic: FALSE
